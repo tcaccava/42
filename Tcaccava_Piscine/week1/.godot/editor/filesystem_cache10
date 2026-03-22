@@ -1,0 +1,18 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1759513178
+README.md::TextFile::-1::1759438221::0::1::::<><><>0<>0<><>::
+::res://assets/::1759436758
+'90s vehicles.png::CompressedTexture2D::7444187469182526227::1759262355::1759436757::1::::<><><>0<>0<>17010535a83fff2a1234c95c2cbf7113<>res://.godot/imported/'90s vehicles.png-d6c76fcc25e6fe2a16215150778694e9.ctex::
+BD001.png::CompressedTexture2D::2088117517169648511::1759244963::1759436757::1::::<><><>0<>0<>16388db057764fa8afcbd9f47a6d84cd<>res://.godot/imported/BD001.png-6834463e162c15f45183f893e2eef0d6.ctex::
+BL001.png::CompressedTexture2D::8962125992711626556::1759244966::1759436757::1::::<><><>0<>0<>e17d0518cdc4ee2f47e55c54fa34be52<>res://.godot/imported/BL001.png-db7f3ecef88c0d8611698afa04f7ca78.ctex::
+CP_V1.0.4.png::CompressedTexture2D::7583978819429882793::1759244976::1759436758::1::::<><><>0<>0<>a6b7f07e458ec3f8a2849500631bedc1<>res://.godot/imported/CP_V1.0.4.png-6c63ef8e09e43083adef157c9e5d2ca3.ctex::
+down.png::CompressedTexture2D::907189828112180703::1759263465::1759436757::1::::<><><>0<>0<>269403e0d90eed2f3aa37645a4087d8c<>res://.godot/imported/down.png-f1bd9e462839d5daac955a706cd165be.ctex::
+icon.svg::CompressedTexture2D::4381555659625194279::1759244899::1759436758::1::::<><><>0<>0<>70cb2939d2cee10cd7ec82a590022848<>res://.godot/imported/icon.svg-56083ea2a1f1a4f1e49773bdc6d7826c.ctex::
+left.png::CompressedTexture2D::1342741777545604159::1759263554::1759436758::1::::<><><>0<>0<>3bd892e4d2cdd3081c71107d26035af2<>res://.godot/imported/left.png-23b9104313d414f3d7b5041f7360b7ac.ctex::
+right.png::CompressedTexture2D::4844067748759636104::1759263287::1759436758::1::::<><><>0<>0<>dcc34a628f376660c17b581532d4594e<>res://.godot/imported/right.png-58eb2791d49b1886c746c33e7d808c7a.ctex::
+SL001.png::CompressedTexture2D::7116573823895481563::1759244969::1759436758::1::::<><><>0<>0<>e5b2fccbc57a1b8e99b61804fc07599d<>res://.godot/imported/SL001.png-51a5f6d7f1f1dd2d306bde5e26347e4b.ctex::
+up.png::CompressedTexture2D::5626147694834984657::1759263345::1759436758::1::::<><><>0<>0<>e90aad6fdf35e0e033a116b681611bee<>res://.godot/imported/up.png-205c82a426fafddbfd49566e37c03251.ctex::
+::res://scenes/::1759513077
+node_2d.tscn::PackedScene::3703811156004694374::1759513077::0::1::::<><><>0<>0<><>::uid://dgb0a1y246we8::::res://assets/CP_V1.0.4.png<>uid://cn2y7t6qlulm4::::res://scripts/taxi.gd<>uid://m6pjwhp01b72::::res://assets/down.png<>uid://teo04um6m2ad::::res://assets/left.png<>uid://cbarc83qn4d7e::::res://assets/right.png<>uid://cmfl3idxete3r::::res://assets/up.png
+::res://scripts/::1759457809
+taxi.gd::GDScript::5742549933846644209::1759457809::0::1::::<>CharacterBody2D<><>0<>0<><>::

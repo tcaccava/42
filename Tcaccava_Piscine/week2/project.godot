@@ -1,0 +1,25 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="City project"
+run/main_scene="uid://6gorhxorgo1n"
+config/features=PackedStringArray("4.5", "Forward Plus")
+config/icon="res://assets/icon.svg"
+
+[display]
+
+window/size/viewport_width=2560
+window/size/viewport_height=1440
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.007993159, 0.00848177, 0.006818819, 1)

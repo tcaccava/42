@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://csc366f3djw8k"]
+
+[ext_resource type="Script" uid="uid://b81g4mb1xj0xl" path="res://scripts/gas_station.gd" id="1_jwdhq"]
+[ext_resource type="Texture2D" uid="uid://doq1k47dryypd" path="res://assets/Senzanome.png" id="2_6hev2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jwdhq"]
+size = Vector2(29, 33)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6hev2"]
+size = Vector2(44, 51)
+
+[node name="GasStation" type="StaticBody2D"]
+script = ExtResource("1_jwdhq")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 16
+position = Vector2(-2, 0)
+scale = Vector2(0.08, 0.08)
+texture = ExtResource("2_6hev2")
+
+[node name="Collision_shape" type="CollisionShape2D" parent="."]
+position = Vector2(-2.5, -0.5)
+shape = SubResource("RectangleShape2D_jwdhq")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="Refueling_shape" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-4, -1.5)
+shape = SubResource("RectangleShape2D_6hev2")

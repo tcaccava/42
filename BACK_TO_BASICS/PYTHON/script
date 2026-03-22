@@ -1,0 +1,6 @@
+#!/bin/bash
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install websockets uvicorn fastapi requests websocket-client "uvicorn[standard]"
+echo "VENV pronto, attivarlo con source venv/bin/activate"

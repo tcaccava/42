@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=3 uid="uid://cypa4ittj2xi4"]
+
+[ext_resource type="Texture2D" uid="uid://cavkikec5w8wf" path="res://right.png" id="1_0hol4"]
+[ext_resource type="Script" uid="uid://dr6tjecki5n48" path="res://taxi.gd" id="1_q6r6c"]
+[ext_resource type="Texture2D" uid="uid://bm7x8x0aqynr5" path="res://up.png" id="2_q6r6c"]
+[ext_resource type="Texture2D" uid="uid://bsulsgyxvtkae" path="res://down.png" id="3_kdubu"]
+[ext_resource type="Texture2D" uid="uid://ds43ofmidaq77" path="res://left.png" id="4_d21ai"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0hol4"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_0hol4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_q6r6c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_kdubu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_d21ai")
+}],
+"loop": true,
+"name": &"new_animation",
+"speed": 5.0
+}]
+
+[node name="Spaceship" type="CharacterBody2D"]
+script = ExtResource("1_q6r6c")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_0hol4")
+animation = &"new_animation"
+frame = 3

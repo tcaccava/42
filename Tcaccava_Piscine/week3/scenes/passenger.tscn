@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://cfvparv4mgbmo"]
+
+[ext_resource type="Script" uid="uid://byaaunl0l58fh" path="res://scripts/passenger.gd" id="1_wcaas"]
+[ext_resource type="Texture2D" uid="uid://b6ewk70b1fdun" path="res://assets/pax1.png" id="2_1lms8"]
+[ext_resource type="Texture2D" uid="uid://hl5tct1wfa8g" path="res://assets/arrow_isometric.png" id="3_5uq2c"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wcaas"]
+size = Vector2(49, 52)
+
+[node name="Passenger" type="Area2D"]
+process_mode = 1
+z_index = 2
+position = Vector2(1, 0)
+script = ExtResource("1_wcaas")
+
+[node name="PassengerSprite" type="Sprite2D" parent="."]
+scale = Vector2(2.5, 2.5)
+texture = ExtResource("2_1lms8")
+
+[node name="Pickup" type="Sprite2D" parent="."]
+position = Vector2(0, -35)
+scale = Vector2(-0.85, 0.85)
+texture = ExtResource("3_5uq2c")
+region_enabled = true
+region_rect = Rect2(98.5, 95.625, 27.5, 34.125)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, -1)
+shape = SubResource("RectangleShape2D_wcaas")

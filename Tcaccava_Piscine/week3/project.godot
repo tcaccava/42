@@ -1,0 +1,35 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="City project"
+run/main_scene="uid://6gorhxorgo1n"
+config/features=PackedStringArray("4.4", "Forward Plus")
+config/icon="res://assets/icon.svg"
+
+[autoload]
+
+GlobalTimer="*res://scripts/timer.gd"
+
+[display]
+
+window/size/viewport_width=1225
+window/size/viewport_height=1150
+window/stretch/mode="viewport"
+window/stretch/scale=1.25
+
+[dotnet]
+
+project/assembly_name="City project"
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.00799316, 0.00848177, 0.00681882, 1)

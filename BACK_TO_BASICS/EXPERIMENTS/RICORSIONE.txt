@@ -1,0 +1,2 @@
+Tutto quello che c'e' da dire sulla ricorsione e' che essa fondamentalmente e':
+caso base + contributo locale + ritorno adeguato.

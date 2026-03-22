@@ -1,0 +1,782 @@
+==554365== Memcheck, a memory error detector
+==554365== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==554365== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==554365== Command: ./so_long map.ber
+==554365== 
+==554365== 
+==554365== Process terminating with default action of signal 2 (SIGINT)
+==554365==    at 0x48529E0: memmove (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CE5D0A: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE61D0: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6A08: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6B1F: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE7D67: xcb_writev (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48B46BD: _XSend (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7CA8: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A4290: XPending (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x1118AC: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== HEAP SUMMARY:
+==554365==     in use at exit: 828,790 bytes in 3,727 blocks
+==554365==   total heap usage: 1,348,493 allocs, 1,344,766 frees, 35,817,091 bytes allocated
+==554365== 
+==554365== 3 bytes in 1 blocks are still reachable in loss record 1 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4B5758E: strdup (strdup.c:42)
+==554365==    by 0x48A2B45: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 8 bytes in 1 blocks are still reachable in loss record 2 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4B5758E: strdup (strdup.c:42)
+==554365==    by 0x489F9AE: XInitExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49B9820: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 8 bytes in 1 blocks are still reachable in loss record 3 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B7B34: ??? (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B99DF: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 10 bytes in 1 blocks are still reachable in loss record 4 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4B5758E: strdup (strdup.c:42)
+==554365==    by 0x489F9AE: XInitExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4909213: XkbUseExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A36A8: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 16 bytes in 1 blocks are still reachable in loss record 5 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CE92EE: xcb_connect_to_fd (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE9E6B: xcb_connect_to_display_with_auth_info (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48B2EE9: _XConnectXCB (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A2B68: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 21 bytes in 1 blocks are still reachable in loss record 6 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A303E: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 24 bytes in 1 blocks are still reachable in loss record 7 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B9041: XextCreateExtension (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B94CC: ??? (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B99C8: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 24 bytes in 1 blocks are still reachable in loss record 8 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4B5758E: strdup (strdup.c:42)
+==554365==    by 0x489F9AE: XInitExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49B9820: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B950A: ??? (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B99C8: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 24 bytes in 1 blocks are still reachable in loss record 9 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B99F5: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 29 bytes in 1 blocks are still reachable in loss record 10 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x489C0CD: _XUpdateAtomCache (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489E929: XInternAtom (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111499: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 32 bytes in 1 blocks are still reachable in loss record 11 of 77
+==554365==    at 0x48487A9: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CED15E: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CED237: xcb_get_extension_data (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CED2EE: xcb_prefetch_maximum_request_length (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CED364: xcb_get_maximum_request_length (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48A352B: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 32 bytes in 1 blocks are still reachable in loss record 12 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CE61B7: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6A08: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6EB0: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE7E44: xcb_wait_for_reply (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CED292: xcb_get_extension_data (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CED2EE: xcb_prefetch_maximum_request_length (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CED364: xcb_get_maximum_request_length (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48A352B: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 32 bytes in 1 blocks are still reachable in loss record 13 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B97FF: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 32 bytes in 1 blocks are still reachable in loss record 14 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B97FF: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B950A: ??? (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B99C8: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 33 bytes in 1 blocks are still reachable in loss record 15 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x489C0CD: _XUpdateAtomCache (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489E929: XInternAtom (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111484: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 40 bytes in 1 blocks are still reachable in loss record 16 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B31F1: _XPollfdCacheInit (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A2E71: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 48 bytes in 1 blocks are still reachable in loss record 17 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B2E71: _XConnectXCB (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A2B68: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 48 bytes in 1 blocks are still reachable in loss record 18 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B2E87: _XConnectXCB (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A2B68: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 48 bytes in 1 blocks are still reachable in loss record 19 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49014C0: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 72 bytes in 1 blocks are still reachable in loss record 20 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A2F20: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 72 bytes in 1 blocks are still reachable in loss record 21 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49014A4: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 22 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EA96: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 23 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EABC: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 24 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EAE2: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 25 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB08: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 26 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB2E: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 27 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB54: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 28 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB7A: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 88 bytes in 1 blocks are still reachable in loss record 29 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1131B5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBA0: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 112 bytes in 1 blocks are still reachable in loss record 30 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B2D72: _XConnectXCB (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A2B68: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 112 bytes in 1 blocks are still reachable in loss record 31 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A3200: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 128 bytes in 1 blocks are still reachable in loss record 32 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A312E: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 128 bytes in 1 blocks are still reachable in loss record 33 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x489F99E: XInitExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4909213: XkbUseExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A36A8: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 128 bytes in 1 blocks are still reachable in loss record 34 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x489F99E: XInitExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49B9820: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 128 bytes in 1 blocks are still reachable in loss record 35 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x489F99E: XInitExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49B9820: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B950A: ??? (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B99C8: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 36 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x1113FA: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 37 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EA96: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 38 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EABC: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 39 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EAE2: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 40 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB08: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 41 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB2E: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 42 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB54: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 43 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EB7A: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 136 bytes in 1 blocks are still reachable in loss record 44 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B80C3: XShmCreateImage (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x1131E5: mlx_int_new_xshm_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x113473: mlx_new_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1124BE: mlx_int_parse_xpm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x112A1B: mlx_xpm_file_to_image (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBA0: load_images (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC0F: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 145 bytes in 1 blocks are still reachable in loss record 45 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A3710: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 152 bytes in 1 blocks are still reachable in loss record 46 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x490940E: XkbUseExtension (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A36A8: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 160 bytes in 1 blocks are still reachable in loss record 47 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48919EF: XCreateGC (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A35A4: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 160 bytes in 1 blocks are still reachable in loss record 48 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48919EF: XCreateGC (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x1117C7: mlx_new_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC36: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 168 bytes in 1 blocks are still reachable in loss record 49 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A30B2: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 208 bytes in 1 blocks are still reachable in loss record 50 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49B7AE9: ??? (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49B99DF: XextAddDisplay (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x49BE9E2: XShmQueryVersion (in /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0)
+==554365==    by 0x111530: mlx_int_deal_shm (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x1114A5: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 208 bytes in 1 blocks are still reachable in loss record 51 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B8EC0: _XReadEvents (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B9205: XWindowEvent (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111A31: mlx_int_wait_first_expose (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111802: mlx_new_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC36: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 224 bytes in 1 blocks are still reachable in loss record 52 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x110811: allocate_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBF9: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 256 bytes in 1 blocks are still reachable in loss record 53 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x490655D: XkbAllocClientMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49010DE: _XkbReadGetMapReply (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x490141E: XkbGetUpdatedMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49014F4: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 344 bytes in 6 blocks are still reachable in loss record 54 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49008F5: _XkbReadGetMapReply (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x490141E: XkbGetUpdatedMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49014F4: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 512 bytes in 1 blocks are still reachable in loss record 55 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x489E46A: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489E84E: XInternAtom (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111484: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 528 bytes in 33 blocks are still reachable in loss record 56 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CE6425: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6A08: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6B1F: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE7D67: xcb_writev (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48B46BD: _XSend (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7CA8: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A4290: XPending (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x1118AC: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 936 bytes in 1 blocks are still reachable in loss record 57 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x111729: mlx_new_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC36: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 1,120 bytes in 1 blocks are still reachable in loss record 58 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4906619: XkbAllocClientMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4900EB7: _XkbReadGetMapReply (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x490141E: XkbGetUpdatedMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49014F4: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 1,224 bytes in 34 blocks are still reachable in loss record 59 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CE61B7: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6A08: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE6B1F: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE7D67: xcb_writev (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48B46BD: _XSend (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7CA8: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A4290: XPending (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x1118AC: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 1,248 bytes in 6 blocks are still reachable in loss record 60 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B8F01: _XReadEvents (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B9205: XWindowEvent (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111A31: mlx_int_wait_first_expose (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111802: mlx_new_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC36: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 1,248 bytes in 6 blocks are still reachable in loss record 61 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B8EC0: _XReadEvents (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B91D0: XWindowEvent (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111A31: mlx_int_wait_first_expose (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111802: mlx_new_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC36: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 1,248 bytes in 6 blocks are still reachable in loss record 62 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7C69: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489287D: XFlush (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111C50: mlx_put_image_to_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110C07: render_tile (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10F043: render_map_row (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110A8E: render_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5FE: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 1,809 bytes in 27 blocks are still reachable in loss record 63 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x10F224: ft_strdup (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110958: fill_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC06: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 1,872 bytes in 9 blocks are still reachable in loss record 64 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B8F01: _XReadEvents (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B91D0: XWindowEvent (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111A31: mlx_int_wait_first_expose (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111802: mlx_new_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EC36: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 2,016 bytes in 27 blocks are still reachable in loss record 65 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x49007DD: _XkbReadGetMapReply (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x490141E: XkbGetUpdatedMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49014F4: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 2,048 bytes in 1 blocks are still reachable in loss record 66 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4900914: _XkbReadGetMapReply (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x490141E: XkbGetUpdatedMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49014F4: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 4,096 bytes in 1 blocks are still reachable in loss record 67 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x490113E: _XkbReadGetMapReply (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x490141E: XkbGetUpdatedMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49014F4: XkbGetMap (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4901542: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x49018AF: XkbKeycodeToKeysym (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x112DBD: mlx_int_param_KeyPress (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x111949: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E669: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 4,704 bytes in 1 blocks are still reachable in loss record 68 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A2B31: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 8,320 bytes in 40 blocks are still reachable in loss record 69 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7C69: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489287D: XFlush (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111C50: mlx_put_image_to_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110B4A: render_tile (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10F043: render_map_row (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110A8E: render_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5FE: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 8,736 bytes in 42 blocks are still reachable in loss record 70 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7C69: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489287D: XFlush (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111B54: mlx_string_put (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EE78: display_moves (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110AA5: render_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5FE: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 9,572 bytes in 1 blocks are still reachable in loss record 71 of 77
+==554365==    at 0x484DCD3: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CE94FB: xcb_connect_to_fd (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE9E6B: xcb_connect_to_display_with_auth_info (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48B2EE9: _XConnectXCB (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A2B68: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 16,384 bytes in 1 blocks are still reachable in loss record 72 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A2EBE: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 21,168 bytes in 1 blocks are still reachable in loss record 73 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x4CE9204: xcb_connect_to_fd (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x4CE9E6B: xcb_connect_to_display_with_auth_info (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==554365==    by 0x48B2EE9: _XConnectXCB (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48A2B68: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 21,840 bytes in 2 blocks are still reachable in loss record 74 of 77
+==554365==    at 0x484DA83: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48A3290: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111412: mlx_init (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10EBD6: init_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5F2: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 122,096 bytes in 587 blocks are still reachable in loss record 75 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7C69: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489287D: XFlush (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111C50: mlx_put_image_to_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110B0E: render_tile (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10F043: render_map_row (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110A8E: render_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5FE: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 231,088 bytes in 1,111 blocks are still reachable in loss record 76 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7C69: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x489287D: XFlush (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111C50: mlx_put_image_to_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110BC2: render_tile (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10F043: render_map_row (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110A8E: render_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10E5FE: main (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== 359,632 bytes in 1,729 blocks are still reachable in loss record 77 of 77
+==554365==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==554365==    by 0x48B4FAE: _XEnq (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7BB6: ??? (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7C69: _XEventsQueued (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x48B7F5C: _XGetRequest (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x4891D0E: XCopyArea (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==554365==    by 0x111C3C: mlx_put_image_to_window (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110B0E: render_tile (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x10F043: render_map_row (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x110A8E: render_map (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x11128D: update_game (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365==    by 0x11196E: mlx_loop (in /nfs/homes/tcaccava/PROGETTI COMPLETATI/SO_LONG/pushmlx/so_long)
+==554365== 
+==554365== LEAK SUMMARY:
+==554365==    definitely lost: 0 bytes in 0 blocks
+==554365==    indirectly lost: 0 bytes in 0 blocks
+==554365==      possibly lost: 0 bytes in 0 blocks
+==554365==    still reachable: 828,790 bytes in 3,727 blocks
+==554365==         suppressed: 0 bytes in 0 blocks
+==554365== 
+==554365== For lists of detected and suppressed errors, rerun with: -s
+==554365== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 1 from 1)

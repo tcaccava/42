@@ -1,0 +1,58 @@
+[gd_scene load_steps=3 format=3 uid="uid://dajmr6b2k84bg"]
+
+[ext_resource type="Script" uid="uid://bbejgvfet2mdx" path="res://scripts/pause.gd" id="1_f1d2v"]
+[ext_resource type="AudioStream" uid="uid://vsfgno4hrb6v" path="res://assets/analog-appliance-button-15-186961.mp3" id="2_r8yp4"]
+
+[node name="Pause" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_f1d2v")
+metadata/_edit_use_anchors_ = true
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 0, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -96.5
+offset_right = 100.0
+offset_bottom = 96.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(2.93689e-05, 2.93689e-05, 2.93689e-05, 1)
+theme_override_font_sizes/font_size = 64
+text = "PAUSE"
+
+[node name="Resume" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.301961, 0.847059, 0.937255, 1)
+text = "RESUME"
+
+[node name="Restart" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.309804, 0.847059, 0.937255, 1)
+text = "RESTART"
+
+[node name="Menu" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.309804, 0.847059, 0.937255, 1)
+text = "MENU"
+
+[node name="PauseSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_r8yp4")
+volume_db = 2.0
