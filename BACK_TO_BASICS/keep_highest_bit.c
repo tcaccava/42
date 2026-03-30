@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-unsigned char keep_highest_bit(unsigned char n) {
-    int i = 0;
-    while(!((n << i++) & 128));
-    return 1 << 8 - i;
-}
+// unsigned char keep_highest_bit(unsigned char n) {
+//     int i = 0;
+//     while(!((n << i++) & 128));
+//     return 1 << 8 - i;
+// }
 
 // keep_highest_bit: azzera tutti i bit tranne il piu' alto acceso
 //
@@ -44,12 +44,12 @@ unsigned char keep_highest_bit(unsigned char n) {
 // --------
 // 00100000  ← solo il bit piu' alto ✓
  
-// unsigned char keep_highest_bit(unsigned char n) {
-//     n |= n >> 1;  // propaga di 1
-//     n |= n >> 2;  // propaga di 2
-//     n |= n >> 4;  // propaga di 4 → tutti i bit sotto il piu' alto sono accesi
-//     return n - (n >> 1);  // rimuovi tutto tranne il bit piu' alto
-// }
+unsigned char keep_highest_bit(unsigned char n) {
+    n |= n >> 1;  // propaga di 1
+    n |= n >> 2;  // propaga di 2
+    n |= n >> 4;  // propaga di 4 → tutti i bit sotto il piu' alto sono accesi
+    return n - (n >> 1);  // rimuovi tutto tranne il bit piu' alto
+}
  
 
 // int main() {

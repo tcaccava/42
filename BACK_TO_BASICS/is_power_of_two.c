@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int is_power_of_two(unsigned int n){
-    return (n >0 && !(n & (n - 1)));
+    return (n > 0 && !(n & (n - 1)));
 }
 
 int main() {
