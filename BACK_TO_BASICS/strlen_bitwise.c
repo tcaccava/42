@@ -7,7 +7,7 @@ size_t strlen_hex(const char *s)
     const char *p = s;
 
     // allineamento fino a 8 byte
-    while (((uintptr_t)p) % 8 != 0)
+    while (((uintptr_t)p) & 7)
     {
         if (*p == 0)
             return p - s;
