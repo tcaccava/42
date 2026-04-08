@@ -11,7 +11,7 @@
 // STRUTTURA GENERALE — tre fasi
 // -----------------------------------------------------------------------------
 // La CPU puo' leggere 8 byte alla volta solo da indirizzi multipli di 8.
-// Se il puntatore s non e' allineato a 8, leggere un uint64_t causa
+// Se il puntatore s non e' allineato a 8, leggere un __uint64_t causa
 // undefined behavior (o bus error su ARM).
 // Per questo la funzione e' divisa in tre fasi:
 //
@@ -39,22 +39,22 @@
 // -----------------------------------------------------------------------------
 // FASE 2 — SWAR: COME FUNZIONA LA DETECTION
 // -----------------------------------------------------------------------------
-// Obiettivo: trovare il byte c dentro un uint64_t in una manciata di istruzioni,
+// Obiettivo: trovare il byte c dentro un __uint64_t in una manciata di istruzioni,
 // senza loop su 8 byte.
 //
 // PASSO 1: costruisci il pattern
-// c * 0x0101010101010101ULL replica c in tutti e 8 i byte del uint64_t.
+// c * 0x0101010101010101ULL replica c in tutti e 8 i byte del __uint64_t.
 // se c = 0x46 ('F'), pattern = 0x4646464646464646ULL
 //
 // PASSO 2: XOR block con pattern
-// uint64_t x = block ^ pattern
+// __uint64_t x = block ^ pattern
 // XOR trasforma ogni byte uguale a c in 0x00, lascia gli altri non-zero.
 // Perche': a ^ a = 0 per qualsiasi a. Quindi i byte uguali a c diventano 0,
 // i byte diversi diventano qualcosa di non-zero.
 // Adesso il problema e' diventato: trovare un byte zero dentro x.
 //
 // PASSO 3: la maschera SWAR per trovare byte zero
-// uint64_t mask = (x - 0x0101010101010101ULL) & ~x & 0x8080808080808080ULL
+// __uint64_t mask = (x - 0x0101010101010101ULL) & ~x & 0x8080808080808080ULL
 //
 // Questa e' la parte piu' sottile. Spieghiamo pezzo per pezzo.
 //
@@ -105,44 +105,55 @@
 // La combinazione (x - 0x0101...) & ~x garantisce che solo i byte zero
 // producano bit 7 acceso — gli altri vengono azzerati dall'AND.
 
-unsigned char *ft_memchr(unsigned char *s, unsigned char c, size_t n) {
+unsigned char *ft_memchr(unsigned char *s, unsigned char c, size_t n)
+{
 
     // FASE 1: byte per byte fino all'allineamento a 8
     // ((uintptr_t)s & 7) e' il numero di byte mancanti all'allineamento
-    while (n > 0 && ((uintptr_t)s & 7)) {
-        if (*s == c) return s;
-        s++; n--;
+    while (n > 0 && ((uintptr_t)s & 7))
+    {
+        if (*s == c)
+            return s;
+        s++;
+        n--;
     }
 
     // FASE 2: SWAR — 8 byte alla volta
-    uint64_t pattern = (uint64_t)c * 0x0101010101010101ULL;
-    while (n >= 8) {
-        uint64_t block = *(uint64_t *)s;
-        uint64_t x     = block ^ pattern;
-        uint64_t mask  = (x - 0x0101010101010101ULL) & ~x & 0x8080808080808080ULL;
-        if (mask) {
+    __uint64_t pattern = (__uint64_t)c * 0x0101010101010101ULL;
+    while (n >= 8)
+    {
+        __uint64_t block = *(__uint64_t *)s;
+        __uint64_t x = block ^ pattern;
+        __uint64_t mask = (x - 0x0101010101010101ULL) & ~x & 0x8080808080808080ULL;
+        if (mask)
+        {
             // c trovato in questo blocco — cerca la posizione esatta
             for (int i = 0; i < 8; i++)
-                if (s[i] == c) return s + i;
+                if (s[i] == c)
+                    return s + i;
         }
         s += 8;
         n -= 8;
     }
 
     // FASE 3: byte per byte per i byte rimanenti (al massimo 7)
-    while (n > 0) {
-        if (*s == c) return s;
-        s++; n--;
+    while (n > 0)
+    {
+        if (*s == c)
+            return s;
+        s++;
+        n--;
     }
 
     return NULL;
 }
 
-int main() {
+int main()
+{
     unsigned char buff[] = {128, 123, 2, 11, 46, 55, 94};
     unsigned char *result = ft_memchr(buff, 46, 7);
     if (result)
-        printf("trovato: %d\n", *result);  // 46
+        printf("trovato: %d\n", *result); // 46
     else
         printf("non trovato\n");
 }
