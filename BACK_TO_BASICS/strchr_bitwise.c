@@ -8,7 +8,15 @@ char *bitwise_strchr(const char *s, int c)
 
     // replica il byte target su tutta una word da 64 bit
     uint64_t pattern = uc * 0x0101010101010101ULL;
-
+    // allineamento
+    while ((uintptr_t)p & 7)
+    {
+        if (*p == uc)
+            return (char *)p;
+        if (*p == 0)
+            return NULL;
+        p++;
+    }
     while (1)
     {
         // legge 8 byte consecutivi

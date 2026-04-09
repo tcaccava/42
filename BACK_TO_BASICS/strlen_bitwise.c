@@ -14,28 +14,20 @@ size_t strlen_hex(const char *s)
         p++;
     }
 
-    const uint64_t *w = (const uint64_t *)p;
-
     while (1)
     {
-        uint64_t v = *w;
+        uint64_t v = *(uint64_t *)p;
 
         // formula bitwise 64-bit con esadecimali
         if ((v - 0x0101010101010101ULL) & ~v & 0x8080808080808080ULL)
-            break;
-
-        w++;
+        {
+            while (*p++);
+            return --p - s;
+        }
+        p += 8;
     }
-
-    p = (const char *)w;
-
-    while (*p)
-        p++;
-
-    return p - s;
 }
-
-int main()
-{
-    printf("%zu\n", strlen_hex("ciao"));
-}
+// int main()
+// {
+//     printf("%zu\n", strlen_hex("ciaoarpgnrpgnrpougnqpoorgnnqowruugqpogqerpogeoguqroguunqerpoug"));
+// }
