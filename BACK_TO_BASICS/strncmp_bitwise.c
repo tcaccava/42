@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
-int ft_strncmp(const char *s1, const char *s2, size_t n) {
-    if(!n)
+int ft_strncmp(const char *s1, const char *s2, size_t n)
+{
+    if (!n)
         return 0;
     // allineamento
     while ((uintptr_t)s1 & 7 && *s1 && *s2 && n)
@@ -37,6 +38,6 @@ int ft_strncmp(const char *s1, const char *s2, size_t n) {
 
 int main()
 {
-    printf("%d\n", ft_strncmp("lollazzoaaaaaaaaaabbbbn", "lollazzoaaaaaaaaaabbbbc",23));
+    printf("%d\n", ft_strncmp("lollazzoaaaaaaaaaabbbbn", "lollazzoaaaaaaaaaabbbbc", 23));
     printf("%d\n", ft_strncmp("sollazzo", "lollazzo", 4));
 }
