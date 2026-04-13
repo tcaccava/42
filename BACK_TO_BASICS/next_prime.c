@@ -1,15 +1,18 @@
 #include <stdio.h>
 int is_prime(unsigned int c)
 {
+    if(c < 2)
+        return 0;
     if(c == 2)
         return 1;
-    if (~(c & 1))
-        return 
-
+    if (!(c & 1))
+        return 0;
+    int n = 3;
     while (n * n <= c)
     {
-        if (!(c % n++))
+        if (!(c % n))
             return 0;
+        n += 2;
     }
     return 1;
 }
@@ -23,7 +26,7 @@ unsigned int next_prime(unsigned int n)
 
 int main()
 {
-    printf("%d %d %d %d\n", is_prime(39), is_prime(57), is_prime(17), is_prime(29));
+    printf("%d %d %d %d\n", is_prime(1), is_prime(57), is_prime(17), is_prime(29));
     printf("%d\n", next_prime(8));
 }
 
