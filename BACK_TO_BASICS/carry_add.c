@@ -16,7 +16,7 @@ unsigned char ft_carry_add(unsigned char a, unsigned char b, unsigned char *carr
     return b;
 }
 
-
+    //versione meno efficiente con ricorsione
     // unsigned char ft_carry_add(unsigned char a, unsigned char b, unsigned char *carry)
     // {
     //     unsigned char and = a & b;
