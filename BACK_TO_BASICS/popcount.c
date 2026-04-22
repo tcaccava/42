@@ -1,5 +1,24 @@
 #include <stdio.h>
+
+int count_bits(unsigned char n)
+{
+    int result = 0;
+    for (int i = 7; i >= 0; i--)
+        result += ((n >> i) & 1);
+    return result;
+}
+// oppure algoritmo di Brian Kernighan's
+//  int count_bits(unsigned char n) {
+//      int result = 0;
+//      while (n) {
+//          n &= n - 1;  // spegne il bit più basso acceso ad ogni iterazione,efficiente per numeri con pochi bit accesi
+//          result++;
+//      }
+//      return result;
+//  }
+
 //popcount,conta il numero di bit accesi,chiamato cosi in onore di Richard Hamming
+
 unsigned char hamming_weight(unsigned char n) {
     //approccio SWAR puro
     unsigned char even_bits = n & 0b01010101;//bit in posizione 0 2 4 6 con 0x55
@@ -35,9 +54,12 @@ unsigned char hamming_weight(unsigned char n) {
 //nibble basso con 0x0f = 00000010
 //nibble alto con 0xF0 = 00100000
 //shifto il nibble alto di 4 a destra = 00000010
-//sommo e ottengo la somma finane = 00000100,cioe' 4
-int main() {
-    printf("%d\n", hamming_weight(0b00110101));
-    printf("%d\n", hamming_weight(0b11111111));
-    printf("%d\n", hamming_weight(0b11111001));
-}
+//sommo e ottengo la somma finale = 00000100,cioe' 4
+// int main() {
+//     printf("%d\n", hamming_weight(0b00110101));
+//     printf("%d\n", hamming_weight(0b11111111));
+//     printf("%d\n", hamming_weight(0b11111001));
+//     printf("%d\n", count_bits(255)); // 8
+//     printf("%d\n", count_bits(128)); // 1
+//     printf("%d\n", count_bits(127));
+// }
