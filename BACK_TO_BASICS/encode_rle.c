@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 // Run-Length Encoding ,comprime una sequenza di byte sostituendo sequenze ripetute con count e valore: es :AAABBC -> 3A2B1C
 // E' la base di compressori come PackBits usato in TIFF e PDF
 
@@ -7,7 +8,7 @@ void search_bits(unsigned char **src, unsigned char **dst, size_t n, unsigned ch
 {
     while (n--)
     {
-        if (*src == *previous)
+        if (**src == *previous)
             *count += 1;
         else
         {
@@ -15,11 +16,11 @@ void search_bits(unsigned char **src, unsigned char **dst, size_t n, unsigned ch
             (*dst)++;
             **dst = *previous;
             (*dst)++;
-            *previous = *src;
+            *previous = **src;
             *bytes_written += 2;
             *count = 1;
         }
-        src++;
+        (*src)++;
     }
 }
 
@@ -28,6 +29,8 @@ unsigned char ft_encode_rle(unsigned char *src, unsigned char *dst, size_t n)
     unsigned char count = 1;
     unsigned char bytes_written = 0;
     unsigned char previous = *src;
+    src++;
+    n--;
     while (n && (uintptr_t)src & 7)
     {
         if (*src == previous)
@@ -51,7 +54,7 @@ unsigned char ft_encode_rle(unsigned char *src, unsigned char *dst, size_t n)
         uint64_t diff = block ^ mask;
         if ((diff - 0x0101010101010101) & ~diff & 0x8080808080808080)
         {
-            search_bits(src, &dst, 8, &count, &bytes_written, &previous);
+            search_bits(&src, &dst, 8, &count, &bytes_written, &previous);
             n -= 8;
         }
         else
@@ -62,7 +65,7 @@ unsigned char ft_encode_rle(unsigned char *src, unsigned char *dst, size_t n)
         }
     }
     if (n)
-        search_bits(src, &dst, n, &count, &bytes_written, &previous);
+        search_bits(&src, &dst, n, &count, &bytes_written, &previous);
     if (count)
     {
         *dst++ = count;
@@ -73,7 +76,10 @@ unsigned char ft_encode_rle(unsigned char *src, unsigned char *dst, size_t n)
 }
 int main()
 {
-    char src[] = "cccccccccccccccciiiiiiiiiaaaaaaao";
-    char dst[30];
-    printf("%d\n", ft_encode_rle(src, dst, 35));
+    unsigned char src[] = "ccccccccccccccccciiiiiiiiiaaaaaaallllllllllllllllllllllzxyxxoop";
+    unsigned char dst[30];
+    printf("%d\n", ft_encode_rle(src, dst, strlen(src)));
+    for(int i = 0; i < 20; i++){
+        printf("%u ", dst[i]);
+    }
 }
