@@ -2,9 +2,9 @@
 // calcola il CRC-8 con polinomio 0x07 (x^8 + x^2 + x + 1).
 // Il CRC (Cyclic Redundancy Check) è un checksum — prendi un blocco di dati,
 // ci applichi una serie di XOR e shift, e ottieni un byte che "riassume" i dati.
-//  Se anche un solo bit cambia durante la trasmissione, il CRC cambia.
-//  usato in protocolli di comunicazione seriale (UART, SPI, I2C) e storage (hard disk, SSD)
-//  per rilevare errori di trasmissione. Il ricevitore ricalcola il CRC e confronta — se non coincide c'è stato un errore.
+// Se anche un solo bit cambia durante la trasmissione, il CRC cambia.
+// usato in protocolli di comunicazione seriale (UART, SPI, I2C) e storage (hard disk, SSD)
+// per rilevare errori di trasmissione. Il ricevitore ricalcola il CRC e confronta — se non coincide c'è stato un errore.
 // Il polinomio 0x07 determina quali bit fanno feedback, esattamente come i tap dell'LFSR:
 // 0x07 = 00000111 — rappresenta il polinomio x^2 + x + 1 in binario dove ogni bit è un coefficiente.
 // Il bit 2 è acceso → x^2, bit 1 → x, bit 0 → 1.Si chiama CRC-8 perché lavora su 8 bit, e il polinomio completo è x^8 + x^2 + x + 1;
