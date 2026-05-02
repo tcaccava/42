@@ -148,12 +148,12 @@ unsigned char *ft_memchr(unsigned char *s, unsigned char c, size_t n)
     return NULL;
 }
 
-int main()
-{
-    unsigned char buff[] = {128, 123, 2, 11, 46, 55, 94};
-    unsigned char *result = ft_memchr(buff, 46, 7);
-    if (result)
-        printf("trovato: %d\n", *result); // 46
-    else
-        printf("non trovato\n");
-}
+// int main()
+// {
+//     unsigned char buff[] = {128, 123, 2, 11, 46, 55, 94};
+//     unsigned char *result = ft_memchr(buff, 46, 7);
+//     if (result)
+//         printf("trovato: %d\n", *result); // 46
+//     else
+//         printf("non trovato\n");
+// }

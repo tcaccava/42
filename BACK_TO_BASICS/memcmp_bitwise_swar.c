@@ -45,9 +45,9 @@ int ft_memcmp(const unsigned char *s1, const unsigned char *s2, size_t n)
     return 0;
 }
 
-int main()
-{
-    unsigned char s1[] = {0x01, 0xff, 0x6a};
-    unsigned char s2[] = {0x01, 0xff, 0x5b};
-    printf("%d\n", ft_memcmp(s1, s2, 3));
-}
+// int main()
+// {
+//     unsigned char s1[] = {0x01, 0xff, 0x6a};
+//     unsigned char s2[] = {0x01, 0xff, 0x5b};
+//     printf("%d\n", ft_memcmp(s1, s2, 3));
+// }
