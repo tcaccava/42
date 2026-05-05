@@ -18,9 +18,11 @@ int utf8_charlen(unsigned char c) {
 //     return (ft_count_leading_ones(c) + (!ft_count_leading_ones(c)); 
 // }
 // Ovviamente bisogna passargli il PRIMO byte del carattere,non un byte successivo(per esempio un byte di continuazione): Garbage in,Garbage out.
-int main() {
-    printf("%d\n", utf8_charlen(0b11100010));
-    printf("%d\n", utf8_charlen(0b11000010));
-    printf("%d\n", utf8_charlen(0b11110010));
-    printf("%d\n", utf8_charlen(0b00000010));
-}
+
+
+// int main() {
+//     printf("%d\n", utf8_charlen(0b11100010));
+//     printf("%d\n", utf8_charlen(0b11000010));
+//     printf("%d\n", utf8_charlen(0b11110010));
+//     printf("%d\n", utf8_charlen(0b00000010));
+// }

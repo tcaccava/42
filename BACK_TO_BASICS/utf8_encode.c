@@ -34,7 +34,7 @@ int utf8_encode(unsigned int codepoint, unsigned char *out)
     }
     else if (codepoint > 0x7f && codepoint <= 0x7FF) // codepoint compreso tra 128 e 2^11 - 1,quindi puo' essere contenuto in due byte con codifica utf8,che possono contenere esattamente 11 bit di informazione
     {
-        out[1] = 0b10000000 | (codepoint & 0b00111111); // il byte 0 e' un byte di continuazione,quindi comincia con 10 e finisce con i 6 bit finali di codepoint
+        out[1] = 0b10000000 | (codepoint & 0b00111111); // il byte 1 e' un byte di continuazione,quindi comincia con 10 e finisce con i 6 bit finali di codepoint
         codepoint >>= 6;                                // ho consumato 6 bit,quindi aggiorno codepoint
         out[0] = 0b11000000 | (codepoint & 0b00011111); // il byte iniziale contiene l'header 110 per i caratteri utf8 a due bytes,e 5 bytes di informazione
         return 2;
