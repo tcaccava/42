@@ -28,6 +28,6 @@ int utf8_strlen(unsigned char *s)
 // }
 int main() {
     char *norm_string = "Hello";
-    char *utf8_string = "Héllo";
+    char *utf8_string = "Héllo";// questa ha sempre lunghezza 5 ma occupa 6 bytes
     printf("%d %d\n", utf8_strlen(norm_string),utf8_strlen(utf8_string));
 }

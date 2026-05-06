@@ -1,8 +1,9 @@
 #include <stdio.h>
 
-int ft_count_leading_ones(unsigned char n) {
+int ft_count_leading_ones(unsigned char n)
+{
     int i = 0;
-    for(; n << i & 128; i++);
+    for (; n << i & 128; i++);
     return i;
 }
 

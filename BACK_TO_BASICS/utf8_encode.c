@@ -62,10 +62,10 @@ int utf8_encode(unsigned int codepoint, unsigned char *out)
     return 0; // codepoint non valido o fuori standard Unicode.
 }
 
-int main()
-{
-    unsigned char out[4];
-    printf("%d\n", utf8_encode(0x1F4A9, out)); // 4 bytes
-    for (int i = 0; i < 4; i++)
-        printf("%X", out[i]); // cosi' l'emoji Pile of Poo,codepoint U+1F4A9, diventa F09F92A9
-}
+// int main()
+// {
+//     unsigned char out[4];
+//     printf("%d\n", utf8_encode(0x1F4A9, out)); // 4 bytes
+//     for (int i = 0; i < 4; i++)
+//         printf("%X", out[i]); // cosi' l'emoji Pile of Poo,codepoint U+1F4A9, diventa F09F92A9
+// }
