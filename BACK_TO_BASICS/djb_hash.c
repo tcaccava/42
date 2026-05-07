@@ -15,17 +15,18 @@
 // irreversibile di informazione: la maggior parte delle stringhe piu' comuni e' fatta di caratteri ascii,e questi usano solo 7 bit. Shiftando di 5
 // si crea una sovrapposizione parziale che mescola i bit dei vecchi e dei nuovi caratteri in modo caotico,che e' propio cio` che Berstein cercava.
 // Quindi si puo` dire che la base matematica esista,solo e' una base statistica ed euristica,non deterministica.
-// Inoltre moltiplicare hash * 33 equivale a shiftarlo di 5 volte a sinistra,quindi moltiplicare per 32,e poi aggiungere hash,e quindi e' un operazione
+// Inoltre moltiplicare hash * 33 equivale a shiftarlo di 5 volte a sinistra,e poi aggiungere hash,e quindi e' un operazione
 // che si presta ad essere eseguita usando operatori bitwise che la cpu esegue instantaneamente.
 // Esistono due varianti storiche di DJB2,una aggiunge il carattere al risultato della moltiplicazione,l'altra fa Xor con lo stesso. La variante originaria
 // usava l'addizione,ma molte implementazioni moderne usano lo XOR.
 // Questa funzione ha notevole importanza anche per la implementazione che la djb2 ha in Python: quando in questo linguaggi accedi ad una chiave per ottenere il valore
 // l'interprete non scorre tutti gli elementi del dizionario per trovare la chiave,ma la trasforma in un intero usando una funzione di hash. Fino a Python 3.2
-// la funzione integrata hash() era una variante diretta della logica di Bernstein.I dizionari Python,che sono a tutti gli effetti Hash Tables,usano proprio
+// la funzione integrata hash() era una variante modificata della logica di Bernstein.I dizionari Python,che sono a tutti gli effetti Hash Tables,usano proprio
 // questo algoritmo per accedere istantaneamente al valore associato alla chiave con un accesso istantaneo O(1),indipendentemente dal numero di chiavi nel dizionario.
-// Recentemente Python e' passato ad algoritmi piu' complessi come il SipHash,per motivi di sicurezza: un hacker potrebbe inviare migliaia di stringhe
+// Recentemente Python e' passato ad algoritmi piu' complessi come il SipHash cn seed randomico per ogni sessione,per motivi di sicurezza: un hacker potrebbe inviare migliaia di stringhe
 // ingegnerizzate a tavolino per ottenere lo stesso hash,il che renderebbe il dizionario catastroficamente lento fino a poter causare il crash del server: attacco Dos.
 // Per evitare questo Python usa il salting all'inizio di ogni sessione,rendendo questi attacchi impossibili.
+
 unsigned int hash_djb2(unsigned char *str)
 {
     unsigned int hash = 5381; // l'hash deve essere unsigned per una gestione pulita dell'overflow
@@ -38,5 +39,5 @@ int main()
 {
     unsigned char *s = "Hello";
     unsigned char *s2 = "hello";
-    printf("%u %u\n", hash_djb2(s), hash_djb2(s2));//due stringhe differenti solo per una lettera producono hash drammaticamente diversi
+    printf("%u %u\n", hash_djb2(s), hash_djb2(s2)); // due stringhe differenti solo per una lettera producono hash drammaticamente diversi
 }
