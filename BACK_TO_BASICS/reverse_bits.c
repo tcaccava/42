@@ -11,7 +11,7 @@ unsigned char reverse_bits(unsigned char n)
     }
     return rev;
 }
-// versione SWAR 
+// versione SWAR
 // unsigned char reverse_bits(unsigned char n)
 // {
 //     n = ((n & 0x55) << 1) | ((n & 0xAA) >> 1);
