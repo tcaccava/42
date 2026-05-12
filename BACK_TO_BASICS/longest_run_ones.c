@@ -9,7 +9,7 @@ unsigned char longest_run_ones(unsigned char n)
         if (n >> i & 1)
         {
             count++;
-            if(max < count)
+            if (max < count)
                 max = count;
         }
         else
@@ -17,19 +17,19 @@ unsigned char longest_run_ones(unsigned char n)
     }
     return max;
 }
-//oppure in maniera piu' efficiente usando il trick di Kernighan: itero su n finche' c'e' un bit acceso 
-// e con n&= n << 1 accorcio le sequenze accese di un bit contemporaneamente,il che significa che non itero
-//per forza 8 volte come sopra,ma solo tante volte quante e' lunga la sequenza piu' lunga, quindi banalmente su
-//00000001 non ha bisogno di iterare 8 volte,ma 1
-// unsigned char longest_run_ones(unsigned char n) {
-//     unsigned char max = 0, count = 0;
-//     while (n) {
-//         n &= n << 1;  // spegne il bit più basso di ogni sequenza
-//         count++;
-//         if (count > max) max = count;
-//     }
-//     return max;
-// }
+// oppure in maniera piu' efficiente usando il trick di Kernighan: itero su n finche' c'e' un bit acceso
+//  e con n &= n << 1 accorcio le sequenze accese di un bit contemporaneamente,il che significa che non itero
+// per forza 8 volte come sopra,ma solo tante volte quante e' lunga la sequenza piu' lunga, quindi banalmente su
+// 00000001 non ha bisogno di iterare 8 volte,ma 1
+//  unsigned char longest_run_ones(unsigned char n) {
+//      unsigned char max = 0, count = 0;
+//      while (n) {
+//          n &= n << 1;  // spegne il bit più basso di ogni sequenza
+//          count++;
+//          if (count > max) max = count;
+//      }
+//      return max;
+//  }
 int main()
 {
     printf("%d\n", longest_run_ones(0b11101110));
