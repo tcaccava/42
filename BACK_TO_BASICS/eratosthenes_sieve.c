@@ -18,14 +18,14 @@
 
 void sieve_of_eratosthenes(unsigned char *bitmap, int limit)
 {
-    for (int i = 0; i < (limit / 8); i++)
+    for (int i = 0; i < (limit + 7 >> 3); i++) // setto tutti i bit a 1,arrotondamento dei byte per eccesso per essere sicuri di coprire ogni bit
         bitmap[i] = 0xFF;
-    bitmap[0] &= ~3;
-    for (int prime = 2; prime * prime < limit; prime++)
+    bitmap[0] &= ~3;                                    // i primi due bit sono settati a 0 perche' 0 e 1 non sono primi
+    for (int prime = 2; prime * prime < limit; prime++) // parto da 2 e avanzo fino al quadrato del numero
     {
-        if ((bitmap[prime / 8] >> ((prime % 8)) & 1))
+        if ((bitmap[prime >> 3] >> ((prime & 7)) & 1)) // se quel bit e' acceso,allora spengo tutti i suoi multipli,partendo dal suo quadrato
             for (int i = prime * prime; i < limit; i += prime)
-                bitmap[i / 8] &= (~(1 << (i % 8)));
+                bitmap[i >> 3] &= (~(1 << (i & 7)));
     }
 }
 
