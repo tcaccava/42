@@ -96,3 +96,63 @@ int main()
 
     return 0;
 }
+
+// Bitonic Sort su Architetture Massivamente Parallele (GPU)
+// Il Bitonic Sort non è un semplice algoritmo di ordinamento sequenziale basato su confronti dinamici (come il QuickSort), ma appartiene alla categoria
+// delle Sorting Networks (reti di ordinamento). La sua caratteristica fondamentale è il determinismo: la sequenza dei confronti è rigida e predeterminata
+// a monte. Questo lo rende inefficiente su CPU singlo-thread (O(N log^2 N)$), ma lo trasforma nell'algoritmo matematicamente perfetto per l'hardware delle GPU,
+// dove riduce la complessità temporale parallela a O(log^2 N).
+// La Mappatura Hardware: 1 Thread = 1 Elemento
+// Nelle CPU tradizionali, il parallelismo divide l'array in grossi blocchi (chunk), assegnando ogni blocco a un thread che lo ordina autonomamente.
+// Nelle GPU questo approccio fallisce a causa dei tempi di completamento asimmetrici dei singoli core.
+// Il Bitonic Sort su GPU opera ribaltando questo paradigma: non divide l'array tra i core, ma divide le linee della rete di ordinamento.
+// Mappatura Atomica: viene allocato un Thread Virtuale per ogni singolo elemento dell'array. Se l'array ha N elementi, vengono lanciati N thread virtuali.
+// Il loop interno del codice CPU (for (int i = 0; i < n; i++)) scompare completamente. Viene sostituito dall'esecuzione simultanea dei thread hardware,
+// dove la variabile i diventa nativamente l'ID globale del thread (threadIdx.x o equivalente).
+// La Geometria dei Bit: XOR e AND senza Comunicazione
+// I thread della GPU eseguono il calcolo in parallelo senza scambiarsi messaggi o istruzioni, azzerando i tempi morti di comunicazione. Questo avviene grazie a due operatori bitwise:
+// 1)Calcolo del Partner tramite XOR (i ^ pass)
+// Il loop intermedio definisce la distanza di confronto (pass), che è sempre una potenza di 2 (quindi ha un solo bit acceso in binario).
+// Applicando l'operatore XOR tra l'ID del thread (i) e il pass corrente, ogni thread calcola istantaneamente e matematicamente l'indice del proprio partner di confronto (passj).
+// Lo XOR garantisce un accoppiamento perfetto a specchio. Se il Thread 0 calcola come partner il Thread 2, il Thread 2 calcolerà simmetricamente il Thread 0.
+// Per evitare che la stessa coppia esegua lo swap due volte annullandolo, la condizione if (passj > i) disattiva istantaneamente la metà superiore dei thread, lasciando solo i thread con ID inferiore a
+// gestire materialmente l'operazione di scambio.
+// 2)Determinazione della Direzione tramite AND (i & block)
+// Il Bitonic Sort richiede che l'array sia diviso in blocchi periodici in cui uno sale (Crescente) e quello successivo scende (Decrescente).
+// L'operazione (i & block) == 0 non è un confronto di grandezza, ma un controllo di periodicità (frequenza d'onda) basato sui bit dell'indice. Determina istantaneamente se il thread si
+// trova in una zona geometrica che deve essere ordinata in un senso o nell'altro, alternando la direzione in modo perfettamente ciclico su tutto l'array.
+// Eliminazione della Divergenza: Il Compare-and-Swap Branchless
+// Il nemico principale delle prestazioni su GPU è la divergenza dei thread, che si verifica quando i thread di un blocco prendono strade diverse a causa di un'istruzione condizionale .
+// In quel caso, la GPU è costretta a serializzare l'esecuzione, dimezzando le performance.
+// Il Bitonic Sort risolve questo problema alla radice utilizzando formule matematiche branchless per il Compare-and-Swap. Un esempio di implementazione booleana pura e priva di salti
+// condizionali è la seguente formula combinatoria:
+// int direction = ((i & block) == 0); // 1 = Crescente, 0 = Decrescente
+// int condition = (a < b) ^ (((a > b) ^ (a < b)) & -(direction));
+// int mask = -condition;
+// int diff = (a ^ b) & mask;
+// arr[i] = a ^ diff;
+// arr[passj] = b ^ diff;
+// Logica della formula:
+// Se direction = 1 (Crescente), la maschera bitwise isola matematicamente la condizione a > b.
+// Se direction = 0 (Decrescente), la parte destra si annulla e rimane attiva solo la condizione a < b.
+// Il booleano risultante (1 o 0) viene convertito tramite il segno meno (-condition) in una maschera di bit (0xFFFFFFFF o 0x00000000).
+// Lo XOR simmetrico finale (^ diff) esegue lo scambio nei registri di memoria in una linea retta di pura esecuzione aritmetica, senza che la GPU debba mai deviare il suo flusso logico.
+// Sincronizzazione Hardware e Barriere:
+// Poiché l'algoritmo stringe i confronti a imbuto (es. passa da una distanza di 4 a una distanza di 2), un thread non può iniziare il passaggio successivo finché il suo nuovo partner non ha terminato lo swap del passaggio precedente.
+// Per evitare conflitti di lettura/scrittura (race conditions), la GPU impone un "muro" di sincronizzazione hardware alla fine di ogni singolo pass (es. l'istruzione __syncthreads() in CUDA). Questa barriera blocca
+// l'esecuzione globale finché tutti i thread non hanno completato il proprio Swap, garantendo la consistenza dei dati prima di passare alla risoluzione successiva.
+// Gestione dei Limiti Hardware per Array Massivi
+// Cosa succede se la dimensione dell'array supera il numero di core fisici della GPU? L'architettura moderna risolve questo limite attraverso due livelli di gestione:
+// 1)Thread Virtuali (Warp Scheduling)
+// Se dobbiamo ordinare 16 milioni di elementi su una GPU con 5.000 core, l'hardware genera comunque 16 milioni di thread virtuali. Lo scheduler interno della GPU divide questi thread in piccoli gruppi
+// fissi di 32 o 64 unità (chiamati Warp o Wavefront). I core fisici eseguono questi Warp a turni velocissimi; lo switch avviene a livello hardware a costo zero, dando l'illusione di un parallelismo totale e simultaneo su tutto l'array.
+// 2)L'Approccio Ibrido del Mondo Reale
+// Anche con i thread virtuali, c'è un limite fisico. Se l'array è gigantesco, fare il Bitonic Sort puro con passi (pass) enormi (tipo saltare di 8 milioni di elementi alla volta) costringerebbe la GPU a viaggiare continuamente
+// dentro e fuori dalla memoria globale del chip, rallentando tutto.
+// Nel mondo reale, per gestire array enormi che superano le capacità ottimali della GPU, si usa una strategia mista:
+// Per ottimizzare la banda di memoria con array mastodontici, le implementazioni commerciali (come nei motori grafici 3D o nelle simulazioni fisiche) non usano il Bitonic Sort puro su scala globale,
+// ma applicano una strategia mista:
+// 1)Fase Locale (Chunking): l'array globale viene segmentato in piccoli chunk (es. 1024 elementi). Ogni chunk viene caricato nella Shared Memory della GPU (una memoria interna al chip, ultra-veloce, con latenze vicine a quelle dei registri).
+// Qui viene eseguito il Bitonic Sort a 3 loop alla massima velocità possibile.
+// 2)Fase Globale (Merging): una volta ottenute migliaia di sotto-sequenze localmente ordinate, la GPU smette di usare i salti bitonici globali e passa a un altro algoritmo di Batcher,o a
+// una Merge Network parallela, il cui unico compito è fondere i chunk già pronti fino a ottenere l'array finale completamente ordinato.
