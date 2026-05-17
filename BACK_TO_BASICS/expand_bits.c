@@ -13,6 +13,7 @@ unsigned char expand_bits(unsigned char n, unsigned char mask)
     return result;
 }
 
-int main() {
-    printf("%d\n", expand_bits(0b00000110, 0b01010101));//00010100
+int main()
+{
+    printf("%d\n", expand_bits(0b00000110, 0b01010101)); // 00010100
 }
