@@ -24,8 +24,8 @@ unsigned char *ft_memset(unsigned char *s, unsigned char c, size_t n)
     return s;
 }
 
-int main()
-{
-    unsigned char s[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-    printf("%s\n", ft_memset(s, 90, 4));
-}
+// int main()
+// {
+//     unsigned char s[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+//     printf("%s\n", ft_memset(s, 90, 4));
+// }
