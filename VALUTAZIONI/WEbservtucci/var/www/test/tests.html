@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webserv Tester</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: #f5f5f5;
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        section {
+            margin: 40px auto;
+            max-width: 700px;
+            background-color: rgba(255,255,255,0.07);
+            padding: 25px;
+            border-radius: 10px;
+        }
+        label, input, textarea, button {
+            font-size: 1em;
+            margin: 8px 0;
+        }
+        input, textarea {
+            width: 90%;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            padding: 8px 18px;
+            background: #00b894;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        button:hover {
+            background: #019875;
+        }
+        .file-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.08);
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 6px;
+        }
+        .delete-btn {
+            background: #d63031;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background: #b71c1c;
+        }
+        pre {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            overflow-x: auto;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-row input[type="text"] {
+            width: 40%;
+        }
+
+        .button.back-home {
+            display: inline-block;
+            margin: 20px auto 0 auto;
+            padding: 12px 30px;
+            background-color: #0984e3;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .button.back-home:hover {
+            background-color: #0652dd;
+            transform: translateY(-2px) scale(1.04);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🧪 Webserv Tester</h1>
+        <p>Testa POST, upload e DELETE file sulle location dedicate</p>
+        <a href="/index.html" class="button back-home">Torna alla Home</a>
+    </header>
+
+    <section>
+        <h2>Invia Testo Semplice (text/plain) su <code>/raw</code></h2>
+        <form id="raw-form">
+            <textarea name="raw-text" rows="3" required placeholder="Scrivi qualcosa..."></textarea><br>
+            <input type="text" name="filename" placeholder="Nome file (opzionale)">
+            <button type="submit">Invia</button>
+        </form>
+        <pre id="raw-result"></pre>
+    </section>
+
+    <section>
+        <h2>Invia Form (JSON) su <code>/json</code></h2>
+        <form id="form-form">
+            <div class="input-row">
+                <input type="text" name="form-nome" id="form-nome" placeholder="Nome" required>
+                <input type="text" name="form-cognome" id="form-cognome" placeholder="Cognome" required>
+                <input type="text" name="form-intra" id="form-intra" placeholder="Nome Intra" required>
+            </div>
+            <input type="text" name="filename" placeholder="Nome file (opzionale)">
+            <button type="submit">Invia</button>
+        </form>
+        <pre id="form-result"></pre>
+    </section>
+
+    <section>
+        <h2>Upload File (multipart/form-data) su <code>/file</code></h2>
+        
+        <!-- Form 1: Upload file normale -->
+        <div class="input-row">
+            <form id="file-form" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <button type="submit">Carica File</button>
+            </form>
+        </div>
+        
+        <pre id="file-result"></pre>
+    </section>
+
+    <section>
+        <h2>File Caricati (<code>/uploads/file</code>)</h2>
+        <button type="button" onclick="loadFiles()">Aggiorna lista</button>
+        <div class="file-list" id="file-list"></div>
+    </section>
+
+    <footer>
+        <p>Webserv Tester - 42cursus project</p>
+    </footer>
+
+    <script>
+    // Helper per mostrare la risposta
+    function showResult(id, text) {
+        document.getElementById(id).textContent = text;
+    }
+
+    // Testo semplice con nome file opzionale
+    document.getElementById('raw-form').onsubmit = async function(e) {
+        e.preventDefault();
+        const text = this.elements['raw-text'].value;
+        const filename = this.elements['filename'].value;
+        const headers = { 'Content-Type': 'text/plain' };
+        if (filename) headers['X-Filename'] = filename;
+        const res = await fetch('/raw', {
+            method: 'POST',
+            headers,
+            body: text
+        });
+        showResult('raw-result', await res.text());
+        loadFiles();
+    };
+
+    // Form: invia JSON con nome file opzionale e 3 campi fissi
+    document.getElementById('form-form').onsubmit = async function(e) {
+        e.preventDefault();
+        const nome = this.elements['form-nome'].value;
+        const cognome = this.elements['form-cognome'].value;
+        const intra = this.elements['form-intra'].value;
+        const filename = this.elements['filename'].value;
+        const headers = { 'Content-Type': 'application/json' };
+        if (filename) headers['X-Filename'] = filename;
+        const data = { nome, cognome, intra };
+        const res = await fetch('/json', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(data)
+        });
+        showResult('form-result', await res.text());
+        loadFiles();
+    };
+
+    // Upload file: usa direttamente il nome del file caricato
+    document.getElementById('file-form').onsubmit = async function(e) {
+        e.preventDefault();
+        const fileInput = this.elements['file'];
+        const formData = new FormData();
+        if (fileInput.files.length === 0) return;
+        formData.append('file', fileInput.files[0]);
+        const res = await fetch('/file', {
+            method: 'POST',
+            body: formData
+        });
+
+        
+        if (res.status === 415) {
+            const text = await res.text();
+            document.open();
+            document.write(text);
+            document.close();
+            return;
+        }
+        showResult('file-result', await res.text());
+        loadFiles();
+    };
+
+    // Carica lista file
+    async function loadFiles() {
+        const listDiv = document.getElementById('file-list');
+        listDiv.innerHTML = 'Caricamento...';
+        
+        try {
+            // Carica file da tutte e tre le directory
+            const [rawFiles, jsonFiles, uploadFiles] = await Promise.all([
+                loadFilesFromDir('/uploads/raw'),
+                loadFilesFromDir('/uploads/json'),
+                loadFilesFromDir('/uploads/file')
+            ]);
+            
+            listDiv.innerHTML = '';
+            
+            // Sezione file RAW
+            if (rawFiles.length > 0) {
+                const rawSection = document.createElement('div');
+                rawSection.innerHTML = '<h3 style="color: #00b894; margin-bottom: 10px;">📄 File RAW (/raw)</h3>';
+                rawFiles.forEach(fname => {
+                    const item = createFileItem(fname, '/uploads/raw');
+                    rawSection.appendChild(item);
+                });
+                listDiv.appendChild(rawSection);
+            }
+            
+            // Sezione file JSON
+            if (jsonFiles.length > 0) {
+                const jsonSection = document.createElement('div');
+                jsonSection.innerHTML = '<h3 style="color: #0984e3; margin-bottom: 10px;">📋 File JSON (/json)</h3>';
+                jsonFiles.forEach(fname => {
+                    const item = createFileItem(fname, '/uploads/json');
+                    jsonSection.appendChild(item);
+                });
+                listDiv.appendChild(jsonSection);
+            }
+            
+            // Sezione file Upload
+            if (uploadFiles.length > 0) {
+                const uploadSection = document.createElement('div');
+                uploadSection.innerHTML = '<h3 style="color: #e17055; margin-bottom: 10px;">📁 File Upload (/file)</h3>';
+                uploadFiles.forEach(fname => {
+                    const item = createFileItem(fname, '/uploads/file');
+                    uploadSection.appendChild(item);
+                });
+                listDiv.appendChild(uploadSection);
+            }
+            
+            // Se nessun file trovato
+            if (rawFiles.length === 0 && jsonFiles.length === 0 && uploadFiles.length === 0) {
+                listDiv.innerHTML = '<em>Nessun file presente in nessuna directory.</em>';
+            }
+            
+        } catch (e) {
+            listDiv.innerHTML = 'Errore: ' + e.message;
+        }
+    }
+
+    // Helper per caricare file da una directory specifica
+    async function loadFilesFromDir(path) {
+        try {
+            const res = await fetch(path, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            if (!res.ok) return []; // Directory non esistente o errore
+            const files = await res.json();
+            return Array.isArray(files) ? files : [];
+        } catch (e) {
+            return []; // Errore, restituisci array vuoto
+        }
+    }
+
+    // Helper per creare un elemento file
+    function createFileItem(fname, basePath) {
+        const item = document.createElement('div');
+        item.className = 'file-item';
+        item.innerHTML = `
+            <span>${fname}</span>
+            <div>
+                <button class="delete-btn" onclick="deleteFile('${fname}', '${basePath}')">Elimina</button>
+                <a href="${basePath}/${fname}" target="_blank" style="margin-left:10px;color:#00b894;">Apri</a>
+            </div>
+        `;
+        return item;
+    }
+
+    // DELETE file (aggiornato per supportare directory diverse)
+    async function deleteFile(fname, basePath) {
+        if (!confirm('Eliminare il file "' + fname + '"?')) return;
+        const res = await fetch(basePath + '/' + encodeURIComponent(fname), { method: 'DELETE' });
+        if (res.ok) {
+            loadFiles();
+        } else {
+            alert('Errore eliminazione file');
+        }
+    }
+
+    // Carica lista file all'avvio
+    loadFiles();
+    </script>
+</body>
+</html>

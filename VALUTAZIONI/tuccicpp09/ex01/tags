@@ -1,0 +1,55 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/nfs/homes/atucci/Desktop/CPlusPlus-ModulesCpp/cpp09/ex01/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	//
+$(NAME)	Makefile	/^$(NAME): $(OBJ)$/;"	t
+%.o	Makefile	/^%.o: %.cpp$/;"	t
+BG_CYAN	RPN.hpp	/^# define BG_CYAN /;"	d
+BG_GREEN	RPN.hpp	/^# define BG_GREEN /;"	d
+BG_RED	RPN.hpp	/^# define BG_RED /;"	d
+BG_RESET	RPN.hpp	/^# define BG_RESET /;"	d
+BG_YELLOW	RPN.hpp	/^# define BG_YELLOW /;"	d
+BLUE	RPN.hpp	/^# define BLUE /;"	d
+CXX	Makefile	/^CXX = c++$/;"	m
+CYAN	Makefile	/^CYAN := \\033[1;36m$/;"	m
+CYAN	RPN.hpp	/^# define CYAN /;"	d
+FLAG	Makefile	/^FLAG = -Wall -Wextra -Werror -std=c++98$/;"	m
+GRAY	RPN.hpp	/^# define GRAY /;"	d
+GREEN	Makefile	/^GREEN := \\033[1;32m$/;"	m
+GREEN	RPN.hpp	/^# define GREEN /;"	d
+HEADERS	Makefile	/^HEADERS = RPN.hpp \\$/;"	m
+NAME	Makefile	/^NAME = RPN$/;"	m
+PURPLE	RPN.hpp	/^# define PURPLE /;"	d
+RED	Makefile	/^RED := \\033[1;31m$/;"	m
+RED	RPN.hpp	/^# define RED /;"	d
+RESET	Makefile	/^RESET := \\033[0m$/;"	m
+RESET	RPN.hpp	/^# define RESET /;"	d
+RNP_HPP	RPN.hpp	/^# define RNP_HPP$/;"	d
+Rpn	RPN.cpp	/^Rpn::Rpn()$/;"	f	class:Rpn
+Rpn	RPN.cpp	/^Rpn::Rpn(const Rpn& other)$/;"	f	class:Rpn
+Rpn	RPN.hpp	/^class Rpn$/;"	c
+SOURCE	Makefile	/^SOURCE = RPN.cpp \\$/;"	m
+YELLOW	Makefile	/^YELLOW := \\033[1;33m$/;"	m
+YELLOW	RPN.hpp	/^# define YELLOW /;"	d
+_Stack	RPN.hpp	/^	std::stack<int> _Stack;$/;"	m	class:Rpn	typeref:typename:std::stack<int>
+all	Makefile	/^all: $(NAME)$/;"	t
+clean	Makefile	/^clean:$/;"	t
+evaluateToken	RPN.cpp	/^int Rpn::evaluateToken(const std::string &tok)$/;"	f	class:Rpn	typeref:typename:int
+fclean	Makefile	/^fclean: clean$/;"	t
+getStack	RPN.cpp	/^std::stack<int> Rpn::getStack() const$/;"	f	class:Rpn	typeref:typename:std::stack<int>
+hidden	Makefile	/^hidden:$/;"	t
+main	main.cpp	/^int main(int ac, char **av)$/;"	f	typeref:typename:int
+operator <<	RPN.cpp	/^std::ostream& operator<<(std::ostream& os, const Rpn& rpn)$/;"	f	typeref:typename:std::ostream &
+operator =	RPN.cpp	/^Rpn& Rpn::operator=(const Rpn& other)$/;"	f	class:Rpn	typeref:typename:Rpn &
+performOperation	RPN.cpp	/^int Rpn::performOperation(const std::string &op)$/;"	f	class:Rpn	typeref:typename:int
+pushNumberToken	RPN.cpp	/^int Rpn::pushNumberToken(const std::string &tok)$/;"	f	class:Rpn	typeref:typename:int
+re	Makefile	/^re: fclean all$/;"	t
+splitInput	RPN.cpp	/^int Rpn::splitInput(const std::string &phrase)$/;"	f	class:Rpn	typeref:typename:int
+~Rpn	RPN.cpp	/^Rpn::~Rpn()$/;"	f	class:Rpn

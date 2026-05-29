@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Webserv</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: #f5f5f5;
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            color: #ccc;
+        }
+        section {
+            margin: 50px auto;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+        }
+        a.button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 25px;
+            background-color: #00b894;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        a.button:hover {
+            background-color: #019875;
+        }
+        a.button.secondary {
+            background-color: #0984e3;
+        }
+        a.button.secondary:hover {
+            background-color: #0652dd;
+        }
+        footer {
+            margin-top: 60px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .status {
+            display: inline-block;
+            background: #00b894;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="status">🚀 Server Online</div>
+        <h1>Hello World!</h1>
+        <p>Welcome to Webserv - HTTP Server built with C++</p>
+    </header>
+
+    <section>
+        <h2>🔧 Server Features</h2>
+        <ul style="text-align:left; line-height: 1.8;">
+            <li>✅ GET / POST / DELETE methods</li>
+            <li>✅ File upload & download</li>
+            <li>✅ JSON API endpoints</li>
+            <li>✅ Directory listing</li>
+            <li>✅ Custom error pages</li>
+            <li>✅ Security filtering</li>
+        </ul>
+        
+        <div style="margin-top: 30px;">
+            <a class="button" href="/test/tests.html">🧪 Test Server</a>
+            <a class="button secondary" href="/autoindex">📁 Browse Files</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>Webserv | 42cursus project by fcarlucc, atucci and engirald</p>
+    </footer>
+</body>
+</html>

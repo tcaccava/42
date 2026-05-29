@@ -1,0 +1,94 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw_texture.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sfelici <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/21 15:27:18 by sfelici           #+#    #+#             */
+/*   Updated: 2026/03/18 12:54:00 by sfelici          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+static void	draw_tile(t_vars *vars, char c, int x, int y)
+{
+	if (c == '1')
+		draw_wall(vars, x, y);
+	else if (c == 'C')
+		draw_collectible(vars, x, y);
+	else if (c == 'E')
+		draw_exit(vars, x, y);
+	else if (c == 'P')
+		draw_player(vars, x, y);
+	else if (c == 'V')
+		draw_enemy(vars, x, y);
+	else
+		draw_floor(vars, x, y);
+}
+
+void	draw_map(t_vars *vars)
+{
+	int	y;
+	int	x;
+
+	y = 0;
+	while (y < vars->map_info.rows)
+	{
+		x = 0;
+		while (x < vars->map_info.cols)
+		{
+			draw_tile(vars, vars->map[y][x], x, y);
+			x++;
+		}
+		y++;
+	}
+}
+
+static void	victory_print(t_vars *vars)
+{
+	char	*count_str;
+
+	count_str = ft_itoa(++vars->move_count);
+	mlx_string_put(vars->mlx, vars->win, 10, 10, 0x00FF00, count_str);
+	mlx_string_put(vars->mlx, vars->win, 10, 10 + 1, 0x00FF00, count_str);
+	free(count_str);
+}
+
+static int	move_player(int keycode, t_vars *vars)
+{
+	t_point	old_pos;
+	t_point	new_pos;
+
+	old_pos.x = vars->map_info.player_x;
+	old_pos.y = vars->map_info.player_y;
+	new_pos = old_pos;
+	update_position(keycode, &new_pos.x, &new_pos.y);
+	if (old_pos.x == new_pos.x && old_pos.y == new_pos.y)
+		return (0);
+	if (!is_move_valid(vars, new_pos.x, new_pos.y))
+		return (0);
+	process_tile(vars, new_pos.x, new_pos.y);
+	vars->map[old_pos.y][old_pos.x] = '0';
+	vars->map[new_pos.y][new_pos.x] = 'P';
+	vars->map_info.player_x = new_pos.x;
+	vars->map_info.player_y = new_pos.y;
+	move_enemies(vars);
+	if (vars->map[vars->map_info.player_y][vars->map_info.player_x] == 'V')
+		game_over(vars);
+	draw_map(vars);
+	victory_print(vars);
+	return (0);
+}
+
+int	key_press(int keycode, t_vars *vars)
+{
+	if (keycode == 65307)
+	{
+		ft_cleanup(vars);
+		exit(0);
+	}
+	handle_kill(keycode, vars);
+	return (move_player(keycode, vars));
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>500 - Internal Server Error | Webserv</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: #f5f5f5;
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .error-container {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 600px;
+        }
+        .error-code {
+            font-size: 6em;
+            color: #e74c3c;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .error-message {
+            font-size: 2em;
+            margin: 20px 0;
+            color: #ecf0f1;
+        }
+        .error-description {
+            font-size: 1.2em;
+            color: #bdc3c7;
+            margin-bottom: 30px;
+        }
+        a.button {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #00b894;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        a.button:hover {
+            background-color: #019875;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1 class="error-code">500</h1>
+        <h2 class="error-message">⚡ Internal Server Error</h2>
+        <p class="error-description">
+            Something went wrong on our end. Please try again later.
+        </p>
+        <a class="button" href="/">🏠 Back to Home</a>
+    </div>
+</body>
+</html>

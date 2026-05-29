@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Webserv Test Site</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Webserv Test Site</h1>
+
+  <section>
+    <h2>Home</h2>
+    <p>Visit <a href="/">/</a> for the main site.</p>
+  </section>
+
+  <section>
+    <h2>Autoindex</h2>
+    <p>Use <a href="/autoindex/">/autoindex/</a> to check directory listing.</p>
+  </section>
+
+  <section>
+    <h2>Upload (POST)</h2>
+    <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+      <input type="file" name="file">
+      <button type="submit">Upload</button>
+    </form>
+    <pre id="upload-result"></pre>
+  </section>
+
+  <section>
+    <h2>Delete</h2>
+    <input type="text" id="delete-path" placeholder="/upload/filename.txt">
+    <button id="delete-btn">Delete</button>
+    <pre id="delete-result"></pre>
+  </section>
+
+  <section>
+    <h2>CGI Script</h2>
+    <button id="cgi-btn">Run /cgi-bin/test.py</button>
+    <pre id="cgi-result"></pre>
+  </section>
+
+  <section>
+    <h2>Redirect</h2>
+    <button id="redirect-btn">Fetch /oldpage</button>
+    <pre id="redirect-result"></pre>
+  </section>
+
+  <section>
+    <h2>404 Page</h2>
+    <p>Visit <a href="/questa-non-esiste" target="_blank">/questa-non-esiste</a> to see the custom 404.</p>
+  </section>
+
+  <section>
+    <h2>CGI Echo</h2>
+    <textarea id="echo-body" placeholder="Type text to send"></textarea>
+    <button id="echo-btn">POST to /cgi-bin/echo.py</button>
+    <pre id="echo-result"></pre>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

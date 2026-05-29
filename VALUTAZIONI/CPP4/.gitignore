@@ -1,0 +1,4 @@
+*.o
+Animal
+.vscode
+test*

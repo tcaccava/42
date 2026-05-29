@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webserv</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: #f5f5f5;
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            color: #ccc;
+        }
+        section {
+            margin: 50px auto;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+        }
+        a.button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #00b894;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        a.button:hover {
+            background-color: #019875;
+        }
+        footer {
+            margin-top: 60px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 Welcome to Webserv</h1>
+        <p>A simple HTTP server made with C++ | 42cursus project</p>
+    </header>
+
+    <section>
+        <h2>🔧 Features Implemented</h2>
+        <ul style="text-align:left; line-height: 1.8;">
+            <li>✅ GET / POST / DELETE support</li>
+            <li>✅ Static file serving</li>
+            <li>✅ Directory listing (autoindex)</li>
+            <li>✅ CGI support (.py, .php, .pl)</li>
+            <li>✅ Error handling & custom error pages</li>
+            <li>✅ File uploads</li>
+            <li>✅ Redirection (301, 302, 307, 308)</li>
+            <li>✅ Configurable via .conf file</li>
+        </ul>
+        <a class="button" href="/test">Test the server</a>
+        <a class="button" href="/cookies.html">Test cookie</a>
+    </section>
+
+    <footer>
+        <p>Webserv | Made by fcarlucc, atucci and engirald at 42Rome</p>
+    </footer>
+</body>
+</html>

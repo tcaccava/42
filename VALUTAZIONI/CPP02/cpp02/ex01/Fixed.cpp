@@ -1,0 +1,81 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Fixed.cpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mla-mona <mla-mona@student.42roma.it>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/30 14:56:16 by mla-mona          #+#    #+#             */
+/*   Updated: 2024/08/30 15:28:59 by mla-mona         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "Fixed.hpp"
+
+Fixed::Fixed() : fixedPoint(0)
+{
+    std::cout << "Default contructor called" << std::endl;
+}
+
+Fixed::Fixed(const Fixed &other)
+{
+    std::cout << "Copy constructor called" << std::endl;
+    *this = other; //chiama l'operatore di assegnazione
+}
+
+Fixed &Fixed::operator = (const Fixed &other)
+{
+    std::cout << "Copy assignment operator called" << std::endl;
+    if(this != &other)
+    {
+        this->fixedPoint = other.getRawBits();
+    }
+    return *this;
+}
+
+Fixed::~Fixed() 
+{
+    std::cout << "Destructor called" << std::endl;
+}
+
+// integer constructor
+Fixed::Fixed(const int intValue)
+{
+    std::cout << "Int constructor called" << std::endl;
+    fixedPoint = intValue << fractionalBits;
+}
+
+// Floating-point constructor
+Fixed::Fixed(float const floatValue)
+{
+    std::cout << "Float constructor called" << std::endl;
+    fixedPoint = roundf(floatValue * (1 << fractionalBits));
+}
+
+int Fixed::getRawBits(void) const
+{
+    std::cout << "getRawBits member function called" << std::endl;
+    return this->fixedPoint;
+}
+
+void Fixed::setRawBits(int const raw)
+{
+    std::cout << "setRawBits member function called" << std::endl;
+    this->fixedPoint = raw;
+}
+
+// Member function to convert to float
+float Fixed::toFloat(void) const {
+    return static_cast<float>(fixedPoint) / (1 << fractionalBits);
+}
+
+// Member function to convert to int
+int Fixed::toInt(void) const {
+    return fixedPoint >> fractionalBits;
+}
+
+// Overload of the insertion (<<) operator
+std::ostream &operator<<(std::ostream &out, const Fixed &fixed) {
+    out << fixed.toFloat();
+    return out;
+}

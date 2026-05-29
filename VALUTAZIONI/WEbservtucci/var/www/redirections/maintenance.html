@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maintenance - Webserv</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #ff7675, #fd79a8);
+            color: white;
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 12px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .redirect-info {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        a.button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #2d3436;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        a.button:hover {
+            background-color: #636e72;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Site Under Maintenance</h1>
+        <div class="redirect-info">
+            <p><strong>✅ 302 Redirect Test Successful!</strong></p>
+            <p>You were temporarily redirected here from <code>/maintenance</code></p>
+            <p>This is a <strong>302 - Temporary Redirect</strong> example.</p>
+        </div>
+        
+        <p>We're performing scheduled maintenance on our server.</p>
+        <p>This page demonstrates temporary redirects that don't affect bookmarks.</p>
+        
+        <a href="/" class="button">← Back to Home</a>
+        <a href="/test-redirects" class="button">Test More Redirects</a>
+    </div>
+</body>
+</html>
