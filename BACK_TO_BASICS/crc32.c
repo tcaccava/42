@@ -59,3 +59,15 @@ int main() {
 
 // Non è deducibile — è il risultato di ricerca matematica.
 // Lo trovi in tutti i protocolli moderni perché è diventato standard de facto.
+
+
+//Il CRC32 si basa sulla divisione polinomiale bit-a-bit. Essendo un algoritmo standardizzato a livello industriale per protocolli di rete (Ethernet, Wi-Fi) e di archiviazione (SATA, NVMe),
+// i produttori di microprocessori hanno integrato il calcolo direttamente all'interno del set di istruzioni (ISA) delle CPU:
+// -architettura Intel/AMD (x86_64):a partire dall'estensione SSE4.2, è presente l'istruzione hardware nativa CRC32 (es. crc32b, crc32w, crc32q). Questa istruzione prende un registro di dati 
+// (fino a 64 bit) e calcola il checksum in hardware in un numero fisso di cicli di clock (latenza di circa 3 cicli), sfruttando una rete di porte logiche XOR (moltiplicatori polinomiali) integrata nella Execution Unit della CPU.
+// -architettura ARM (ARMv8-A e successivi): include l'estensione hardware opzionale (ma pervasiva) per i blocchi crittografici e di checksum;dispone delle istruzioni dedicate CRC32B, CRC32H, CRC32W e CRC32X. L'hardware esegue 
+// il calcolo su registri fino a 64 bit in un singolo ciclo di clock su pipeline dedicate, azzerando l'impatto sui registri generici.
+// -acceleratori di rete (NIC/ASIC): le schede di rete moderne implementano il CRC Offloading. Il chip della scheda di rete (ASIC) calcola e verifica il CRC32 direttamente sui circuiti di trasmissione/ricezione 
+// del silicio mentre i pacchetti transitano sul cavo, senza che la CPU principale veda mai i dati a livello software.
+
+-
