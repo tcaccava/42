@@ -36,26 +36,26 @@
 
 unsigned int adler32(unsigned char *data, size_t len)
 {
- unsigned int s1 = 1;
- unsigned int s2 = 0;
- const unsigned int MOD_ADLER = 65521;
+	unsigned int s1 = 1;
+	unsigned int s2 = 0;
+	const unsigned int MOD_ADLER = 65521;
 
- for (size_t i = 0; i < len; i++)
- {
+	for (size_t i = 0; i < len; i++)
+	{
 		// il modulo ad ogni iterazione è computazionalmente costoso — le implementazioni production come zlib eseguono il % ogni 5552 byte (il massimo numero di iterazioni prima che s2 possa superare 2^32) invece che ad ogni byte
 		s1 = (s1 + data[i]) % MOD_ADLER;
 		s2 = (s2 + s1) % MOD_ADLER;
- }
+	}
 
- return (s2 << 16) | s1;
+	return (s2 << 16) | s1;
 }
 
 int main()
 {
- // il checksum Adler-32 per la stringa "Wikipedia" è 0x11E60398
- unsigned char *test = (unsigned char *)"Wikipedia";
- unsigned int hash = adler32(test, 9);
+	// il checksum Adler-32 per la stringa "Wikipedia" è 0x11E60398
+	unsigned char *test = (unsigned char *)"Wikipedia";
+	unsigned int hash = adler32(test, 9);
 
- printf("Adler-32 di 'Wikipedia': 0x%08X\n", hash);
- return 0;
+	printf("Adler-32 di 'Wikipedia': 0x%08X\n", hash);
+	return 0;
 }
