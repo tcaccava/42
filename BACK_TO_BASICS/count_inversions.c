@@ -26,6 +26,12 @@
 // Durante la fase di fusione (merge) di due sotto-array ordinati (sinistro e destro), se un elemento del sotto-array destro è più piccolo di un elemento del sotto-array sinistro,
 // significa che quell'elemento è più piccolo di tutti i restanti elementi ancora presenti nel sotto-array sinistro. Questo permette di contare blocchi di inversioni multipli
 // in un colpo solo, abbattendo la complessità a O(n log n).
+// PERCHÉ IL MERGE SORT CONTA LE INVERSIONI CORRETTAMENTE:
+// Quando fondiamo due sotto-array già ordinati [L] e [R], se prendiamo un elemento R[q] perché è minore di L[p], significa che R[q] è minore
+// di TUTTI gli elementi rimanenti in L (da L[p] fino alla fine), perché L è già ordinato. Quindi con UNA sola operazione contiamo
+// (a1 - p) inversioni invece di confrontare R[q] con ogni elemento rimasto in L singolarmente. Questo è il motivo per cui la complessità
+// scende da O(n²) a O(n log n) — ogni inversione viene contata esattamente una volta durante la fase di merge del livello giusto della ricorsione,
+// senza mai ricontare la stessa coppia due volte.
 // Il conteggio delle inversioni non è un mero esercizio accademico; è la metrica fondamentale dietro l'analisi delle preferenze umane e dei sistemi distribuiti:
 // -sistemi di raccomandazione (Collaborative Filtering): se vuoi misurare quanto i gusti cinematografici dell'utente A siano simili a quelli dell'utente B, fai stilare a entrambi una
 // classifica di 100 film. Se prendi la classifica di A e la riordini secondo l'ordine di B, il numero di inversioni calcolato ti dice matematicamente quanto i loro gusti siano distanti.
