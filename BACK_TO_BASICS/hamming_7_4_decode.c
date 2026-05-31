@@ -24,7 +24,7 @@ unsigned char hamming_decode(unsigned char code)
 // {
 //     unsigned char sindrome = 0;
 
-//     (invariato)
+//     Invariato
 //     sindrome |= (code >> 1 & 1) ^ (code >> 3 & 1) ^ (code >> 5 & 1) ^ (code >> 7 & 1);
 //     sindrome |= ((code >> 2 & 1) ^ (code >> 3 & 1) ^ (code >> 6 & 1) ^ (code >> 7 & 1)) << 1;
 //     sindrome |= ((code >> 4 & 1) ^ (code >> 5 & 1) ^ (code >> 6 & 1) ^ (code >> 7 & 1)) << 2;
@@ -41,8 +41,8 @@ int main()
     unsigned char number = 213;     // numero originario,nell'encoding verrà perso a favore del suo nibble basso
     unsigned char hamming_code = 0; // l'hamming code parte da 0
     hamming_encode(number, &hamming_code);
-    printf("%u\n", hamming_code);                      // dopo aver encodato, hamming code è 90
-    printf("%u\n", hamming_decode(hamming_code));      // il decode restituisce 5,cioè il nibble basse del numero originario 213
-    hamming_code ^= (1 << 7); // altero volutamente il bit 7 di hamming code
-    printf("%u\n", hamming_decode(hamming_code));      // il codice viene corretto,e viene restituito il codice corretto,90
+    printf("%u\n", hamming_code);                 // dopo aver encodato, hamming code è 90
+    printf("%u\n", hamming_decode(hamming_code)); // il decode restituisce 5,cioè il nibble basse del numero originario 213
+    hamming_code ^= (1 << 7);                     // altero volutamente il bit 7 di hamming code
+    printf("%u\n", hamming_decode(hamming_code)); // il codice viene corretto,e viene restituito il codice corretto,90
 }
