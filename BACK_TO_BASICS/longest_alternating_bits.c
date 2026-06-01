@@ -50,7 +50,7 @@ int longest_alternating_bits(unsigned int n)
 // Caso limite: un muro di 32 bit accesi 0xFFFFFFFF
 // Intuitivamente, in un muro di bit tutti uguali, di alternanze non ce ne sono. Ma qui entriamo nel campo della logica formale.
 // Il motivo per cui ritorna 1 (e perché è matematicamente corretto che sia così) si spiega sia guardando i bit, sia guardando la definizione stessa di "sequenza".
-// Vediamo esattamente cosa fa l'hardware quando gli passi 0xFFFFFFFF: n = 0xFFFFFFFF, n >> 1 = 0x7FFFFFFF, diff,cioe' n ^ n >> 1 = 0xF0000000, transitions,cioe' diff & 0x7FFFFFFF = 0.
+// Vediamo esattamente cosa fa l'hardware quando gli passi 0xFFFFFFFF: n = 0xFFFFFFFF, n >> 1 = 0x7FFFFFFF, diff,cioe' n ^ n >> 1 = 0x80000000, transitions,cioe' diff & 0x7FFFFFFF = 0.
 // Poiche' transitions e' 0,il ciclo while non parte nemmeno,count rimane 0,e la funzione ritorna 1.
 // Perché "1" è la risposta logicamente corretta? La regola d'oro è: Lunghezza della sequenza = Transizioni valide + 1. Se ci sono 0 transizioni valide (perché ogni bit è identico al suo vicino, quindi non c'è mai un cambio di stato),
 // la formula sputa fuori 1.Ma ha senso dire che la sequenza più lunga è 1 se non c'è alternanza? Sì, per vacua verità.In informatica e in combinatoria, un singolo elemento isolato (un solo bit 1) non viola alcuna regola di alternanza,

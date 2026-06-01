@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "./popcount.c"
 // conta i bytes accesi in un numero a 32 bit,il risultato e' noto come Hamming Weight dal nome dell'inventore dell'algoritmo
 unsigned int popcount_swar32(unsigned int n)
 {
