@@ -15,7 +15,7 @@
 // (es. Local Binary Patterns - LBP). Per calcolare la disparità tra l'occhio destro e l'occhio sinistro in un visore VR, l'hardware fa scorrere una finestra di bit per
 // trovare la massima corrispondenza (massimo popcount dello XOR tra le due stringhe LBP). L'algoritmo di sopra ne è il nucleo accelerato.
 
-// Implementazione Hardware (ASIC / FPGA):a differenza del software, dove l'algoritmo scorre sequenzialmente nel tempo lungo i 32 bit, l'hardware ci permette un bivio
+// Implementazione Hardware (ASIC / FPGA): a differenza del software, dove l'algoritmo scorre sequenzialmente nel tempo lungo i 32 bit, l'hardware ci permette un bivio
 // architetturale straordinario a seconda dei vincoli di design: sincrono (Seriale) o puramente combinatorio (Parallelo Spaziale).
 // Opzione A: il mapping combinatorio parallelo (massimo throughput): se il parametro k è noto a tempo di compilazione (statico), l'hardware non esegue alcun ciclo.
 // Genera fisicamente 32 - k + 1 piccoli alberi di popcount separati in parallelo sul silicio, ognuno collegato alla rispettiva finestra di fili.I risultati di tutti
