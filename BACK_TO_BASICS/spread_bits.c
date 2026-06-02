@@ -14,7 +14,7 @@ unsigned char spread_bits(unsigned char n)
 //  unsigned char interleave_zero(unsigned char n) {
 //      return ((((n & 1) | ((n & 2) << 1)) | ((n & 4) << 2)) | ((n & 8) << 3));
 //  }
-// oppure la incomprensibile versione SWAR
+// oppure la versione SWAR
 //  unsigned char spread_bits(unsigned char n) {
 //      n &= 0x0F;
 //      n = ((n & 0x0C) << 2) | (n & 0x03);
@@ -25,3 +25,4 @@ int main()
 {
     printf("%d\n", spread_bits(0b00001011)); // 01000101, cioe' 69
 }
+
