@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-size-multiplier: 1;
+    --background: var(--color-gray-50);
+    --darker-background: var(--color-gray-100);
+    --foreground: var(--color-gray-900);
+    --foreground-muted: color-mix(in srgb, var(--foreground) 65%, transparent);
+    --btn-background: var(--color-teal-500);
+    --hvr-background: var(--color-teal-600);
+    --border: var(--color-gray-200);
+    --background-dark: var(--color-gray-950);
+    --darker-background-dark: var(--color-gray-900);
+    --foreground-dark: var(--color-gray-100);
+    --foreground-muted-dark: var(--color-gray-400);
+    --btn-background-dark: var(--color-teal-400);
+    --hvr-background-dark: var(--color-teal-300);
+    --border-dark: var(--color-gray-700);
+    color-scheme: light;
+    --text-sm: calc(0.875rem * var(--font-size-multiplier));
+    --text-base: calc(1rem * var(--font-size-multiplier));
+    --text-lg: calc(1.125rem * var(--font-size-multiplier));
+    --text-xl: calc(1.25rem * var(--font-size-multiplier));
+    --text-2xl: calc(1.5rem * var(--font-size-multiplier));
+    --text-3xl: calc(1.875rem * var(--font-size-multiplier));
+    --text-4xl: calc(2.25rem * var(--font-size-multiplier));
+    --text-5xl: calc(3rem * var(--font-size-multiplier));
+    --text-6xl: calc(3.75rem * var(--font-size-multiplier));
+    --text-7xl: calc(4.5rem * var(--font-size-multiplier));
+    --text-8xl: calc(6rem * var(--font-size-multiplier));
+    --text-9xl: calc(8rem * var(--font-size-multiplier));
+  }
+
+  @theme inline {
+    --color-background: var(--background);
+    --color-darker-background: var(--darker-background);
+    --color-foreground: var(--foreground);
+    --color-btn-background: var(--btn-background);
+    --color-hvr-background: var(--hvr-background);
+    --color-border: var(--border);
+  }
+
+  .dark {
+    --background: var(--background-dark);
+    --darker-background: var(--darker-background-dark);
+    --foreground: var(--foreground-dark);
+    --foreground-muted: var(--foreground-muted-dark);
+    --btn-background: var(--btn-background-dark);
+    --hvr-background: var(--hvr-background-dark);
+    --border: var(--border-dark);
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    font-size: calc(16px * var(--font-size-multiplier)) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+  }
+
+  h2 {
+    font-size: var(--text-2xl);
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: var(--text-lg);
+  }
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+.high-contrast {
+  --foreground-muted: var(--foreground);
+}
+
+.high-contrast:not(.dark) {
+  --background: #ffffff;
+  --darker-background: #f3f4f6;
+  --foreground: #000000;
+  --border: #000000;
+  --btn-background: #006666;
+  --hvr-background: #004d4d;
+}
+
+.high-contrast.dark {
+  --background: #000000;
+  --darker-background: #111111;
+  --foreground: #ffffff;
+  --border: #ffffff;
+  --btn-background: #5eead4;
+  --hvr-background: #99f6e4;
+}
+
+.high-contrast body {
+  font-weight: 500;
+}
+
+.high-contrast :focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* Reduce motion: disable animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Text spacing: enhanced line-height and letter-spacing */
+html.text-spacing-enhanced {
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
+}
+
+html.text-spacing-enhanced p,
+html.text-spacing-enhanced li,
+html.text-spacing-enhanced div {
+  margin-bottom: 2em;
+}
+/* Keyboard navigation: show stronger focus rings only in keyboard mode */
+html.keyboard-nav[data-input-modality="keyboard"] *:focus {
+  outline: 3px solid var(--color-hvr-background);
+  outline-offset: 2px;
+}
+
+/* Focus indicators */
+@layer components {
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid var(--color-hvr-background);
+    outline-offset: 2px;
+  }
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  background: var(--color-hvr-background);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid white;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 0.5rem;
+  top: 0.5rem;
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+html.keyboard-nav[data-input-modality="keyboard"] :focus-visible {
+  outline: 3px solid var(--color-hvr-background);
+  outline-offset: 2px;
+}
+
+html.keyboard-nav[data-input-modality="pointer"] :focus-visible {
+  outline: none;
+}
+
+.feed-carousel-scroll {
+  scrollbar-width: none;
+}
+
+.feed-carousel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.feed-carousel-scroll-active {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(13, 148, 136, 0.55) transparent;
+}
+
+.feed-carousel-scroll-active::-webkit-scrollbar {
+  display: block;
+  height: 6px;
+}
+
+.feed-carousel-scroll-active::-webkit-scrollbar-thumb {
+  background: rgba(13, 148, 136, 0.55);
+  border-radius: 9999px;
+}
+
+.feed-carousel-scroll-active::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-hvr-background, #0d9488);
+  outline-offset: 2px;
+}
+
+/* Form elements styling */
+@layer components {
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-hvr-background);
+    cursor: pointer;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  input[type="range"] {
+    accent-color: var(--color-hvr-background);
+    cursor: pointer;
+  }
+
+  select,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  textarea {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    border-color: var(--color-border);
+  }
+
+  select:hover,
+  input[type="text"]:hover,
+  input[type="email"]:hover,
+  input[type="password"]:hover,
+  input[type="url"]:hover,
+  textarea:hover {
+    border-color: var(--color-hvr-background);
+  }
+
+  .dark input[type="checkbox"],
+  .dark input[type="radio"] {
+    accent-color: var(--color-hvr-background-dark);
+  }
+
+  .dark input[type="range"] {
+    accent-color: var(--color-hvr-background-dark);
+  }
+}

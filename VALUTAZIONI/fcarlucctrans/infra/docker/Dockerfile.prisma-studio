@@ -1,0 +1,30 @@
+FROM node:20-bookworm-slim
+
+WORKDIR /repo
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+COPY apps/auth-service/package.json apps/auth-service/
+COPY apps/user-service/package.json apps/user-service/
+
+RUN npm ci -w auth-service -w user-service
+
+COPY apps/auth-service/prisma apps/auth-service/prisma
+COPY apps/user-service/prisma apps/user-service/prisma
+COPY infra/docker/prisma-studio.sh /prisma-studio.sh
+
+RUN chmod +x /prisma-studio.sh
+
+# Prisma Studio uses the generated client from each schema
+ENV DATABASE_URL=postgresql://postgres:postgres@postgres:5432/auth_service?schema=public
+RUN cd apps/auth-service && npx prisma generate
+
+ENV DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_service?schema=public
+RUN cd apps/user-service && npx prisma generate
+
+EXPOSE 5555 5556
+
+CMD ["/prisma-studio.sh"]

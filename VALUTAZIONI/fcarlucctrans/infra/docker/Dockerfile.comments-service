@@ -1,0 +1,43 @@
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /repo
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+COPY apps/comments-service/package.json apps/comments-service/
+
+RUN npm ci -w comments-service
+
+COPY apps/comments-service ./apps/comments-service
+
+WORKDIR /repo/apps/comments-service
+
+ENV DATABASE_URL="file:/data/comments.db"
+RUN npx prisma generate && npm run build
+
+FROM node:20-bookworm-slim AS runner
+
+WORKDIR /repo
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV=production
+ENV PORT=4004
+
+COPY package.json package-lock.json ./
+COPY apps/comments-service/package.json apps/comments-service/
+COPY --from=builder /repo/node_modules ./node_modules
+COPY --from=builder /repo/apps/comments-service/node_modules ./apps/comments-service/node_modules
+COPY --from=builder /repo/apps/comments-service/dist ./apps/comments-service/dist
+COPY --from=builder /repo/apps/comments-service/prisma ./apps/comments-service/prisma
+
+WORKDIR /repo/apps/comments-service
+
+VOLUME ["/data"]
+
+CMD ["node", "dist/src/main.js"]

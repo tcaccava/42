@@ -1,0 +1,98 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int      @id @default(autoincrement())
+  uuid             String   @unique @default(uuid()) @db.Uuid
+  login            String   @unique
+  email            String
+  image            String?
+  first_name       String?
+  last_name        String?
+  displayname      String?
+  pool_month       String?
+  pool_year        Int?
+  location         String?
+  wallet           Int?
+  correction_point Int?
+  grade            String?
+  kind             String?
+  status           String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  sessions         UserSession[]
+  refreshSessions  RefreshSession[]
+  dataRequests     DataRequest[]
+}
+
+/// GDPR confirmation tokens. Email-driven flow:
+/// user requests an op → row created with single-use random token → email
+/// link contains token → /confirm endpoint verifies + executes.
+model DataRequest {
+  id         String            @id @default(uuid()) @db.Uuid
+  userId     String            @db.Uuid
+  type       DataRequestType
+  token      String            @unique
+  status     DataRequestStatus @default(PENDING)
+  expiresAt  DateTime
+  createdAt  DateTime          @default(now())
+  consumedAt DateTime?
+
+  user User @relation(fields: [userId], references: [uuid], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+enum DataRequestType {
+  EXPORT
+  DELETE_ACCOUNT
+  ANONYMIZE
+}
+
+enum DataRequestStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+}
+
+/// Active access-token sessions (revoked on logout or expiry).
+model UserSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  accessJti String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [uuid], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Refresh-token chain. Stored as sha256(refresh_jwt) so token theft is detectable.
+/// On rotation: new row created, old row's `replacedById` is set, both kept until expiry
+/// so reuse of an already-rotated refresh raises an alarm and revokes the chain.
+model RefreshSession {
+  id           String           @id @default(uuid()) @db.Uuid
+  userId       String           @db.Uuid
+  tokenHash    String           @unique
+  expiresAt    DateTime
+  createdAt    DateTime         @default(now())
+  replacedById String?          @db.Uuid
+  replacedBy   RefreshSession?  @relation("RefreshChain", fields: [replacedById], references: [id])
+  successors   RefreshSession[] @relation("RefreshChain")
+
+  user User @relation(fields: [userId], references: [uuid], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}

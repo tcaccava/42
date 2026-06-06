@@ -1,0 +1,41 @@
+{
+  "name": "42cursus-ft_transcendence",
+  "private": true,
+  "packageManager": "npm@11.5.1",
+  "workspaces": [
+    "apps/*"
+  ],
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "prisma:generate": "npm run prisma:generate -w auth-service && npm run prisma:generate -w user-service && npm run prisma:generate -w project-backend",
+    "db:migrate": "npm run prisma:migrate:deploy -w auth-service && npm run prisma:migrate:deploy -w user-service",
+    "db:seed": "node scripts/seed-all.mjs",
+    "db:seed:users": "node scripts/seed-databases.mjs",
+    "db:seed:events": "node scripts/seed-events.mjs",
+    "db:seed:projects": "node scripts/seed-projects.mjs",
+    "db:seed:reset": "node scripts/seed-all.mjs --reset",
+    "db:seed:invitations": "node scripts/seed-pending-invitations.mjs",
+    "db:seed:public-api": "node scripts/seed-public-api.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fcarlucc/42cursus-ft_transcendence.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/fcarlucc/42cursus-ft_transcendence/issues"
+  },
+  "homepage": "https://github.com/fcarlucc/42cursus-ft_transcendence#readme",
+  "dependencies": {
+    "form-data": "^4.0.5",
+    "turbo": "^2.9.12"
+  }
+}

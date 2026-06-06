@@ -1,0 +1,10 @@
+export * as local from "./localization";
+export * as dark from "./dark-mode";
+export * as contrast from "./high-contrast";
+export * as i18n from "./i18n";
+export * as appearance from "./appearance";
+export * as providers from "./full-provider"
+export * as size from "./font-size"
+export * as knav from "./keyboard-navigation"
+export * as motion from "./reduce-motion"
+export * as spacing from "./text-spacing"

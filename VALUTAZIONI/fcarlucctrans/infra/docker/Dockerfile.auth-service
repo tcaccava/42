@@ -1,0 +1,49 @@
+FROM node:20-bookworm-slim AS deps
+
+WORKDIR /repo
+
+COPY package.json package-lock.json ./
+COPY apps/auth-service/package.json apps/auth-service/
+
+RUN npm ci -w auth-service
+
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /repo
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=deps /repo/node_modules ./node_modules
+COPY --from=deps /repo/apps/auth-service/node_modules ./apps/auth-service/node_modules
+COPY package.json package-lock.json ./
+COPY apps/auth-service ./apps/auth-service
+
+WORKDIR /repo/apps/auth-service
+
+ENV DATABASE_URL="postgresql://postgres:postgres@postgres:5432/auth_service?schema=public"
+
+RUN npx prisma generate && npm run build
+
+FROM node:20-bookworm-slim AS runner
+
+WORKDIR /repo
+
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV=production
+
+COPY package.json package-lock.json ./
+COPY apps/auth-service/package.json apps/auth-service/
+
+RUN npm ci -w auth-service --omit=dev
+
+COPY --from=builder /repo/apps/auth-service/dist ./apps/auth-service/dist
+COPY --from=builder /repo/apps/auth-service/prisma ./apps/auth-service/prisma
+COPY --from=builder /repo/apps/auth-service/src/generated ./apps/auth-service/src/generated
+
+WORKDIR /repo/apps/auth-service
+
+CMD ["node", "dist/main.js"]

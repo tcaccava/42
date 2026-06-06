@@ -1,0 +1,15 @@
+# HTTPS entry for local `make dev` (turbo on host :3000 / :4000).
+# From repo root:  make dev  (starts this automatically)
+
+services:
+  dev-proxy:
+    image: nginx:1.27-alpine
+    container_name: ft_transcendence_dev_proxy
+    ports:
+      - '${APP_HTTPS_PORT:-8443}:443'
+    volumes:
+      - ./dev-local.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../certs:/etc/nginx/certs:ro
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped

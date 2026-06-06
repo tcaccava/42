@@ -1,0 +1,264 @@
+# Full stack — from repo root:  make up
+# Ports and URLs come from .env.docker (not hardcoded). See .env.docker.example
+
+name: ft_transcendence
+
+x-app-env-files: &app-env-files
+  - .env
+  - .env.docker
+
+# S3-compatible storage (MinIO in Docker). Local dev can use Garage — see .env.example
+x-s3-env: &s3-env
+  S3_ENDPOINT: http://minio:9000
+  S3_PUBLIC_BASE_URL: https://localhost:${APP_HTTPS_PORT:-8443}/storage
+  S3_KEY: ${S3_KEY:-minioadmin}
+  S3_SECRET: ${S3_SECRET:-minioadmin}
+  S3_BUCKET: ${S3_BUCKET:-transcendence}
+  S3_REGION: ${S3_REGION:-us-east-1}
+
+services:
+  postgres:
+    build:
+      context: ./infra/db
+      dockerfile: Dockerfile
+    image: ft_transcendence_postgres:16
+    container_name: ft_transcendence_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: transcendence
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET:-minioadmin}
+    volumes:
+      - minio_data:/data
+    ports:
+      - '${MINIO_API_PORT:-9000}:9000'
+      - '${MINIO_CONSOLE_PORT:-9001}:9001'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:9000/minio/health/live || exit 1']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      <<: *s3-env
+    volumes:
+      - ./infra/docker/minio-init.sh:/minio-init.sh:ro
+    entrypoint: ['/bin/sh', '/minio-init.sh']
+    restart: 'no'
+
+  migrate:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.migrate
+    environment:
+      AUTH_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/auth_service?schema=public
+      USER_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/user_service?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+
+  sqlite-init:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.sqlite-init
+    environment:
+      COMMENTS_DATABASE_URL: file:/data/comments.db
+      PROJECT_DATABASE_URL: file:/data/project.db
+    volumes:
+      - sqlite_data:/data
+    restart: 'no'
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.auth-service
+    env_file: *app-env-files
+    environment:
+      NODE_ENV: production
+      AUTH_SERVICE_HOST: 0.0.0.0
+      AUTH_SERVICE_PORT: 4001
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/auth_service?schema=public
+    volumes:
+      - ./keys:/keys:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.user-service
+    env_file: *app-env-files
+    environment:
+      NODE_ENV: production
+      USER_SERVICE_HOST: 0.0.0.0
+      USER_SERVICE_PORT: 4002
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/user_service?schema=public
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  project-service:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.project-service
+    env_file: *app-env-files
+    environment:
+      NODE_ENV: production
+      PORT: 4003
+      PROJECT_DATABASE_URL: file:/data/project.db
+      DATABASE_URL: file:/data/project.db
+      <<: *s3-env
+    volumes:
+      - sqlite_data:/data
+    depends_on:
+      sqlite-init:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  comments-service:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.comments-service
+    env_file: *app-env-files
+    environment:
+      NODE_ENV: production
+      PORT: 4004
+      COMMENTS_DATABASE_URL: file:/data/comments.db
+      DATABASE_URL: file:/data/comments.db
+    volumes:
+      - sqlite_data:/data
+    depends_on:
+      sqlite-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.gateway
+    env_file: *app-env-files
+    environment:
+      NODE_ENV: production
+      GATEWAY_HOST: 0.0.0.0
+      GATEWAY_PORT: 4000
+      AUTH_SERVICE_HOST: auth-service
+      AUTH_SERVICE_PORT: 4001
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 4002
+      PROJECT_SERVICE_HOST: project-service
+      PROJECT_SERVICE_PORT: 4003
+      COMMENTS_SERVICE_HOST: comments-service
+      COMMENTS_SERVICE_PORT: 4004
+      <<: *s3-env
+    volumes:
+      - ./keys:/keys:ro
+    depends_on:
+      - auth-service
+      - user-service
+      - project-service
+      - comments-service
+      - minio-init
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    env_file: *app-env-files
+    environment:
+      NODE_ENV: production
+      API_URL: http://gateway:4000
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - '${APP_HTTPS_PORT:-8443}:443'
+    volumes:
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infra/certs:/etc/nginx/certs:ro
+    depends_on:
+      - web
+      - gateway
+    restart: unless-stopped
+
+  prisma-studio:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.prisma-studio
+    ports:
+      - '${PRISMA_STUDIO_AUTH_PORT:-5565}:5555'
+      - '${PRISMA_STUDIO_USER_PORT:-5566}:5556'
+    environment:
+      AUTH_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/auth_service?schema=public
+      USER_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/user_service?schema=public
+      PRISMA_STUDIO_AUTH_PORT: 5555
+      PRISMA_STUDIO_USER_PORT: 5556
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  seed:
+    image: node:20-alpine
+    profiles: [tools]
+    working_dir: /repo
+    volumes:
+      - .:/repo
+      - sqlite_data:/data
+    environment:
+      AUTH_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/auth_service?schema=public
+      USER_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/user_service?schema=public
+      PROJECT_DATABASE_URL: file:/data/project.db
+      COMMENTS_DATABASE_URL: file:/data/comments.db
+      S3_ENDPOINT: http://minio:9000
+      S3_KEY: ${S3_KEY:-minioadmin}
+      S3_SECRET: ${S3_SECRET:-minioadmin}
+      S3_BUCKET: ${S3_BUCKET:-transcendence}
+      S3_REGION: ${S3_REGION:-us-east-1}
+    command: sh -c "npm ci && npm run prisma:generate && npm run db:seed"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      sqlite-init:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
+    name: ft_transcendence_pgdata
+  sqlite_data:
+    name: ft_transcendence_sqlite_data
+  minio_data:
+    name: ft_transcendence_minio_data

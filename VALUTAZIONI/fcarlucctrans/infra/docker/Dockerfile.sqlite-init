@@ -1,0 +1,23 @@
+FROM node:20-bookworm-slim
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /repo
+
+COPY package.json package-lock.json ./
+COPY apps/comments-service/package.json apps/comments-service/
+COPY apps/project-service/package.json apps/project-service/
+
+RUN npm ci -w comments-service -w project-backend
+
+COPY apps/comments-service/prisma apps/comments-service/prisma
+COPY apps/comments-service/prisma.config.ts apps/comments-service/
+COPY apps/project-service/prisma apps/project-service/prisma
+COPY apps/project-service/prisma.config.ts apps/project-service/
+COPY infra/docker/sqlite-init.sh /sqlite-init.sh
+
+RUN chmod +x /sqlite-init.sh
+
+ENTRYPOINT ["/sqlite-init.sh"]

@@ -1,0 +1,102 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model UserProfile {
+  // NOTE: `userId` is the stable identifier (JWT `sub`).
+  // `login` is kept as a unique field for convenience.
+  userId    String   @id @db.Uuid
+  login     String   @unique
+  bio       String?  @db.Text
+  username  String?
+  website   String?
+  github    String?
+  linkedin   String?
+  campus     String?
+  coverImage String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Connection {
+  id          String           @id @default(uuid()) @db.Uuid
+  requesterId String           @db.Uuid
+  addresseeId String           @db.Uuid
+  status      ConnectionStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
+}
+
+/// API keys for the public REST API (hashed at rest; validated by gateway).
+model ApiKey {
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String
+  keyPrefix         String
+  keyHash           String   @unique
+  requestsPerMinute Int      @default(60)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  @@index([keyPrefix])
+}
+
+/// Generic resources exposed via GET/POST/PUT/DELETE on /api/v1/resources.
+model PublicResource {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String
+  content   String?  @db.Text
+  tags      String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
+model Event {
+  id              String   @id @default(uuid()) @db.Uuid
+  title           String
+  description     String   @db.Text
+  organizerLogin  String
+  organizerUserId String   @db.Uuid
+  organizerImage  String?
+  campus          String
+  date            String
+  time            String
+  location        String
+  maxParticipants Int
+  tags            String[] @default([])
+  coverImage      String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  participants EventParticipant[]
+
+  @@index([organizerLogin])
+}
+
+model EventParticipant {
+  id      String @id @default(uuid()) @db.Uuid
+  eventId String @db.Uuid
+  login   String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, login])
+  @@index([eventId])
+}

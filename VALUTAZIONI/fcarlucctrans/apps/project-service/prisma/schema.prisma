@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../prisma/client"
+  moduleFormat    = "cjs"
+
+  // This dumbass config option made me waste an entire evening trying to figure out why the backend wasn't running.
+  // Dear prisma devs - if the user specifies the module formate to be `cjs`, why the hell are you looknig for `.ts` files????
+  importFileExtension = "js"
+}
+
+datasource db {
+//  provider = "postgresql"
+  provider = "sqlite"
+}
+
+// For now, lists are represented as encoded Json strings because SQLite doesn't support lists of primitive types.
+// In the future they will be corrected to String[] if necessary.
+model Project {
+	id Int @default(autoincrement()) @id
+	title String @default("")
+	repositoryUrl String @default("")
+	subject Subject
+	description String @default("")
+	screenshots Json?
+	source String?
+	tags Json?
+  createdAt   DateTime @default(now())
+  user String
+  scores Score[]
+}
+
+model Score {
+  userId String
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+  score Int
+  favourite Boolean
+
+  @@id([userId, projectId])
+}
+
+enum Subject {
+  libft
+  ft_printf
+  get_next_line
+  minishell
+  push_swap
+  minitalk
+  cub3d
+  philosophers
+  pipex
+  so_long
+}

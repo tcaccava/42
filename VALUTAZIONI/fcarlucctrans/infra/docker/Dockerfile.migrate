@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+RUN apk add --no-cache openssl python3 make g++
+
+WORKDIR /repo
+
+COPY package.json package-lock.json ./
+COPY apps/auth-service/package.json apps/auth-service/
+COPY apps/user-service/package.json apps/user-service/
+
+RUN npm ci -w auth-service -w user-service
+
+COPY apps/auth-service/prisma apps/auth-service/prisma
+COPY apps/user-service/prisma apps/user-service/prisma
+COPY infra/docker/migrate.sh /migrate.sh
+
+RUN chmod +x /migrate.sh
+
+ENTRYPOINT ["/migrate.sh"]

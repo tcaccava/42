@@ -1,0 +1,49 @@
+FROM node:20-bookworm-slim AS deps
+
+WORKDIR /repo
+
+COPY package.json package-lock.json ./
+COPY apps/user-service/package.json apps/user-service/
+
+RUN npm ci -w user-service
+
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /repo
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=deps /repo/node_modules ./node_modules
+COPY --from=deps /repo/apps/user-service/node_modules ./apps/user-service/node_modules
+COPY package.json package-lock.json ./
+COPY apps/user-service ./apps/user-service
+
+WORKDIR /repo/apps/user-service
+
+ENV DATABASE_URL="postgresql://postgres:postgres@postgres:5432/user_service?schema=public"
+
+RUN npx prisma generate && npm run build
+
+FROM node:20-bookworm-slim AS runner
+
+WORKDIR /repo
+
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV=production
+
+COPY package.json package-lock.json ./
+COPY apps/user-service/package.json apps/user-service/
+
+RUN npm ci -w user-service --omit=dev
+
+COPY --from=builder /repo/apps/user-service/dist ./apps/user-service/dist
+COPY --from=builder /repo/apps/user-service/prisma ./apps/user-service/prisma
+COPY --from=builder /repo/apps/user-service/src/generated ./apps/user-service/src/generated
+
+WORKDIR /repo/apps/user-service
+
+CMD ["node", "dist/main.js"]

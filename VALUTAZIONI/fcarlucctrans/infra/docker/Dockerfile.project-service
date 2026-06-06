@@ -1,0 +1,44 @@
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /repo
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+COPY apps/project-service/package.json apps/project-service/
+
+RUN npm ci -w project-backend
+
+COPY apps/project-service ./apps/project-service
+
+WORKDIR /repo/apps/project-service
+
+ENV DATABASE_URL="file:/data/project.db"
+RUN npx prisma generate && npm run build
+
+FROM node:20-bookworm-slim AS runner
+
+WORKDIR /repo
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV=production
+ENV PORT=4003
+
+COPY package.json package-lock.json ./
+COPY apps/project-service/package.json apps/project-service/
+COPY --from=builder /repo/node_modules ./node_modules
+COPY --from=builder /repo/apps/project-service/node_modules ./apps/project-service/node_modules
+COPY --from=builder /repo/apps/project-service/dist ./apps/project-service/dist
+COPY --from=builder /repo/apps/project-service/prisma ./apps/project-service/prisma
+COPY --from=builder /repo/apps/project-service/prisma/client ./apps/project-service/prisma/client
+
+WORKDIR /repo/apps/project-service
+
+VOLUME ["/data"]
+
+CMD ["node", "dist/src/main.js"]
