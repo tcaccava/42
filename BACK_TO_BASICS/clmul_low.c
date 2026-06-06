@@ -56,5 +56,8 @@ Nelle architetture moderne (x86_64), Intel e AMD hanno introdotto l'istruzione d
 un flag quali metà a 64 bit moltiplicare, e sputa fuori il risultato carryless a 128 bit in pochissimi cicli di clock, garantendo un throughput spaventoso per la cifratura dei dati.
 */
 unsigned int clmul_low(unsigned int a, unsigned int b) {
-    
-}
+    unsigned int res = 0;
+    for(int i = 0;b;i++){
+        res ^= 0 ^ (((a << i) ^ 0) & -(b >> i & 1));
+
+    }
