@@ -75,7 +75,7 @@ unsigned long long uint128_add(
     return (res_lo);
 }
 
-int main(void)
+int main()
 {
     unsigned long long res_high;
     unsigned long long res_low;
@@ -102,9 +102,9 @@ int main(void)
      * ------------------------------------------------------------------------
      */
     printf("[TEST 2] Propagazione del Carry (Low -> High):\n");
-    unsigned long long a_lo_test2 = 0xFFFFFFFFFFFFFFFFULL; 
+    unsigned long long a_lo_test2 = 0xFFFFFFFFFFFFFFFFULL;
     unsigned long long b_lo_test2 = 0x0000000000000001ULL; // Fara' sballare a_lo a 0x00...
-    
+
     res_low = uint128_add(0x5ULL, a_lo_test2, 0x2ULL, b_lo_test2, &res_high);
     printf("Input A: 0x0000000000000005_%016llX\n", a_lo_test2);
     printf("Input B: 0x0000000000000002_%016llX\n", b_lo_test2);
