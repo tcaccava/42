@@ -1,0 +1,36 @@
+🖨️ ft_printf
+This project has been created as part of the 42 curriculum by edveneto!
+
+Description
+ft_printf è una rielaborazione della funzione standard printf del linguaggio C. Il progetto mira a ricreare le funzionalità di formattazione dell'output gestendo un numero variabile di argomenti (variadic functions). La libreria supporta le conversioni obbligatorie (cspdiuxX%) e una serie di flag avanzati per la gestione della larghezza, della precisione e degli allineamenti.
+
+Instructions
+Il progetto è compilabile tramite il Makefile incluso nella directory root.
+
+Comandi disponibili:
+
+make: Compila la libreria libftprintf.a.
+
+make clean: Rimuove i file oggetto (.o).
+
+make fclean: Rimuove i file oggetto e la libreria compilata.
+
+make re: Esegue fclean e ricompila.
+
+make bonus: Include le funzionalità estese dei flag (#, +,  ).
+
+Technical Choices
+Il codice è strutturato per essere modulare ed estensibile, basandosi su tre componenti principali:
+
+Parser: Analizza la stringa di formato e popola la struttura t_flags, che memorizza i modificatori richiesti (es. -, 0, .).
+
+"Ragioniere" (ft_set_params): Calcola preventivamente le lunghezze, i padding e gli zeri necessari basandosi sui parametri passati, memorizzandoli nella struttura t_params.
+
+"Operaio" (Funzioni di stampa): Esegue la scrittura effettiva su standard output (write) utilizzando i parametri pre-calcolati, garantendo un output conforme agli standard senza logica complessa durante la fase di stampa.
+
+La gestione dei puntatori (%p) è stata implementata tramite cast a unsigned long long per garantire la compatibilità con architetture a 64-bit.
+
+Resources
+Documentation: man 3 printf
+
+AI Usage: L'intelligenza artificiale è stata utilizzata esclusivamente come strumento di supporto per la code-review, l'ottimizzazione del codice in conformità alla Norminette. Nessun blocco di codice è stato integralmente generato o copiato dall'AI; ogni funzione è stata scritta e validata individualmente.

@@ -1,0 +1,23 @@
+#ifndef WEBSERV_H
+#define WEBSERV_H
+
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <map>
+#include <algorithm>
+#include <sstream>
+#include <stddef.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fstream>
+#include <dirent.h>
+
+
+#define CGI_TIMEOUT 5  // seconds
+
+#endif

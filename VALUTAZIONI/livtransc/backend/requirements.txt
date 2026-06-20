@@ -1,0 +1,11 @@
+django
+django[argon2]
+django-cors-headers
+dj-database-url
+Pillow
+channels==4.0.0
+daphne==4.0.0
+channels-redis==4.1.0
+psycopg2-binary
+requests
+detoxify

@@ -1,0 +1,68 @@
+#ifndef REQUEST_HPP
+#define REQUEST_HPP
+
+#include <string>
+#include <map>
+#include "structures.h"
+#include <cstdlib>
+#include "Config.hpp" 
+
+class Request 
+{
+	private:
+			size_t _maxBodySize;
+			std::string request_buf;
+			RequestConfig ConfReq;
+			typedef enum e_state
+			{
+				REQUEST_LINE,
+				HEADERS,
+				BODY_CONTENT,
+				BODY_CHUNK,
+				DONE
+			} Requeststate;
+			Requeststate state;
+	
+	public:
+			Request(std::string request_buf);
+			Request();
+			Request(const Request& other);
+			Request& operator=(const Request& other);
+			~Request();
+			void setBuffer(std::string buf);
+			int parseRequestLine();
+			void parseBody();
+			void parse();
+			std::string extractToken();
+			bool is_space(char c);
+			bool is_crlf(char c);
+			bool is_digit(char c);
+			void cleanTerminator();
+			std::string strToLower(std::string str);
+			const RequestConfig& getReqConf() const;
+			bool hasContentLength(std::string s);
+			std::string GetHeaderLen();
+			bool is_number(std::string str);
+			std::string strTrim(std::string str, size_t pos);
+			bool isDone() const;
+			void parseHeaders(std::string line);
+			std::string extractHeader(std::string& line);
+			void printHttp();
+			void parseCookie();
+			void getMaxBodySize(size_t value);
+
+			class RequestException : public std::exception
+			{
+				private:
+						int code;
+				public:
+						RequestException(int code);
+						int getCode() const; 
+						virtual const char* what() const throw();
+			};
+		
+};
+
+
+#endif
+

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webserv Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>🚀 Webserv Control Panel</h1>
+
+<div class="card">
+    <h2>GET</h2>
+    <button onclick="testGet()">Test GET /</button>
+    <button onclick="testFile()">GET file</button>
+</div>
+
+<div class="card">
+    <h2>POST</h2>
+    <textarea id="postData" placeholder="Write something..."></textarea>
+    <button onclick="testPost()">Send POST</button>
+</div>
+
+<div class="card">
+    <h2>DELETE</h2>
+    <button onclick="testDelete()">Delete test file</button>
+</div>
+
+<div class="card">
+    <h2>CGI</h2>
+    <button onclick="runCgi()">Run Python CGI</button>
+</div>
+
+<div class="card">
+    <h2>Navigation</h2>
+    <a href="/files">📁 File Explorer</a><br>
+    <a href="/upload.html">⬆ Upload Page</a>
+</div>
+
+<div class="card">
+    <h2>Cookie Test</h2>
+    <button onclick="showCookies()">Show Cookies</button>
+    <button onclick="setCookie()">Set Cookie JS</button>
+</div>
+
+<div class="card">
+    <h2>Cookie Manager</h2>
+
+    <input id="cookieKey" placeholder="Key">
+    <input id="cookieValue" placeholder="Value">
+    <button onclick="setCustomCookie()">Set Cookie</button>
+
+    <button onclick="showCookies()">Show Cookies</button>
+</div>
+
+<pre id="output"></pre>
+
+<script src="/script.js"></script>
+</body>
+</html>
