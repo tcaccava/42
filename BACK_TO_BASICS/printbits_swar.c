@@ -51,7 +51,7 @@ void print_bits32(unsigned int n)
     write(1, "\n", 1);
 }
 
-int main()
-{
-    print_bits32(0xFF00FF00);
-}
+// int main()
+// {
+//     print_bits32(0xFF00FF00);
+// }

@@ -6,20 +6,24 @@
  * PARALLEL POPCOUNT REDUCTION
  * =====================================================================================
  *
+ * Calcola in serie il popcount per ogni elemento di un array di dati e poi somma a coppie
+ * quei popcount sfruttando un uint64_t come accumulatore,dimezzando il numero di addizioni
+ * richieste.
+ *
  * BASI TEORICHE:
- * Implementa una "Parallel Reduction" utilizzando il paradigma SWAR (SIMD Within 
+ * Implementa una "Parallel Reduction" utilizzando il paradigma SWAR (SIMD Within
  * A Register). Invece di accumulare i risultati serialmente (creando una dipendenza
  * sequenziale), il loop unisce i calcoli a coppie. La complessità asintotica rimane
- * O(n), ma si dimezzano fisicamente le iterazioni del ciclo di riduzione, massimizzando 
+ * O(n), ma si dimezzano fisicamente le iterazioni del ciclo di riduzione, massimizzando
  * l'Instruction-Level Parallelism (ILP).
  *
  * IMPLEMENTAZIONE HARDWARE:
- * Il codice sfrutta l'intera larghezza del data bus e della ALU a 64 bit. 
- * "Impacchettando" due interi a 32 bit in un singolo uint64_t, creiamo due "corsie" 
- * (lanes) isolate. Quando eseguiamo 'res += temp', l'hardware della CPU esegue due 
- * addizioni distinte in un singolo ciclo di clock. Le corsie sono matematicamente 
- * sicure: il popcount massimo di 32 non causerà mai un overflow verso la corsia 
- * adiacente. Infine, la maschera bitwise finale risolve gli array dispari 
+ * Il codice sfrutta l'intera larghezza del data bus e della ALU a 64 bit.
+ * "Impacchettando" due interi a 32 bit in un singolo uint64_t, creiamo due "corsie"
+ * (lanes) isolate. Quando eseguiamo 'res += temp', l'hardware della CPU esegue due
+ * addizioni distinte in un singolo ciclo di clock. Le corsie sono matematicamente
+ * sicure: il popcount massimo di 32 non causerà mai un overflow verso la corsia
+ * adiacente. Infine, la maschera bitwise finale risolve gli array dispari
  * azzerando completamente le penalità da branch prediction (0 salti condizionali).
  *
  * APPLICAZIONI PRATICHE:
@@ -72,4 +76,3 @@ int main()
 
     return 0;
 }
-
