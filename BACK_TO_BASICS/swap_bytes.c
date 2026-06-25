@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 // fa quello che fa __builtin_bswap32,cioè inverte i bytes di un uint32_t
-unsigned int ft_swap_bytes(unsigned int n)
+unsigned int swap_bytes(unsigned int n)
 {
     uint32_t c = (uint32_t)n;
     uint32_t res = 0;
