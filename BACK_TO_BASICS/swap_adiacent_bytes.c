@@ -8,5 +8,6 @@ unsigned int swap_adjacent_bytes(unsigned int n) {
 }
 
 int main() {
+    // https://youtu.be/eUfrZYuRKcc
     print_bits32(swap_adjacent_bytes(0b10111010110000001110010100011110));// 01110101110000001101101000101101
 }
