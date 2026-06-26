@@ -49,15 +49,8 @@
 
 #include <stdio.h>
 
-/**
- * @brief Scambia i byte adiacenti di un intero a 32 bit (0b[B3][B2][B1][B0] -> 0b[B2][B3][B0][B1]).
- * @param n Il registro a 32 bit da permutare.
- * @return Il registro con le coppie di byte invertite.
- */
 unsigned int swap_adjacent_bytes(unsigned int n) 
 {
-    // Parentesi aggiunte per evitare i warning di precedenza (-Wparentheses)
-    // e garantire la massima conformità agli standard ISO C.
     return ((n << 8) & 0xFF00FF00U) | ((n >> 8) & 0x00FF00FFU);
 }
 
@@ -66,12 +59,7 @@ int main(void)
     unsigned int test_val = 0x00FF00FFU;
     unsigned int result   = swap_adjacent_bytes(test_val);
 
-    printf("==================================================\n");
-    printf(" SWAP ADJACENT BYTES - PERFORMANCE TEST           \n");
-    printf("==================================================\n");
     printf("Input originale:  0x%08X\n", test_val);
     printf("Output elaborato: 0x%08X\n", result);
-    printf("==================================================\n");
 
-    return 0;
 }
