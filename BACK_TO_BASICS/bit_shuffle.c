@@ -20,14 +20,14 @@
  * La confusione e' rendere la relazione tra chiave e testo cifrato quanto piu' oscura possibile,ovvero impedire ad un attaccante di
  * capire come la chiave influenzi il processo di cifratura. Si realizza tramite le S-Box,che operano una trasformazione non lineare
  * sostituendo gruppi di bit in input con altri bit in output,secondo la logica che se cambi un solo bit della chiave,il risultato cifrato
- * deve cambiare n modo imprevedibile e caotico. In sostanza la confusioe e' cio' che rende inutile la crittoanalisi lineare e differenziale semplice.
+ * deve cambiare n modo imprevedibile e caotico. In sostanza la confusione e' cio' che rende inutile la crittoanalisi lineare e differenziale semplice.
  * La diffusione ha invece lo scopo di distribuire l'influenza di ogni singolo bit del testo i chiaro su tutto il risultato cifrato,impedendo ad un attaccante
  * di dedurre schemi statistici da quest'ultimo(come la frequenza delle lettere o la ridondanza della lingua). La diffusione si tralizza tramite le P-Box e il mixing lineare(shift).
  * Quindi in sintesi la confusione si occupa della relazione chiave-cifrato,la rende oscura attraverso la non linearita',sfruttando le S-box,con lo scopo finale di proteggere e nascondere
- * la chiave. La diffusione si occupa di rendere oscura la relazione tra testo da cifrae e testo cifrato,la realizza attraverso il mescolamento spaziale,sfruttando le P-box e lo shift,con lo
+ * la chiave. La diffusione si occupa di rendere oscura la relazione tra testo da cifrare e testo cifrato,la realizza attraverso il mescolamento spaziale,sfruttando le P-box e lo shift,con lo
  * scopo finale di nascondere e rendere difficilmente accessibili le informazioni e le statistiche sul testo in chiaro.
  * In sostanza la confusione serve a rendere astratta la chiave,evitando di ricavarla da una analisi delle relazione tra testo in chiaro e cifrato.
- * La diffusione rende astraggio il cifrato: se cambia un solo bit di input nel testo da cifrare l'intero cifrato diventa completamente diverso,impedendo di isolare l'informazione rappresentata da
+ * La diffusione rende astratto il cifrato: se cambia un solo bit di input nel testo da cifrare l'intero cifrato diventa completamente diverso,impedendo di isolare l'informazione rappresentata da
  * quel singolo bit di input nel cifrato.
  * Un moderno cifrario deve implementare,generalmente ripetute in cicli multipli(round),sia la diffusione che la confusione,perche' nessuna delle due
  * prese singolarmente basta a fermare un attacco moderno.

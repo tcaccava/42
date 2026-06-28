@@ -40,7 +40,6 @@ unsigned int bit_deposit_scattered(unsigned int n, unsigned int *positions, int 
         unsigned int bit = (n >> i) & 1;
         unsigned int destination = positions[i] & 31;;
         
-        
         res |= (bit << destination);
     }
     
