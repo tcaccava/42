@@ -1,5 +1,5 @@
 #include <stdio.h>
-//ritorna l'indice del numero target se presente nell'array di dimensione n,ma senza iterare su tutto l'array
+// ritorna l'indice del numero target se presente nell'array di dimensione n,ma senza iterare su tutto l'array
 int ft_binary_search_bitwise(int *arr, int n, int target)
 {
     int low = 0;

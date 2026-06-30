@@ -1,0 +1,60 @@
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:9][logLoadedConfig] << Loaded 1 server block(s)
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:14][logLoadedConfig] << server 0
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:17][logLoadedConfig] << |-- listen: 10.0.0.1:8080
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:17][logLoadedConfig] << |-- listen: 10.0.0.1:8081
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:20][logLoadedConfig] << |-- server_name: myserver.local
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:22][logLoadedConfig] << |-- client_max_body_size: 100
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:26][logLoadedConfig] << |-- error_page 404: ./www/errors/404.html
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:26][logLoadedConfig] << |-- error_page 500: ./www/errors/500.html
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:32][logLoadedConfig] << |
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:33][logLoadedConfig] << |-- location: /
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:36][logLoadedConfig] << |   |-- root: ./www
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:38][logLoadedConfig] << |   |-- index: index.html
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:47][logLoadedConfig] << |   |-- allowed_methods: GET POST PUT DELETE HEAD
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:50][logLoadedConfig] << |   |-- autoindex: on
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:55][logLoadedConfig] << |   |-- upload_path: ./www/uploads
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:59][logLoadedConfig] << |   |-- cgi_ext .php: /usr/bin/php-cgi
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:59][logLoadedConfig] << |   |-- cgi_ext .py: /usr/bin/python3
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:63][logLoadedConfig] << |   |-- cgi_dir: ./www/cgi-bin
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:32][logLoadedConfig] << |
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:33][logLoadedConfig] << |-- location: /images
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:36][logLoadedConfig] << |   |-- root: ./www
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:38][logLoadedConfig] << |   |-- index: index.jpg
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:47][logLoadedConfig] << |   |-- allowed_methods: GET HEAD
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:50][logLoadedConfig] << |   |-- autoindex: on
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:32][logLoadedConfig] << |
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:33][logLoadedConfig] << |-- location: /redirect
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:38][logLoadedConfig] << |   |-- index: index.html
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:50][logLoadedConfig] << |   |-- autoindex: off
+[2026-06-30 22:52:46] [SUCCESS] << [config/src/Config.cpp:53][logLoadedConfig] << |   |-- return: 301 http://google.com
+[2026-06-30 22:52:46] [ERROR  ] << [client/src/Client.cpp:31][runWebServer] << Failed to listen on 10.0.0.1:8080 (Cannot assign requested address)
+[2026-06-30 22:52:46] [ERROR  ] << [client/src/Client.cpp:31][runWebS[2026-06-30 22:55:01] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /methods.html
+[2026-06-30 22:55:01] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /methods.html via /
+[2026-06-30 22:55:01] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:204][handleGet] << HTTP GET /methods.html -> 200
+[2026-06-30 22:55:01] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /upload/
+[2026-06-30 22:55:01] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /upload/ via /
+[2026-06-30 22:55:01] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:220][handleGet] << HTTP GET /upload/ -> 404
+[2026-06-30 22:55:14] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json
+[2026-06-30 22:55:14] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json via /
+[2026-06-30 22:55:14] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:220][handleGet] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json -> 404
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /methods.html
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /methods.html via /
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:204][handleGet] << HTTP GET /methods.html -> 200
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json via /
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:220][handleGet] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json -> 404
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /upload/
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /upload/ via /
+[2026-06-30 22:55:34] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:220][handleGet] << HTTP GET /upload/ -> 404
+[2026-06-30 22:55:45] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP POST /upload/cicii.txt
+[2026-06-30 22:55:45] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:249][handlePost] << HTTP POST /upload/cicii.txt via /
+[2026-06-30 22:55:45] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:296][handlePost] << HTTP POST /upload/cicii.txt -> 201
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /methods.html
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /methods.html via /
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:204][handleGet] << HTTP GET /methods.html -> 200
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json via /
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:220][handleGet] << HTTP GET /.well-known/appspecific/com.chrome.devtools.json -> 404
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:354][handle] << HTTP GET /upload/
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:185][handleGet] << HTTP GET /upload/ via /
+[2026-06-30 22:55:49] [DEBUG  ] << [client/src/handler/RequestHandler.cpp:220][handleGet] << HTTP GET /upload/ -> 404

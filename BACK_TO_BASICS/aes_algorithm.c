@@ -27,8 +27,6 @@
 
 #include <stdio.h>
 
-// [Includere qui le implementazioni di SubBytes, ShiftRows, MixColumns, AddRoundKey]
-
 /**
  * @brief Esegue un singolo round di AES.
  */

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>HTTP methods demo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: #f5f4f0;
+            color: #1a1a18;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .wrap {
+            max-width: 780px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .header-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #378ADD;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a18;
+            letter-spacing: -0.3px;
+        }
+
+        .back {
+            font-size: 12px;
+            color: #5f5e5a;
+            text-decoration: none;
+            border: 0.5px solid #ccc;
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            background: #fff;
+            transition: background .15s;
+        }
+
+        .back:hover {
+            background: #ebebeb;
+        }
+
+        .section {
+            background: #ffffff;
+            border: 0.5px solid #d4d3cb;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #888780;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field-row {
+            margin-bottom: .75rem;
+        }
+
+        .field-label {
+            font-size: 12px;
+            color: #888780;
+            margin-bottom: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        input[type=text],
+        textarea {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            background: #f5f4f0;
+            border: 0.5px solid #b4b2a9;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #1a1a18;
+            transition: border-color .15s;
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+
+        input[type=text] {
+            resize: none;
+        }
+
+        textarea {
+            resize: vertical;
+            border-radius: 8px 8px 2px 8px;
+        }
+
+        input[type=text]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #378ADD;
+        }
+
+        /* Stile aggiuntivo per il select disabilitato */
+        select:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #e9e8e4;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 7px 16px;
+            border-radius: 8px;
+            border: 0.5px solid;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Syne', sans-serif;
+            cursor: pointer;
+            letter-spacing: .04em;
+            transition: opacity .15s, transform .1s;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn:hover {
+            opacity: .8;
+        }
+
+        .btn-post {
+            background: #E6F1FB;
+            color: #0C447C;
+            border-color: #B5D4F4;
+        }
+
+        .btn-put {
+            background: #EAF3DE;
+            color: #27500A;
+            border-color: #C0DD97;
+        }
+
+        .btn-get {
+            background: #EEEDFE;
+            color: #3C3489;
+            border-color: #CECBF6;
+        }
+
+        .btn-delete {
+            background: #FCEBEB;
+            color: #791F1F;
+            border-color: #F7C1C1;
+        }
+
+        .output-wrap {
+            margin-top: 1rem;
+            border: 0.5px solid #d4d3cb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .output-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 10px;
+            background: #eeede9;
+            border-bottom: 0.5px solid #d4d3cb;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #888780;
+        }
+
+        .output-header-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .output-line-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #888780;
+        }
+
+        .output-body {
+            background: #f5f4f0;
+            max-height: 200px;
+            overflow: auto;
+        }
+
+        .output-editor {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .output-gutter {
+            box-sizing: border-box;
+            padding: 0 8px 0 8px;
+            background: #eeede9;
+            border-right: 0.5px solid #d4d3cb;
+            color: #b4b2a9;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: right;
+            white-space: pre;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .output-pre {
+            flex: 1;
+            min-width: 0;
+            margin: 0;
+            padding: 0 12px 0 4px;
+            border: none;
+            background: transparent;
+            font: inherit;
+            color: #1a1a18;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            line-height: 1.6;
+        }
+
+        .output-pre.output-idle {
+            color: #888780;
+            font-style: italic;
+        }
+
+        .output-pre .output-line-status-2xx {
+            color: #27500A;
+            font-weight: 500;
+        }
+
+        .output-pre .output-line-status-4xx {
+            color: #791F1F;
+            font-weight: 500;
+        }
+
+        .output-pre .output-line-status-5xx {
+            color: #633806;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .s2 {
+            background: #EAF3DE;
+            color: #27500A;
+        }
+
+        .s4 {
+            background: #FCEBEB;
+            color: #791F1F;
+        }
+
+        .s5 {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .idle-msg {
+            color: #888780;
+            font-style: italic;
+        }
+
+        .curl-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding: 6px 0;
+            border-bottom: 0.5px solid #e8e7e3;
+        }
+
+        .curl-item:last-child {
+            border-bottom: none;
+        }
+
+        .curl-method {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 20px;
+            min-width: 54px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .m-post {
+            background: #E6F1FB;
+            color: #0C447C;
+        }
+
+        .m-put {
+            background: #EAF3DE;
+            color: #27500A;
+        }
+
+        .m-get {
+            background: #EEEDFE;
+            color: #3C3489;
+        }
+
+        .m-delete {
+            background: #FCEBEB;
+            color: #791F1F;
+        }
+
+        .m-head {
+            background: #F1EFE8;
+            color: #2C2C2A;
+        }
+
+        .curl-cmd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #5f5e5a;
+            flex: 1;
+            padding-top: 1px;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            min-width: 0;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888780;
+            font-size: 14px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: color .15s, background .15s;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            color: #1a1a18;
+            background: #f0efe9;
+        }
+
+        .curl-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+            padding: 4px 0;
+            min-width: 0;
+        }
+
+        .curl-row+.curl-row {
+            border-top: 0.5px dashed #e8e7e3;
+        }
+
+        .fetch-cmd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #888780;
+            flex: 1;
+            padding-top: 1px;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            min-width: 0;
+        }
+
+        .tag-console {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 20px;
+            min-width: 54px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
+            margin-top: 1px;
+            background: #F1EFE8;
+            color: #2C2C2A;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <div class="header">
+            <div class="header-dot"></div>
+            <h1>HTTP Methods Demo</h1>
+            <a href="/" class="back">← home</a>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Upload file</div>
+
+            <div class="field-row">
+                <div class="field-label">Filename</div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="filename" placeholder="e.g. demo.txt" style="flex:1;" />
+                    <select id="file-select" disabled
+                        style="flex:1; border:0.5px solid #b4b2a9; border-radius:8px; padding:8px 10px; font-size:13px; font-family:'JetBrains Mono',monospace; color:#1a1a18;">
+                        <option value="">— pick a file —</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field-label">Request body</div>
+                <textarea id="body" rows="3" placeholder="e.g. hello from browser"></textarea>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-post" id="btn-post">POST</button>
+                <button class="btn btn-put" id="btn-put">PUT</button>
+                <button class="btn btn-get" id="btn-get">GET</button>
+                <button class="btn btn-delete" id="btn-delete">DELETE</button>
+            </div>
+
+            <div class="output-wrap">
+                <div class="output-header">
+                    <div class="output-header-left">
+                        <i class="ti ti-terminal-2" aria-hidden="true"></i>
+                        response
+                    </div>
+                    <span class="output-line-count" id="output-lines">0 lines</span>
+                </div>
+                <div class="output-body" id="output-body">
+                    <div class="output-editor">
+                        <div class="output-gutter" id="output-gutter" aria-hidden="true"></div>
+                        <pre class="output-pre" id="output-pre"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <i class="ti ti-terminal" aria-hidden="true"></i>
+                curl examples
+            </div>
+
+            <div class="curl-item">
+                <div class="curl-row">
+                    <span class="curl-method m-post">POST</span>
+                    <span class="curl-cmd">curl -X POST -d 'hello' http://127.0.0.1:8080/upload/test.txt</span>
+                    <button class="copy-btn" data-cmd="curl -X POST -d 'hello' http://127.0.0.1:8080/upload/test.txt"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+                <div class="curl-row">
+                    <span class="tag-console">console</span>
+                    <span class="fetch-cmd">fetch('/upload/test.txt', {method:'POST', body:'hello'}).then(r =>
+                        r.text()).then(console.log)</span>
+                    <button class="copy-btn"
+                        data-cmd="fetch('/upload/test.txt', {method:'POST', body:'hello'}).then(r => r.text()).then(console.log)"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+            </div>
+            <div class="curl-item">
+                <div class="curl-row">
+                    <span class="curl-method m-put">PUT</span>
+                    <span class="curl-cmd">curl -X PUT -d 'updated' http://127.0.0.1:8080/upload/test.txt</span>
+                    <button class="copy-btn" data-cmd="curl -X PUT -d 'updated' http://127.0.0.1:8080/upload/test.txt"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+                <div class="curl-row">
+                    <span class="tag-console">console</span>
+                    <span class="fetch-cmd">fetch('/upload/test.txt', {method:'PUT', body:'updated'}).then(r =>
+                        r.text()).then(console.log)</span>
+                    <button class="copy-btn"
+                        data-cmd="fetch('/upload/test.txt', {method:'PUT', body:'updated'}).then(r => r.text()).then(console.log)"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+            </div>
+            <div class="curl-item">
+                <div class="curl-row">
+                    <span class="curl-method m-get">GET</span>
+                    <span class="curl-cmd">curl http://127.0.0.1:8080/upload/test.txt</span>
+                    <button class="copy-btn" data-cmd="curl http://127.0.0.1:8080/upload/test.txt" title="Copy"><i
+                            class="ti ti-copy"></i></button>
+                </div>
+                <div class="curl-row">
+                    <span class="tag-console">console</span>
+                    <span class="fetch-cmd">fetch('/upload/test.txt').then(r => r.text()).then(console.log)</span>
+                    <button class="copy-btn" data-cmd="fetch('/upload/test.txt').then(r => r.text()).then(console.log)"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+            </div>
+            <div class="curl-item">
+                <div class="curl-row">
+                    <span class="curl-method m-delete">DEL</span>
+                    <span class="curl-cmd">curl -X DELETE http://127.0.0.1:8080/upload/test.txt</span>
+                    <button class="copy-btn" data-cmd="curl -X DELETE http://127.0.0.1:8080/upload/test.txt"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+                <div class="curl-row">
+                    <span class="tag-console">console</span>
+                    <span class="fetch-cmd">fetch('/upload/test.txt', {method:'DELETE'}).then(r =>
+                        r.text()).then(console.log)</span>
+                    <button class="copy-btn"
+                        data-cmd="fetch('/upload/test.txt', {method:'DELETE'}).then(r => r.text()).then(console.log)"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+            </div>
+            <div class="curl-item">
+                <div class="curl-row">
+                    <span class="curl-method m-head">HEAD</span>
+                    <span class="curl-cmd">curl -I http://127.0.0.1:8080/</span>
+                    <button class="copy-btn" data-cmd="curl -I http://127.0.0.1:8080/" title="Copy"><i
+                            class="ti ti-copy"></i></button>
+                </div>
+                <div class="curl-row">
+                    <span class="tag-console">console</span>
+                    <span class="fetch-cmd">fetch('/').then(r => console.log(r.status, [...r.headers]))</span>
+                    <button class="copy-btn" data-cmd="fetch('/').then(r => console.log(r.status, [...r.headers]))"
+                        title="Copy"><i class="ti ti-copy"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        function uploadPath() {
+            var name = document.getElementById('filename').value || 'demo.txt';
+            return '/upload/' + name;
+        }
+
+        function normalizeNewlines(text) {
+            return String(text).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        }
+
+        function extractBody(text) {
+            var match = text.match(/<title[^>]*>([^<]*)<\/title>/i);
+            if (match) return normalizeNewlines(match[1]);
+            match = text.match(/<h1[^>]*>([^<]*)<\/h1>/i);
+            if (match) return normalizeNewlines(match[1]);
+            var tmp = document.createElement('div');
+            tmp.innerHTML = text;
+            var content = normalizeNewlines(tmp.textContent);
+            if (!content.trim())
+                return '(empty body)';
+            return content;
+        }
+
+        function bodyForDisplay(text) {
+            if (!text || !text.length)
+                return '(empty body)';
+            var normalized = normalizeNewlines(text);
+            if (/<html|<body|<title|<h1/i.test(normalized))
+                return extractBody(text);
+            return normalized;
+        }
+
+        var OUTPUT_PREVIEW_MAX_LINES = 5000;
+        var OUTPUT_PREVIEW_MAX_CHARS = 655360;
+        var OUTPUT_GUTTER_MAX_LINES = 5000;
+        var outputPreviewMeta = null;
+        var outputSyncFrame = 0;
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function formatByteSize(bytes) {
+            if (bytes < 1024)
+                return bytes + ' B';
+            if (bytes < 1048576)
+                return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function countLogicalLines(text) {
+            if (!text || !text.length)
+                return 1;
+            var count = 1;
+            for (var i = 0; i < text.length; i++) {
+                if (text.charCodeAt(i) === 10)
+                    count++;
+            }
+            return count;
+        }
+
+        function truncateForPreview(text) {
+            var totalLines = countLogicalLines(text);
+            var totalChars = text.length;
+            var cut = text.length;
+            var lines = 1;
+
+            for (var i = 0; i < text.length; i++) {
+                if (text.charCodeAt(i) === 10) {
+                    lines++;
+                    if (lines > OUTPUT_PREVIEW_MAX_LINES) {
+                        cut = i;
+                        break;
+                    }
+                }
+            }
+
+            if (cut === text.length && text.length > OUTPUT_PREVIEW_MAX_CHARS)
+                cut = OUTPUT_PREVIEW_MAX_CHARS;
+
+            var truncated = cut < text.length;
+            var preview = truncated ? text.slice(0, cut) : text;
+
+            return {
+                preview: preview,
+                truncated: truncated,
+                totalLines: totalLines,
+                totalChars: totalChars
+            };
+        }
+
+        function gutterWidthCh(lineCount) {
+            var digits = String(lineCount).length;
+            return Math.max(2, digits) + 2;
+        }
+
+        function statusTone(statusCode) {
+            if (statusCode >= 500) return '5xx';
+            if (statusCode >= 400) return '4xx';
+            return '2xx';
+        }
+
+        function countVisualLines(pre) {
+            var style = window.getComputedStyle(pre);
+            var lineHeight = parseFloat(style.lineHeight);
+            if (!lineHeight || isNaN(lineHeight))
+                lineHeight = parseFloat(style.fontSize) * 1.6;
+            return Math.max(1, Math.round(pre.scrollHeight / lineHeight));
+        }
+
+        function fillGutterNumbers(gutter, lineCount) {
+            if (lineCount < 1)
+                lineCount = 1;
+            gutter.style.minWidth = gutterWidthCh(lineCount) + 'ch';
+            var numbers = new Array(lineCount);
+            for (var i = 0; i < lineCount; i++)
+                numbers[i] = String(i + 1);
+            gutter.textContent = numbers.join('\n');
+        }
+
+        function updateLineCountLabel(visualLines, gutterLines) {
+            var counter = document.getElementById('output-lines');
+            var meta = outputPreviewMeta;
+
+            if (meta && meta.truncated) {
+                counter.textContent = gutterLines + ' shown · '
+                    + meta.totalLines.toLocaleString() + ' lines · '
+                    + formatByteSize(meta.totalChars) + ' total';
+                return;
+            }
+
+            if (visualLines > gutterLines) {
+                counter.textContent = gutterLines + ' shown · ' + visualLines + ' display lines';
+                return;
+            }
+
+            counter.textContent = visualLines + (visualLines === 1 ? ' line' : ' lines');
+        }
+
+        function syncOutputLineNumbers() {
+            var pre = document.getElementById('output-pre');
+            var gutter = document.getElementById('output-gutter');
+            var visualLines = countVisualLines(pre);
+            var gutterLines = visualLines;
+
+            if (gutterLines > OUTPUT_GUTTER_MAX_LINES)
+                gutterLines = OUTPUT_GUTTER_MAX_LINES;
+
+            fillGutterNumbers(gutter, gutterLines);
+            updateLineCountLabel(visualLines, gutterLines);
+        }
+
+        function scheduleSyncOutputLineNumbers() {
+            if (outputSyncFrame)
+                return;
+            outputSyncFrame = requestAnimationFrame(function () {
+                outputSyncFrame = 0;
+                syncOutputLineNumbers();
+            });
+        }
+
+        function setPreContent(pre, text, statusCode) {
+            if (statusCode == null) {
+                pre.textContent = text;
+                return;
+            }
+
+            var newlineAt = text.indexOf('\n');
+            var firstLine = newlineAt === -1 ? text : text.slice(0, newlineAt);
+            var rest = newlineAt === -1 ? '' : text.slice(newlineAt + 1);
+            var html = '<span class="output-line-status-' + statusTone(statusCode) + '">'
+                + escapeHtml(firstLine) + '</span>';
+
+            if (rest.length)
+                html += '\n' + escapeHtml(rest);
+
+            pre.innerHTML = html;
+        }
+
+        function renderOutputText(text, options) {
+            options = options || {};
+            var pre = document.getElementById('output-pre');
+            var normalized = normalizeNewlines(text);
+            var preview = truncateForPreview(normalized);
+
+            outputPreviewMeta = preview.truncated ? preview : null;
+
+            var displayText = preview.preview;
+            if (preview.truncated) {
+                displayText += '\n\n[Preview truncated — '
+                    + preview.totalLines.toLocaleString() + ' lines, '
+                    + formatByteSize(preview.totalChars)
+                    + ' received. Only the first '
+                    + OUTPUT_PREVIEW_MAX_LINES + ' lines / '
+                    + formatByteSize(OUTPUT_PREVIEW_MAX_CHARS) + ' are rendered.]';
+            }
+
+            pre.className = 'output-pre';
+            if (options.idle)
+                pre.classList.add('output-idle');
+
+            setPreContent(pre, displayText, options.statusCode);
+            scheduleSyncOutputLineNumbers();
+        }
+
+        function showResult(method, response, text) {
+            var body = bodyForDisplay(text);
+            var display = response.status + ' ' + response.statusText + '\n'
+                + method + '\n\n'
+                + body;
+            renderOutputText(display, { statusCode: response.status });
+        }
+
+        // ---------- LOGICA GESTIONE FILE E SELECT UNIFICATA ----------
+
+        var knownFiles = [];
+
+        function renderFileSelect() {
+            var sel = document.getElementById('file-select');
+            var prev = sel.value;
+            sel.innerHTML = '<option value="">— pick a file —</option>';
+
+            knownFiles.forEach(function (f) {
+                var opt = document.createElement('option');
+                opt.value = f;
+                opt.textContent = f;
+                sel.appendChild(opt);
+            });
+
+            if (prev && knownFiles.indexOf(prev) !== -1) {
+                sel.value = prev;
+            }
+
+            // Disabilita se non ci sono elementi
+            sel.disabled = (knownFiles.length === 0);
+        }
+
+        function refreshFileList() {
+            fetch('/upload/')
+                .then(function (r) { return r.ok ? r.json() : []; })
+                .then(function (files) {
+                    knownFiles = files; // Sincronizza lo stato locale
+                    knownFiles.sort();
+                    renderFileSelect();
+                })
+                .catch(function () {
+                    renderFileSelect();
+                });
+        }
+
+        function addToFileList(name) {
+            if (knownFiles.indexOf(name) === -1) {
+                knownFiles.push(name);
+                knownFiles.sort();
+                renderFileSelect();
+            }
+        }
+
+        function removeFromFileList(name) {
+            var idx = knownFiles.indexOf(name);
+            if (idx !== -1) {
+                knownFiles.splice(idx, 1);
+                renderFileSelect();
+            }
+        }
+
+        document.getElementById('file-select').addEventListener('change', function () {
+            var val = this.value;
+            if (!val) return;
+            document.getElementById('filename').value = val;
+            document.getElementById('filename').placeholder = '';
+            this.value = '';
+        });
+
+        // -------------------------------------------------------------
+
+        function request(method) {
+            renderOutputText('Sending ' + method + '…');
+            var name = document.getElementById('filename').value || 'demo.txt';
+            var path = '/upload/' + name;
+            fetch(path, {
+                method: method,
+                body: (method === 'GET' || method === 'DELETE') ? undefined : document.getElementById('body').value
+            }).then(function (r) {
+                return r.text().then(function (t) {
+                    showResult(method, r, t);
+
+                    document.getElementById('body').value = '';
+                    document.getElementById('filename').placeholder = '';
+
+                    if (r.ok && (method === 'POST' || method === 'PUT' || method === 'GET'))
+                        addToFileList(name);
+                    else
+                        document.getElementById('filename').value = '';
+
+                    if (r.ok && method === 'DELETE') {
+                        removeFromFileList(name);
+                    }
+                });
+            }).catch(function (err) {
+                renderOutputText(method + ' failed: ' + err);
+            });
+        }
+        document.querySelectorAll('.copy-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var text = btn.getAttribute('data-cmd');
+                navigator.clipboard.writeText(text).then(function () {
+                    var icon = btn.querySelector('i');
+                    icon.className = 'ti ti-check';
+                    setTimeout(function () { icon.className = 'ti ti-copy'; }, 1500);
+                });
+            });
+        });
+
+        document.getElementById('btn-post').onclick = function () { request('POST'); };
+        document.getElementById('btn-put').onclick = function () { request('PUT'); };
+        document.getElementById('btn-get').onclick = function () { request('GET'); };
+        document.getElementById('btn-delete').onclick = function () { request('DELETE'); };
+
+        var outputBody = document.getElementById('output-body');
+        var outputResizeTimer = 0;
+
+        function onOutputPanelResize() {
+            if (outputResizeTimer)
+                clearTimeout(outputResizeTimer);
+            outputResizeTimer = setTimeout(function () {
+                outputResizeTimer = 0;
+                scheduleSyncOutputLineNumbers();
+            }, 120);
+        }
+
+        if (typeof ResizeObserver !== 'undefined') {
+            var outputResize = new ResizeObserver(onOutputPanelResize);
+            outputResize.observe(outputBody);
+        } else {
+            window.addEventListener('resize', onOutputPanelResize);
+        }
+
+        // Inizializzazione della pagina
+        refreshFileList();
+        renderOutputText('Response will appear here…', { idle: true });
+    </script>
+</body>
+
+</html>
