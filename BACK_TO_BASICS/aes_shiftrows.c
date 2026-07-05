@@ -4,10 +4,10 @@
  * =====================================================================================
  *
  * BACKGROUND TEORICO:
- * La funzione ShiftRows è uno dei pilastri dell'algoritmo AES (Advanced Encryption 
- * Standard - FIPS 197). Il suo scopo è la "diffusione spaziale": mescolare i byte 
- * all'interno del blocco di cifratura per evitare che le colonne rimangano isolate 
- * nei round successivi. Senza questa fase, la crittanalisi differenziale permetterebbe 
+ * La funzione ShiftRows è uno dei pilastri dell'algoritmo AES (Advanced Encryption
+ * Standard - FIPS 197). Il suo scopo è la "diffusione spaziale": mescolare i byte
+ * all'interno del blocco di cifratura per evitare che le colonne rimangano isolate
+ * nei round successivi. Senza questa fase, la crittanalisi differenziale permetterebbe
  * di spezzare il cifrario in pochi istanti.
  *
  * MATRICE DI STATO (COLUMN-MAJOR ORDER):
@@ -25,11 +25,11 @@
  * - Riga 3: rotazione di 3 byte a sinistra (equivalente a 1 a destra).
  *
  * IMPLEMENTAZIONE HARDWARE/SOFTWARE:
- * In hardware (ASIC/FPGA), non c'è calcolo: è un cablaggio fisico (wire routing).  Prendi 
+ * In hardware (ASIC/FPGA), non c'è calcolo: è un cablaggio fisico (wire routing).  Prendi
  * il segnale che esce dal registro del byte 1 e lo saldi all'ingresso del registro del
  * byte 13.
- * In software, per massimizzare la velocità, si evita ogni ciclo for a favore di 
- * operazioni di swap diretto o permutazioni SIMD, riducendo la latenza al minimo 
+ * In software, per massimizzare la velocità, si evita ogni ciclo for a favore di
+ * operazioni di swap diretto o permutazioni SIMD, riducendo la latenza al minimo
  * sindacale richiesto per spostare i dati nei registri.
  * =====================================================================================
  */
@@ -40,7 +40,7 @@
  * @brief Applica la trasformazione ShiftRows allo stato AES.
  * @param state Puntatore all'array di 16 byte (matrice 4x4).
  */
-void aes_shiftrows(unsigned char *state) 
+void aes_shiftrows(unsigned char *state)
 {
     unsigned char tmp;
 
@@ -59,29 +59,31 @@ void aes_shiftrows(unsigned char *state)
     state[6] = state[14];
     state[14] = tmp;
 
-    /* Riga 3: rotazione di 3 byte (3, 7, 11, 15) */
-    tmp = state[3];
-    state[3] = state[7];
-    state[7] = state[11];
-    state[11] = state[15];
-    state[15] = tmp;
+    /* Riga 3: rotazione di 3 byte a sinistra (equivalente a 1 a destra: 15 -> 11 -> 7 -> 3 -> 15) */
+    tmp = state[15];
+    state[15] = state[11];
+    state[11] = state[7];
+    state[7] = state[3];
+    state[3] = tmp;
 }
 
-int main(void) 
+
+int main(void)
 {
     /* Inizializzazione matrice 4x4 (numeri 0-15) */
     unsigned char state[16] = {
         0, 4, 8, 12,
         1, 5, 9, 13,
         2, 6, 10, 14,
-        3, 7, 11, 15
-    };
+        3, 7, 11, 15};
 
-    ft_aes_shiftrows(state);
+    aes_shiftrows(state);
 
     printf("Stato dopo ShiftRows:\n");
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
             printf("%2d ", state[i + j * 4]);
         }
         printf("\n");
