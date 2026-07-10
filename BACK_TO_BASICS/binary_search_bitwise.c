@@ -1,6 +1,6 @@
 #include <stdio.h>
 // ritorna l'indice del numero target se presente nell'array di dimensione n,ma senza iterare su tutto l'array
-int ft_binary_search_bitwise(int *arr, int n, int target)
+int binary_search_bitwise(int *arr, int n, int target)
 {
     int low = 0;
     int hi = n - 1;
@@ -21,5 +21,5 @@ int ft_binary_search_bitwise(int *arr, int n, int target)
 int main()
 {
     int arr[] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11};
-    printf("%d\n", ft_binary_search_bitwise(arr, 10, 11));
+    printf("%d\n", binary_search_bitwise(arr, 10, 11));
 }
