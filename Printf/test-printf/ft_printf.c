@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcaccava <tcaccava@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tcaccava <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 15:26:37 by tcaccava          #+#    #+#             */
-/*   Updated: 2025/02/11 19:40:37 by tcaccava         ###   ########.fr       */
+/*   Updated: 2025/01/03 15:52:28 by tcaccava         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int	ft_printf(const char *print, ...)
 	va_end(args);
 	return (length);
 }
-
+/*
 #include <stdio.h> 
 
 int main()
@@ -80,4 +80,4 @@ int main()
 	ft_printf("ft_printf: %%\n");
 	printf("printf: %%\n");
 	return 0;
-}
+}*/
