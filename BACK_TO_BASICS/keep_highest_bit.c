@@ -1,3 +1,53 @@
+/**
+ * =====================================================================================
+ * @file        keep_highest_bit.c
+ * @brief       Isolamento branchless del Most Significant Bit (MSB).
+ *
+ * 1. BACKGROUND TEORICO E MATEMATICO:
+ *    Il problema richiede di trovare la posizione del bit a 1 più a sinistra (MSB) 
+ *    in una word, azzerando tutti gli altri. L'algoritmo naïf (implementato con il 
+ *    ciclo while commentato) esegue una scansione lineare: costa O(N) nel caso 
+ *    peggiore, dove N è la larghezza in bit del registro.
+ *
+ *    La soluzione ottimizzata utilizza il "Parallel Prefix OR" (noto anche come 
+ *    Bit Smearing). Questa tecnica sfrutta una progressione geometrica delle 
+ *    operazioni di shift, riducendo la complessità da O(N) a O(log2(N)).
+ *    Per un byte (8 bit), log2(8) = 3 operazioni sono matematicamente sufficienti 
+ *    per propagare il bit più alto fino alla posizione 0 (shift di 1, 2 e 4 posizioni).
+ * 
+ *    Matematicamente, se l'MSB è in posizione 'k', il Bit Smearing trasforma il 
+ *    valore originale in (2^(k+1)) - 1, che è una sequenza ininterrotta di '1'.
+ *    L'ultimo passaggio (n - (n >> 1)) è pura aritmetica delle potenze di due:
+ *    sottraendo (2^k) - 1 da (2^(k+1)) - 1 si ottiene esattamente 2^k, ovvero il 
+ *    valore del singolo bit originale.
+ *
+ * 2. APPLICAZIONI PRATICHE:
+ *    - Calcolo del logaritmo in base 2: L'MSB isolato corrisponde a floor(log2(n)).
+ *      Utile in algoritmi di grafica (es. calcolo dei livelli di Mipmap).
+ *    - Memory Allocators (es. Buddy System): Trovare il "bucket" di memoria 
+ *      più grande che può essere diviso per soddisfare una richiesta.
+ *    - Network Routing (CIDR): Trovare il "Longest Prefix Match" mascherando gli 
+ *      indirizzi IP.
+ *    - Scheduler del Kernel: Trovare il task a priorità più alta pronto per 
+ *      l'esecuzione in una bitmap dei processi.
+ *
+ * 3. IMPLEMENTAZIONE HARDWARE E PIPELINE CPU:
+ *    A livello microarchitetturale, il ciclo 'while' originale è un incubo: genera 
+ *    un salto condizionale (branch) a ogni iterazione. Se il branch predictor della
+ *    CPU sbaglia, l'intera pipeline di esecuzione deve essere svuotata (flush), 
+ *    sprecando preziosi cicli di clock.
+ *    L'approccio Bit Smearing è 100% Branchless e Data-Independent: richiede 
+ *    esattamente lo stesso tempo di esecuzione sia che il bit sia nella posizione 
+ *    7, sia che sia nella posizione 0.
+ *
+ *    [Nota Hardware ISA]: Nelle moderne CPU, questa operazione è talmente critica
+ *    che esistono istruzioni assembly in silicio dedicate (BSR/BSRQ su x86, 
+ *    CLZ - Count Leading Zeros su ARM). Tuttavia, questa implementazione in C 
+ *    garantisce le massime prestazioni fallback ed è lo standard assoluto per 
+ *    il codice portabile a basso livello (ANSI C).
+ * =====================================================================================
+ */
+
 #include <stdio.h>
 
 // unsigned char keep_highest_bit(unsigned char n) {
@@ -56,5 +106,3 @@ unsigned char keep_highest_bit(unsigned char n) {
 //     printf("%d\n", keep_highest_bit(0b00101001));// 00100000
 //     printf("%d\n", keep_highest_bit(0b00010000));// 00010000quindi
 // }
-
-
