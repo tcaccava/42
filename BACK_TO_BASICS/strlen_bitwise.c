@@ -31,3 +31,6 @@ size_t strlen_hex(const char *s)
 // {
 //     printf("%zu\n", strlen_hex("ciaoarpgnrpgnrpougnqpoorgnnqowruugqpogqerpogeoguqroguunqerpoug"));
 // }
+
+0 -1 255
+~0   255

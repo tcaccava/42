@@ -44,7 +44,7 @@
 // il Chaining(o concatenazione) : se due chiavi diverse finiscono nello stesso "cassetto" della tabella hash,
 // Redis crea una piccola lista collegata in quel cassetto,per cui quando cerchi la chiave, Redis calcola l'hash e poi scorre la piccola lista per trovare quella esatta.
 // Se l'algoritmo di hash è valido (come Murmur), queste liste restano cortissime (spesso un solo elemento), mantenendo la velocità O(1).
-unsigned int ft_murmur_mix(unsigned int h, unsigned int k)
+unsigned int murmur_mix(unsigned int h, unsigned int k)
 {
     k *= 0xcc9e2d51;
     k = (k << 15) | (k >> 17);
