@@ -1,0 +1,32 @@
+[project]
+name = "function-calling-tool"
+version = "1.0.0"
+description = "Translates natural language prompts into structured function calls using constrained decoding."
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26,<2.1",
+    "pydantic>=2.6",
+    "llm-sdk",
+]
+
+[tool.uv.sources]
+llm-sdk = { path = "llm_sdk" }
+
+[tool.uv]
+package = false
+cache-dir = ".uv-cache"
+
+[tool.mypy]
+python_version = "3.10"
+exclude = [
+    "^\\.venv/",
+    "^\\.uv-cache/",
+    "^\\.mypy_cache/",
+    "^llm_sdk/",
+]
+
+[dependency-groups]
+dev = [
+    "flake8>=7.3.0",
+    "mypy>=1.18.1,<2.0",
+]
