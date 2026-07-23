@@ -1,6 +1,6 @@
 #include <stdio.h>
 // BCD,binary code decimal e' un formato in cui ogni nibble rappresenta un cifra decimale,per cui
-// ad esempio 23 e' fatto da due,nibble basso,e da 3 nibble alto,quindi 00100011,che in esadecimale e' 0x23
+// ad esempio 35 in esadecimale e' 0x23,quindi e' fatto da 2,nibble basso,e da 3 nibble alto,quindi 00100011,
 // mentre normalmente in binario 23 sarebbe 00010111, cioe 0x17; quindi in sostanza il bcd e' quel formato binario
 // in cui la forma esadecimale del numero equivale alla sua forma decimale
 /*
