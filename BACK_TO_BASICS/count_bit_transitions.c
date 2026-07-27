@@ -63,15 +63,15 @@ int count_bits_transitions32(unsigned int n)
 {
     return popcount_swar32(n ^ (n << 1)) - (n & 1);
 }
-int main()
-{
-    printf("%d\n", count_bit_transitions(0b01100011));    // 3
-    printf("%d\n", count_bit_transitions(0b01101011));    // 5
-    printf("%d\n", count_bit_transitions(0b01001011));    // 5
-    printf("%d\n", count_bit_transitions(0b01010101));    // 7
-    printf("%d\n", count_bit_transitions(0b10101010));    // 7
-    printf("%d\n", count_bit_transitions(0b11100010));    // 3
-    printf("%d\n", count_bit_transitions(0b01000011));    // 3
-    printf("%d\n", count_bit_transitions(0b11111111));    // 0
-    printf("%d\n", count_bits_transitions32(0xAAAAAAAA)); // 31
-}
+// int main()
+// {
+//     printf("%d\n", count_bit_transitions(0b01100011));    // 3
+//     printf("%d\n", count_bit_transitions(0b01101011));    // 5
+//     printf("%d\n", count_bit_transitions(0b01001011));    // 5
+//     printf("%d\n", count_bit_transitions(0b01010101));    // 7
+//     printf("%d\n", count_bit_transitions(0b10101010));    // 7
+//     printf("%d\n", count_bit_transitions(0b11100010));    // 3
+//     printf("%d\n", count_bit_transitions(0b01000011));    // 3
+//     printf("%d\n", count_bit_transitions(0b11111111));    // 0
+//     printf("%d\n", count_bits_transitions32(0xAAAAAAAA)); // 31
+// }
