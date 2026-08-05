@@ -13,19 +13,23 @@ static unsigned int msb(unsigned int n)
     return n - (n >> 1);
 }
 
+
 unsigned int integer_divide(unsigned int a, unsigned int b)
 {
     if (!b)
         return -1;
     if (!a || a < b)
         return 0;
+
     if (a == b || (a < (b << 1)))
         return 1;
+
     unsigned int shift = 0;
     unsigned int a_or = a;
     unsigned int a_msb = msb(a);
     unsigned int a_msb_or = a_msb;
     unsigned int b_msb = msb(b);
+    
     unsigned int a_rest = a - a_msb;
     unsigned int b_rest = b - b_msb;
     unsigned int b_msb_pos = popcount_swar32(b_msb - 1);
@@ -37,7 +41,7 @@ unsigned int integer_divide(unsigned int a, unsigned int b)
     if (a == b && (a_or == (a << shift)))
         return 1U << shift;
     shift = 0;
-    while (a_msb > b_msb)
+    while (a_msb > b)
     {
         a_msb >>= 1;
         shift++;
@@ -48,7 +52,7 @@ unsigned int integer_divide(unsigned int a, unsigned int b)
 
 int main()
 {
-    printf("%u %u\n", integer_divide(49, 3), integer_divide(16, 4));
+    printf("%u %u %u %u\n", integer_divide(49, 3),integer_divide(51, 3),integer_divide(59, 3),integer_divide(66, 3));
 }
 
 /*
@@ -67,3 +71,6 @@ a/b = a/(2b -d -msb)
 111111
 100000
 */
+
+// 100
+// 110

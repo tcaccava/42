@@ -145,9 +145,9 @@ unsigned int binary_gcd_iterative(unsigned int a, unsigned int b)
         // Ora sia 'a' che 'b' sono dispari. Li ordiniamo.
         if (a > b)
         {
-            unsigned int temp = a;
-            a = b;
-            b = temp;
+            a = a ^ b;
+            b = a ^ b;
+            a = a ^ b;
         }
 
         // Differenza: dispari - dispari = pari.

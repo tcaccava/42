@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "./keep_highest_bit.c"
-unsigned int ft_divide_no_operator(unsigned int a, unsigned int b)
+unsigned int divide_no_operator(unsigned int a, unsigned int b)
 {
     unsigned int result = 0;
     if (b == 0)

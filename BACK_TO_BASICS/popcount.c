@@ -96,14 +96,15 @@ unsigned char hamming_weight(unsigned char n)
 // nibble alto con 0xF0 = 00100000
 // shifto il nibble alto di 4 a destra = 00000010
 // sommo e ottengo la somma finale = 00000100,cioe' 4
-// int main() {
-//     printf("%d\n", hamming_weight(0b00110101));
-//     printf("%d\n", hamming_weight(0b11111111));
-//     printf("%d\n", hamming_weight(0b11111001));
-//     printf("%d\n", count_bits(255)); // 8
-//     printf("%d\n", count_bits(128)); // 1
-//     printf("%d\n", count_bits(127));
-// }
+int main() {
+    printf("%d\n", hamming_weight(0b00110101));
+    printf("%d\n", hamming_weight(0b11111111));
+    printf("%d\n", hamming_weight(0b11111001));
+    printf("%d\n", count_bits(255)); // 8
+    printf("%d\n", count_bits(128)); // 1
+    printf("%d\n", count_bits(127));
+    printf("%d\n",__builtin_popcount(255));
+}
 
 /* ============================================================================
  * 2. APPLICAZIONI PRATICHE NEL REAL-WORLD SOFTWARE
