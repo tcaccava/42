@@ -13,7 +13,6 @@ static unsigned int msb(unsigned int n)
     return n - (n >> 1);
 }
 
-
 unsigned int integer_divide(unsigned int a, unsigned int b)
 {
     if (!b)
@@ -29,7 +28,6 @@ unsigned int integer_divide(unsigned int a, unsigned int b)
     unsigned int a_msb = msb(a);
     unsigned int a_msb_or = a_msb;
     unsigned int b_msb = msb(b);
-    
     unsigned int a_rest = a - a_msb;
     unsigned int b_rest = b - b_msb;
     unsigned int b_msb_pos = popcount_swar32(b_msb - 1);
@@ -40,19 +38,14 @@ unsigned int integer_divide(unsigned int a, unsigned int b)
     }
     if (a == b && (a_or == (a << shift)))
         return 1U << shift;
-    shift = 0;
-    while (a_msb > b)
-    {
-        a_msb >>= 1;
-        shift++;
-    }
-    unsigned int res = 1U << shift;
-    return res - (integer_divide(a_rest, b));
+    unsigned int max = (1U << shift);
+    a_rest = (a_rest == 0) ? (a_or >> 1) : a_rest;
+    return max - (integer_divide(a_rest, b));
 }
 
 int main()
 {
-    printf("%u %u %u %u\n", integer_divide(49, 3),integer_divide(51, 3),integer_divide(59, 3),integer_divide(66, 3));
+    printf("%u %u %u %u\n", integer_divide(64, 7), integer_divide(51, 3), integer_divide(59, 3), integer_divide(64, 8));
 }
 
 /*
@@ -67,10 +60,21 @@ a/b = a/(b - d + b -msb)
 a/b = a/(2b -d -msb)
 1/b = 1/(2b - d - msb)
 
-/*
-111111
-100000
-*/
 
-// 100
-// 110
+64 8 max 8 sov = 0
+64 7 max 16 perche 16 x 4 = 64 sov = 7 32 7 max 8 sov = 4  16 7 max 4 sov = 2 8 7 = 1
+64 15 max 8 perche 8 * 8 = 64 sov = 4
+64 31 max 4 perche 4 * 16 = 4 sov = 2
+63 15 max 4 sov = 2
+78 15 max 8
+79 15 max 8
+80 15 max 8
+120 15 max 8 perche' 8 x 15 = 120
+123 15 max 8
+128 15 max 16 perche 16 x 8 = 128
+
+
+ma
+127 15 max 16 perche 16 * 8 = 128
+127 8  max 16 perche 16 * 8 = 128
+*/
