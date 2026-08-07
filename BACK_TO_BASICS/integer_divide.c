@@ -19,28 +19,21 @@ unsigned int integer_divide(unsigned int a, unsigned int b)
         return -1;
     if (!a || a < b)
         return 0;
-
+    unsigned int a_or = a;
     if (a == b || (a < (b << 1)))
         return 1;
-
     unsigned int shift = 0;
-    unsigned int a_or = a;
-    unsigned int a_msb = msb(a);
-    unsigned int a_msb_or = a_msb;
-    unsigned int b_msb = msb(b);
-    unsigned int a_rest = a - a_msb;
-    unsigned int b_rest = b - b_msb;
-    unsigned int b_msb_pos = popcount_swar32(b_msb - 1);
     while (a > b)
     {
         a >>= 1;
         shift++;
     }
-    if (a == b && (a_or == (a << shift)))
+    if(a == b && (a_or == (b << shift)))
         return 1U << shift;
-    unsigned int max = (1U << shift);
-    a_rest = (a_rest == 0) ? (a_or >> 1) : a_rest;
-    return max - (integer_divide(a_rest, b));
+    int diff = a_or - (b << shift);
+    if (diff < 0)
+        diff = -diff;
+    return (1U << shift) + integer_divide(diff, b);
 }
 
 int main()
@@ -49,7 +42,6 @@ int main()
 }
 
 /*
-
 msb = 2^n
 d = b - msb
 b = msb + d
@@ -59,7 +51,6 @@ d = b - msb
 a/b = a/(b - d + b -msb)
 a/b = a/(2b -d -msb)
 1/b = 1/(2b - d - msb)
-
 
 64 8 max 8 sov = 0
 64 7 max 16 perche 16 x 4 = 64 sov = 7 32 7 max 8 sov = 4  16 7 max 4 sov = 2 8 7 = 1
@@ -73,8 +64,24 @@ a/b = a/(2b -d -msb)
 123 15 max 8
 128 15 max 16 perche 16 x 8 = 128
 
-
 ma
 127 15 max 16 perche 16 * 8 = 128
 127 8  max 16 perche 16 * 8 = 128
+
+128 7  18 max 32
+128 4  32 max 32
+127 7  18 max 16
+127 4  31 max 32
+95  7  13 max 16
+95  4  23 max 32
+64  7  9  max 16
+64  4  16 max 16
+
+16 + (128 - 7 << 4)/7
+16 + (128 - 112)/7
+16 + 16/7
+4 + (16 - 28)/7
+-2 + (-12 + 1 )/7
++ 1
+
 */
