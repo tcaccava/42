@@ -21,14 +21,16 @@ void fatal_error(void)
     exit(1);
 }
 
-char* ft_strdup(char *s){
-    if(!s)
+char *ft_strdup(char *s)
+{
+    if (!s)
         return NULL;
     char *dup = malloc(strlen(s) + 1);
-    if(!dup)
+    if (!dup)
         return NULL;
     int i = 0;
-    while(s[i]){
+    while (s[i])
+    {
         dup[i] = s[i];
         i++;
     }
@@ -174,7 +176,7 @@ int main(int ac, char **av)
         read_set = active;
 
         if (select(max_fd + 1, &read_set, NULL, NULL, NULL) < 0)
-            continue;// oppure fatal_error()
+            continue; // oppure fatal_error()
 
         for (fd = 0; fd <= max_fd; fd++)
         {
