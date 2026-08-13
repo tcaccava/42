@@ -13,9 +13,9 @@ Il flusso completo di un programma C è questo:
    del programma prima di tradurlo in crudo binario.
 3. Assemblatore (as o nasm): prende l'Assembly e genera i file oggetto (.o). I file .o contengono codice macchina puro, 
    ma gli indirizzi di memoria delle funzioni esterne (es. printf) sono lasciati vuoti.
-4. Linker (ld): prende tutti i file oggetto .o e le librerie esterne, risolve gli indirizzi vuoti e impacchetta tutto nel file eseguibile finale (ELF su Linux).
+4. Linker (ld): prende tutti i file oggetto .o e le librerie esterne, risolve gli indirizzi vuoti e impacchetta tutto nel file 
+   eseguibile finale (ELF su Linux).
 
-Non sei obbligato a usare il C. Puoi scrivere il file `main.s` in puro Assembly, passarlo a NASM e poi a LD.
 Esiste una corrispondenza quasi 1:1 tra un'istruzione Assembly e la rispettiva istruzione binaria. A differenza del C, 
 dove il compilatore gestisce l'allocazione delle variabili locali e lo stack frame, in Assembly si ha il controllo diretto 
 sui registri della CPU e sugli indirizzi di memoria.  
@@ -81,6 +81,38 @@ Registri Speciali,non general purpose:
 -CF (carry flag): impostato se si verifica un riporto/prestito in operazioni unsigned.
 -OF (overflow flag): impostato se si verifica un overflow aritmetico in operazioni signed.
 
+I registri speciali che terminano in P(Pointer) contengono indirizzi di memoria (puntatori, esattamente come in C), ma hanno scopi hardware e convenzionali 
+molto diversi e non intercambiabili.
+
+1. RIP (Instruction Pointer): NON è un registro General Purpose,quindi per es. non ci si puo' scrivere direttamente con mov rip, 0x10 . Contiene sempre 
+   l'indirizzo di memoria virtuale della prossima istruzione macchina da eseguire. Quando il sistema operativo (tramite la syscall execve) carica in RAM
+   l'eseguibile, la CPU inizializza RIP all'indirizzo del punto di ingresso (_start). Da lì, la CPU incrementa automaticamente RIP dopo aver fetchato ogni 
+   istruzione in base alla lunghezza in byte dell'istruzione stessa.
+2. RSP (Stack Pointer): e' un General Purpose: l'hardware lo usa implicitamente ogni volta che usi le istruzioni push, pop, call o ret,che si interfacciano 
+   con la memoria stack. Contiene l'indirizzo dell'ultimo(msb) byte occupato in cima allo stack.
+3. RBP  (Base Pointer) : e' storicamente usato per salvare una copia statica di RSP all'inizio di una funzione. Essendo fisso, permette di trovare facilmente 
+   le variabili locali e gli argomenti sullo stack a offset costanti (es. `[rbp - 8]`), anche se RSP cambia durante la funzione.
+
+
+In un architettura x86-64, la memoria dello stack,se immmaginiamo la ram come un enorme riga di celle da un msb 0x0 posto a sinistra ad un lsb 0xFFFFFFFFFFFFFFFF
+posto a destra(architettura little endian), cresce verso sinistra,cioe' verso indirizzi decrescenti.
+Le istruzioni PUSH,POP,CALL e RET sono istruzioni ISA fisiche che manipolano automaticamente RSP e la memoria puntata da esso:
+-l'istruzione PUSH SRC(es. push rax) decrementa RSP di 8 byte (RSP = RSP - 8),cioe' lo sposta a sinistra e scrive gli 8 bytes contenuti in src all'indirizzo [RSP].
+-l'istruzione POP DEST(es. pop rbx) legge gli 8 bytes all'indirizzo puntato  da [RSP], li mette nel registro di destinazione dest e incrementa RSP di 8 byte (RSP = RSP + 8),
+ cioe' lo fa ritrarre verso destra.
+-l'istruzione CALL <LABEL>: una label in assembly (es. ft_strlen) è solo un segnaposto testuale che il compilatore rimpiazza con un vero indirizzo di memoria. spinge implicitamente(push rip) l'indirizzo dell'istruzione successiva (RIP, 8 byte) sullo stack e salta a label.
+-l'istruzione RET preleva implicitamente gli 8 byte in cima allo stack ponendoli in RIP per tornare al chiamante.
+ 
+
+
+
+3. call <label>:  
+   Mentre la CPU esegue call, RIP è già stato incrementato e punta all'istruzione successiva al call. Il call esegue segretamente un push rip (salva l'indirizzo a cui 
+   tornare sullo stack) e poi mette l'indirizzo della label dentro RIP.
+4. ret: esegue segretamente un pop rip. Preleva l'indirizzo che la call aveva lasciato in cima allo stack, lo infila in RIP e magicamente l'esecuzione riprende da 
+   dove si era interrotta.
+
+
 Quando una funzione scritta in C ne chiama un'altra (o quando chiamiamo una funzione di libreria da Assembly), entrambe devono rispettare una convenzione binaria 
 universale o calling convention(ABI- Application Binary Interface). Sui sistemi UNIX/Linux/macOS x86-64 si applica la System V AMD64 ABI.
 I primi 6 argomenti di tipo intero o puntatore vengono passati esclusivamente tramite registri nel seguente ordine tassativo:
@@ -102,12 +134,6 @@ I registri sono divisi in due categorie operative:
  Una funzione può sovrascrivere liberamente questi registri. Una qualsiasi chiamata di funzione esterna (es. call malloc o call write) potrebbe sovrascrivere indisturbata tutti questi registri!
 
 
-In un architettura x86-64, la memoria dello stack,se immmaginiamo la ram come un enorme riga di celle da un msb 0x0 posto a sinistra ad un lsb 0xFFFFFFFFFFFFFFFF posto a destra(architettura little endian), 
-cresce verso sinistra,cioe' verso indirizzi decrescenti:
--l'istruzione PUSH SRC decrementa RSP di 8 byte (RSP = RSP - 8) e scrive il contenuto di src all'indirizzo [RSP].
--l'istruzione POP DEST legge il valore situato a [RSP] mettendolo in dest e incrementa RSP di 8 byte (RSP = RSP + 8).
--l'istruzione CALL LABEL spinge implicitamente(push rip) l'indirizzo dell'istruzione successiva (RIP, 8 byte) sullo stack e salta a label.
--l'istruzione RET preleva implicitamente gli 8 byte in cima allo stack ponendoli in RIP per tornare al chiamante.
 
 La System V ABI stabilisce che, al momento dell'esecuzione dell'istruzione call verso un'altra funzione, il registro RSP deve essere allineato a un multiplo di 16 byte (RSP % 16 == 0).
 Prima che il chiamante esegua call, lo stack è allineato a 16 byte.L'istruzione call spinge il return address (8 byte) sullo stack.
@@ -278,18 +304,6 @@ Rispondiamo a ogni singola domanda scendendo a livello dei transistor e del sist
 
 
 
-
-
-### 2. I Puntatori: RIP, RSP e RBP
-
-Questi tre registri contengono indirizzi di memoria (puntatori, esattamente come in C), ma hanno scopi hardware e convenzionali molto diversi. Non sono intercambiabili logicamente.
-
-* **`RIP` (Instruction Pointer)**: NON è un registro General Purpose. Non puoi scriverci direttamente con `mov rip, 0x10`. Contiene sempre l'indirizzo di memoria virtuale della **prossima** istruzione macchina da eseguire.
-*Chi ce lo mette?* Quando il sistema operativo (tramite la syscall `execve`) carica in RAM il tuo eseguibile, la CPU inizializza `RIP` all'indirizzo del punto di ingresso (`_start`). Da lì, la CPU incrementa automaticamente `RIP` dopo aver prelevato ogni istruzione in base alla lunghezza in byte dell'istruzione stessa.
-* **`RSP` (Stack Pointer)**: È un General Purpose, ma è "sacro". L'hardware lo usa implicitamente ogni volta che usi le istruzioni `push`, `pop`, `call` o `ret`. Contiene l'indirizzo dell'ultimo byte occupato in cima allo stack.
-* **`RBP` (Base Pointer)**: È storicamente usato per salvare una copia statica di `RSP` all'inizio di una funzione. Essendo fisso, permette di trovare facilmente le variabili locali e gli argomenti sullo stack a offset costanti (es. `[rbp - 8]`), anche se `RSP` cambia durante la funzione.
-
-
 ### 4. Volatilità, Chiamante (Caller) e Chiamato (Callee)
 
 * **Chiamante (Caller)**: La funzione che sta eseguendo. Esempio: il tuo `main`.
@@ -307,14 +321,6 @@ Esistono diverse "sezioni" logiche (mappate dal kernel):
 * **L'Heap**: Memoria allocata dinamicamente (es. `malloc`). Parte da un indirizzo basso (sinistra) e **cresce verso destra** (indirizzi crescenti).
 * **Lo Stack**: Parte da un indirizzo altissimo (destra estrema) e **cresce verso sinistra** (indirizzi decrescenti).
 
-#### Le Meccaniche di PUSH, POP, CALL, RET (Istruzioni ISA e Assembly)
-
-Sono istruzioni ISA fisiche che manipolano automaticamente `RSP` e la memoria puntata da esso.
-
-1. **`push rax`**: La CPU sottrarrà 8 da `RSP` (lo sposta a sinistra), e poi scriverà gli 8 byte contenuti in `RAX` all'indirizzo fisico in cui si trova ora `RSP`.
-2. **`pop rbx`**: La CPU legge gli 8 byte all'indirizzo puntato da `RSP`, li butta nel registro di destinazione (qui `RBX`), e poi somma 8 ad `RSP` (lo fa ritrarre verso destra).
-3. **`call <label>`**: Una `label` in assembly (es. `ft_strlen:`) è solo un segnaposto testuale che il compilatore rimpiazza con un vero indirizzo di memoria. Ricordi il ciclo di fetch? Mentre la CPU esegue `call`, `RIP` **è già stato incrementato** e punta all'istruzione *successiva* al `call`. Il `call` esegue segretamente un `push rip` (salva l'indirizzo a cui tornare sullo stack) e poi mette l'indirizzo della label dentro `RIP`. Boom, sei saltato alla funzione.
-4. **`ret`**: Esegue segretamente un `pop rip`. Preleva l'indirizzo che la `call` aveva lasciato in cima allo stack, lo infila in `RIP` e magicamente l'esecuzione riprende da dove si era interrotta.
 
 #### L'Allineamento a 16 Byte spiegato per un umano
 
