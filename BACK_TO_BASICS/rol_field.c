@@ -70,12 +70,13 @@ unsigned int bit_rol_field(unsigned int n, int start, int len, int k)
     unsigned int mask = ~0U >> (32 - len);// la maschera sara' 0xFFFFFFFF shiftata a destra di 32 - len
     unsigned int field = (n >> start) & mask;// isolo da n il campo da ruotare
     unsigned int field_rolled = 0;
-    field_rolled = (field >> (len - k)) | (field << k);// applico il rol a field
-    field_rolled &= mask;// seleziono 
+    field_rolled = (field >> (len - k)) | (field << k);// applico il rol a field,adeguandolo alla lunghezza len
+    field_rolled &= mask;// seleziono i bit utili del prodotto della rotazione
+    // sposto la maschera e la inverto così che n venga azzerata nella parte corrispondente al field da rollare
     mask <<= start;
     mask = ~mask;
-    n &= mask;
-    return n | (field_rolled << start);
+    n &= mask;// 
+    return n | (field_rolled << start);// inserisco il field rollato nel numero originale,che ritorno
 }
 
 int main()
