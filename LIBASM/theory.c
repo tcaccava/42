@@ -12,7 +12,7 @@ Il sorgente Assembly ha formato .s, dove s sta per Source: e' l'estensione stori
 ai .S (maiuscolo) che passano prima dal preprocessore C. Il file source contiene diverse sezioni:
 - .text: contiene il codice eseguibile (read-only, executable),cioe' e' la sezione fisica dove risiedono i mnemonici.
    Il text,e il binario da esso compilato, vengono caricati in ram con permessi restrittivi,RX(Read, Execute), niente scrittura.
-- .data: contiene variabili globali inizializzate (es. int x = 5.
+- .data: contiene variabili globali inizializzate (es. int x = 5).
 - .bss (Block Started by Symbol): contiene variabili globali non inizializzate o azzerate (es. int y;).
 - .rodata (Read-Only Data): contiene costanti, come le stringhe letterali (es. "Hello\n").
 - direttiva global <simbolo>: esporta l'etichetta affinché sia visibile dal linker C . Per es. global ft_strlen dice 
@@ -33,7 +33,7 @@ Il flusso completo di un programma C è questo:
 3. Assemblatore (as o nasm): prende l'Assembly e genera i file oggetto (.o). I file .o contengono codice macchina puro, 
    ma mancano gli indirizzi di memoria di qualsiasi simbolo(funzioni o variabili globali) che non sia definito in quel file sorgente(es. printf).
 4. Linker (ld): fonde assieme C e Assembly; prende tutti i file oggetto .o e le librerie esterne, risolve gli indirizzi vuoti e impacchetta tutto nel file 
-   eseguibile finale (ELF su Linux). Il file a.out (Assembler OUTput) e' in formato elf((Executable and Linkable Format).
+   eseguibile finale (ELF su Linux). Il file a.out (Assembler OUTput) e' in formato ELF(Executable and Linkable Format).
 A differenza di C, dove il compilatore gestisce l'allocazione delle variabili locali e lo stack frame, in Assembly si ha il controllo diretto sui registri 
 della CPU e sugli indirizzi di memoria. 
 
@@ -118,7 +118,8 @@ A seconda dell'istruzione, l'hardware smista la µop all'unità competente per l
  In un registro da 256 bit posso entrare fino a otto float da 32 bit e si puo' sommarli tutti a un altro registro in un singolo ciclo di clock.
  La FPU classica x87 è tecnicamente deprecata su architetture x86-64 moderne. Oggi i float scalari (singoli) non si calcolano più nella FPU, ma nei registri XMM della SIMD ignorando i restanti bit vettoriali.
 -AGU (Address Generation Unit) per calcolare indirizzi di memoria fisici prima di accedervi, lavorando con la MMU(Memory Managment Unit).
- Se scrivo [rbx + rcx*4 + 8], l'AGU esegue la moltiplicazione e le somme via hardware per trovare l'indirizzo da passare alla MMU.
+ Se scrivo [rbx + rcx*4 + 8], l'AGU esegue la moltiplicazione e le somme via hardware per trovare l'indirizzo da passare alla MMU,che a sua volta,interrogando la sua
+ cache interna(TLB) e la Page Table del Kernel,trovera' i condensatori esatti sul banco fisico di ram installato nella mobo.
 
 ---REGISTRI DELLA CPU-------------------------------------------------------------------------------
 I registri sono celle di memoria ad altissima velocità,estremamente piu' veloci della gia' velocissima ram, situate direttamente all'
@@ -143,10 +144,10 @@ R8-15 R8D-15D R8W-15W R8B-15B  -
 ---REGISTRI GENERAL PURPOSE-------------------------------------------------------------------------
 1. RAX (Accumulator): obbligatorio per i valori di ritorno delle funzioni e usato implicitamente in divisioni e moltiplicazioni.
    Se faccio la divisione Assembly div rbx, la CPU assume implicitamente che il dividendo si trovi nei registri RDX e RAX (per formare 
-   un numero a 128 bit), e piazza il divisore in RAX e il resto in RDX. Prima di una divisione con segno (idiv), se il divisore è a 64 bit, 
+   un numero a 128 bit,il doppio del divisore), e piazza il risultato in RAX e il resto in RDX. Prima di una divisione con segno (idiv), se il divisore è a 64 bit, 
    si usa l'istruzione cqo (Convert Quadword to Octaword) per estendere il bit di segno di RAX su tutti i 64 bit di RDX.
 2. RBX (Base): registro generale callee-saved usato anticamente per offset di memoria.
-3. RCX (Counter): usato nei cicli hardware(istruzione loop o rep). È il 4° argomento nelle funzioni C.
+3. RCX (Counter): usato nei cicli hardware(istruzione loop o rep). È il 4° argomento nelle funzioni C. lOOP 
 4. RDX (Data): estensione matematica per divisioni/moltiplicazioni e 3° argomento C.
 5. RSI (Source Index) e RDI (Destination Index): nati per operazioni massive (spostare MB di dati) su stringhe. Per es. l'istruzione 
    rep movsb prende RCX come contatore, legge da RSI e scrive su RDI via hardware. Oggi si preferiscono funzioni ottimizzate SIMD, 
