@@ -14,7 +14,7 @@ ai .S (maiuscolo) che passano prima dal preprocessore C. Il file source contiene
    Il text,e il binario da esso compilato, vengono caricati in ram con permessi restrittivi,RX(Read, Execute), niente scrittura.
 - .data: contiene variabili globali inizializzate (es. int x = 5).
 - .bss (Block Started by Symbol): contiene variabili globali non inizializzate o azzerate (es. int y;).
-- .rodata (Read-Only Data): contiene costanti, come le stringhe letterali (es. "Hello\n").
+- .rodata (Read-Only Data): contiene costanti, come le stringhe letterali (es. "Hello\n"), RO(READ only).
 - direttiva global <simbolo>: esporta l'etichetta affinché sia visibile dal linker C . Per es. global ft_strlen dice 
   all'assemblatore di scrivere questo indirizzo in una tabella di esportazione(Symbol Table) nel file .o. Quando il compilatore C compila il main.c, trova 
   una chiamata a ft_strlen ma non ha il codice della funzione. La direttiva extern serve per far dire al file che quel codice arrivera' da "fuori"(extern). 
@@ -115,7 +115,7 @@ A seconda dell'istruzione, l'hardware smista la µop all'unità competente per l
 -ALU (Arithmetic Logic Unit) per matematica intera e bitwise.
 -FPU / SIMD (Floating Point / Vector Unit) per virgola mobile o operazioni su vettori. L'FPU (Floating Point Unit) calcola numeri con la virgola mobile classici 
  (scalari, uno alla volta). SIMD (Single Instruction Multiple Data) usa registri vettoriali enormi (es. XMM a 128 bit, YMM a 256 bit, ZMM a 512 bit). Un vettore e' sinonimo di array hardware. 
- In un registro da 256 bit posso entrare fino a otto float da 32 bit e si puo' sommarli tutti a un altro registro in un singolo ciclo di clock.
+ In un registro da 256 bit posso entrare fino a otto float da 32 bit e si puo' sommarli tutti in parallelo a un altro registro in un singolo ciclo di clock con una singola istruzione macchina.
  La FPU classica x87 è tecnicamente deprecata su architetture x86-64 moderne. Oggi i float scalari (singoli) non si calcolano più nella FPU, ma nei registri XMM della SIMD ignorando i restanti bit vettoriali.
 -AGU (Address Generation Unit) per calcolare indirizzi di memoria fisici prima di accedervi, lavorando con la MMU(Memory Managment Unit).
  Se scrivo [rbx + rcx*4 + 8], l'AGU esegue la moltiplicazione e le somme via hardware per trovare l'indirizzo da passare alla MMU,che a sua volta,interrogando la sua
@@ -143,12 +143,19 @@ R8-15 R8D-15D R8W-15W R8B-15B  -
 
 ---REGISTRI GENERAL PURPOSE-------------------------------------------------------------------------
 1. RAX (Accumulator): obbligatorio per i valori di ritorno delle funzioni e usato implicitamente in divisioni e moltiplicazioni.
+   E' inoltre il registro dove viene messo l'id della syscall da eseguire prima di usare il mnemonico syscall per evocarla.
    Se faccio la divisione Assembly div rbx, la CPU assume implicitamente che il dividendo si trovi nei registri RDX e RAX (per formare 
    un numero a 128 bit,il doppio del divisore), e piazza il risultato in RAX e il resto in RDX. Prima di una divisione con segno (idiv), se il divisore è a 64 bit, 
    si usa l'istruzione cqo (Convert Quadword to Octaword) per estendere il bit di segno di RAX su tutti i 64 bit di RDX.
+   Se la struttura ritornata e' superiore a 64 bit,la dimensione del registro,il compilatore C la posizione meta' in RAX e l'altra meta' in RDX.
+   Se ancora piu' grande,ad esempio una struct di 500 byte passata per valore,scatta l'Hidden Pointer. Il chiamante alloca 500 bytes nello stack e passa dietro le quinte
+   alla funzione l'indirizzo di quello spazio come primo argomento in RDI.
 2. RBX (Base): registro generale callee-saved usato anticamente per offset di memoria.
-3. RCX (Counter): usato nei cicli hardware(istruzione loop o rep). È il 4° argomento nelle funzioni C. lOOP 
-4. RDX (Data): estensione matematica per divisioni/moltiplicazioni e 3° argomento C.
+3. RCX (Counter): usato nei cicli hardware(istruzione loop o rep). È il 4° argomento nelle funzioni C. Loop e' un'istruzione base che decrementa RCX e 
+   salta alla label specificata se RCX non è zero. Oggi è considerata obsoleta e lenta perché mal digerita dalla pipeline della CPU. Rep invece non è un'istruzione, 
+   è un prefisso hardware che si attacca a operazioni su stringhe (come movsb, stosb). Esegue la micro-istruzione ripetutamente finché RCX non è zero. È devastantemente 
+   più veloce di un ciclo manuale perché bypassa la fase di fetch per ogni singola iterazione e lavora a blocchi nei bus interni della CPU.
+4. RDX (Data): estensione matematica per divisioni/moltiplicazioni e 3° argomento C. 
 5. RSI (Source Index) e RDI (Destination Index): nati per operazioni massive (spostare MB di dati) su stringhe. Per es. l'istruzione 
    rep movsb prende RCX come contatore, legge da RSI e scrive su RDI via hardware. Oggi si preferiscono funzioni ottimizzate SIMD, 
    ma si usano questi registri per passare il 1° e 2° argomento nelle chiamate a funzione C per pura convenzione ABI.
@@ -169,8 +176,10 @@ del registro, l'hardware è cablato per cancellare istantaneamente con degli zer
 ---REGISTRI SPECIALI---------------------------------------------------------------------------------
 Registri Speciali, non general purpose:
 -RSP (stack pointer): mantiene l'indirizzo dell'ultimo elemento inserito in cima allo stack.
--RBP (base/frame pointer): utilizzato storicamente per ancorare il frame corrente della funzione sullo stack.
--RIP (instruction pointer): mantiene l'indirizzo di memoria dell'istruzione corrente in fase di esecuzione.
+-RBP (base/frame pointer): utilizzato storicamente per ancorare il frame corrente della funzione sullo stack: punta all'inizio del frame. Un frame (o stack frame) è semplicemente la fetta di stack dedicata 
+ alla singola esecuzione di una funzione. Contiene i parametri salvati, l'indirizzo a cui tornare e le variabili locali. Quando la funzione fa ret, il frame viene dimenticato.
+-RIP (instruction pointer): mantiene l'indirizzo di memoria dell'istruzione successiva da eseguire. Quando il backend fa il fetch dell'istruzione corrente,avanza automaticamente
+ RIP prima ancora che il frontend abbia finito di eseguirla.
 -RFLAGS(registri di stato): registro contenente una serie di flag a singolo bit aggiornati dalle operazioni aritmetico-logiche per riflettere lo stato dell'ultima operazione:
         -ZF (zero flag): impostato a 1 se il risultato dell'operazione è zero.
         -SF (sign flag): impostato al bit più significativo del risultato (indica un valore negativo se in complemento a due).
@@ -183,11 +192,35 @@ molto diversi e non intercambiabili.
 1. RIP (Instruction Pointer): NON è un registro General Purpose, quindi per es. non ci si puo' scrivere direttamente con mov rip, 0x10 . Contiene sempre 
    l'indirizzo di memoria virtuale della prossima istruzione macchina da eseguire. In architettura Little Endian, RSP punta al bit meno significativo (LSB) 
    dell'intero dato salvato. Quando il sistema operativo (tramite la syscall execve) carica in RAM l'eseguibile, la CPU inizializza RIP all'indirizzo del punto 
-   di ingresso (_start). Quando il kernel esegue la syscall execve per lanciare il programma, NON carica tutto l'eseguibile in RAM,ma crea solo la mappa della memoria (Virtual Memory).
+   di ingresso (_start). Quest'ultimo non e' un pointer,ma una label, cioe' un' etichetta testuale che diventa un indirizzo di memoria,ed e' il vero e assoluto entry point del file ELF.
+   Se per esempio nel terminale faccio ./mio_programma ciao mondo sto passando degli argomenti al programma. In C sono come argc (che in questo caso vale 3) e argv (un array di stringhe: ["./mio_programma", "ciao", "mondo", NULL]).
+   Quando il kernel esegue la syscall execve per lanciare il programma, NON carica tutto l'eseguibile in RAM,ma crea solo la mappa della memoria (Virtual Memory).
    Il codice viene caricato in RAM "on-demand" (a blocchi di 4096 byte, o Page) solo quando la CPU tenta di eseguirlo(demand caching). 
-   Il main in C non è la prima cosa eseguita: il file ELF specifica un indirizzo hardware di partenza chiamato tipicamente _start (fornito
-   dalla libreria C) che prepara gli argomenti e poi chiama il main. Da lì, la CPU incrementa automaticamente RIP dopo aver fetchato ogni istruzione in base 
-   alla lunghezza in byte dell'istruzione stessa.
+   Il main in C non è la prima cosa eseguita: il file ELF specifica un indirizzo hardware di partenza chiamato tipicamente _start (fornito dalla libreria C) che prepara gli argomenti e poi chiama il main. 
+   Quindi quando nella shell eseguo il mio eseguibile ,la shell esegue una fork,creando un processo figlio che e' un clone esatto del padre. Il figlio invoca la syscall execve che chiede al kernel di avviare il binario.Il kernel,dopo la chiamata a execve,
+   prima ancora di eseguire una sola istruzione del machine code, svuota completamente la memoria virtuale del processo chiamante(il figlio,clone della shell),si disfa del vecchio stack e heap, e mappa al loro posto le sezioni .text, .data e .bss del file ELF,e poi prepara il nuovo stack,
+   prendendo gli argomenti passati da terminale(argc e argv) e le variabili d'ambiente dell'sistema operativo e li pusha fisicamente in cima allo stack del processo appena creato.
+   Se potessi ispezionare lo stack nell'istante in cui il Kernel cede il controllo a _start, troverei questa esatta struttura, letta dall'indirizzo puntato da RSP a scendere (verso indirizzi più alti):
+   [RSP] --> contiene argc (un numero intero a 64-bit).
+   [RSP + 8] --> contiene argv[0] (il puntatore alla stringa "./mio_programma").
+   [RSP + 16] --> contiene argv[1] (il puntatore alla stringa "ciao").
+   [RSP + 24] --> contiene argv[2] (il puntatore alla stringa "mondo").
+   [RSP + 32] --> contiene un puntatore NULL (che segna la fine di argv).
+   [RSP + 40] --> contiene envp[0] (il puntatore alla prima variabile d'ambiente, es. "USER=tobia")
+   .... e così via.
+   Soltanto dopo il kernel setta il registro RIP all'indirizzo di _start e fa partire l'esecuzione in user space. L'entrypoint _start non la scrive il programmatore, ma viene iniettata automaticamente all'inizio dell' eseguibile dal Linker (la preleva da un file oggetto 
+   precompilato della glibc chiamato crt1.o, dove "crt" sta per C Runtime).La C runtime e' la stessa che al momento del return 0 cattura lo 0 ed invoca per conto dell'utente la sys_exit.
+    Il codice Assembly contenuto dentro _start deve fare da ponte tra lo stack grezzo preparato dal Kernel e la comodità del int main(int argc, char **argv). Ecco cosa fa passo passo l'Assembly di _start:
+   -Estrae gli argomenti dallo stack: legge il valore puntato da RSP (argc) e lo mette nel registro RDI (primo argomento per convenzione ABI). Poi calcola l'indirizzo del primo puntatore argv (RSP + 8) e lo mette in RSI (secondo argomento ABI).
+   -Identifica le variabili d'ambiente (envp): scorre lo stack per trovare il NULL che separa argv da envp e salva anche quel puntatore.
+   -Allinea lo Stack: come impone la System V ABI, forza l'allineamento di RSP ai 16 byte mascherando i bit più bassi (spesso con un and rsp, ~15).
+   -Chiama il Main: ora che i registri RDI e RSI contengono correttamente argc e argv, e lo stack è allineato a 16 byte, _start fa call main (in realtà, nelle libc moderne, chiama una funzione intermedia chiamata __libc_start_main, passandole l'indirizzo del main, ma concettualmente è la stessa cosa).
+   -Gestisce la morte del processo: questa è la parte cruciale. Quando il tuo main in C fa return 0; in realta' fa una ret. L'istruzione ret dice alla CPU di fare pop dallo stack e tornare al chiamante. Il chiamante del main è _start.
+   _start preleva il valore di ritorno che il main ha lasciato nel registro RAX (es. lo 0), lo sposta in RDI, mette il numero 60 in RAX (il codice identificativo della syscall sys_exit), ed esegue l'istruzione hardware syscall. Il processo muore pulito.
+    Cosa succederebbe se non ci fosse _start? Se ingannassi il linker compilando senza la glibc (opzione -nostdlib) e dicessi al Kernel di iniziare l'esecuzione direttamente dal tuo main, il programma andrebbe subito in Segmentation Fault. Il tuo main cercherebbe argc nei registri RDI o RSI, trovando 
+    spazzatura (perché il Kernel li ha lasciati brutalmente sullo stack senza metterli nei registri conformi all'ABI), e quando il main fa return 0, l'istruzione ret troverebbe in cima allo stack non un indirizzo di ritorno valido, ma il numero di argc, causando uno schianto immediato dell'architettura.
+    Quando NASM assembla il codice sostituisce la label start con le istruzioni Assembly scritte a partire dall'indirizzo di memoria fisico a cui si riferiva quella label. Questo codice estrae i parametri da riga di comando(argc e argv) che il kernel ha pushato sullo stack ,configura le variabili d'ambiente,
+    allinea lo stack e infine esegue la call al main. Da lì, la CPU incrementa automaticamente RIP dopo aver fetchato ogni istruzione in base alla lunghezza in byte dell'istruzione stessa.
 2. RSP (Stack Pointer): e' un general purpose,l'hardware lo usa implicitamente ogni volta che usi le istruzioni push, pop, call o ret,che si interfacciano 
    con la memoria stack. Contiene l'indirizzo dell'ultimo(msb) byte occupato in cima allo stack.
 3. RBP (Base Pointer) : e' storicamente usato per salvare una copia statica di RSP all'inizio di una funzione.In sostanza all' inizio di una funzione si fa push rbp, 
@@ -195,12 +228,14 @@ molto diversi e non intercambiabili.
    variabile locale, - 16 per la seconda e cosi' via), anche se RSP cambia durante la funzione.
 
 ---STACK E ISTRUZIONI RSP---------------------------------------------------------------------------
-La ram e' divisa in diverse sezioni logiche mappate dal kernel:
--.text: codice eseguibile (permessi di sola lettura ed esecuzione).
--.data / .bss*`: variabili globali.
-- heap: memoria allocata dinamicamente (es. malloc). Parte da un indirizzo basso (sinistra) e cresce verso destra (indirizzi crescenti).
-- stack : parte da un indirizzo altissimo (destra estrema) e cresce verso sinistra (indirizzi decrescenti).
-
+La ram e' divisa in diverse sezioni logiche mappate dal kernel,che altro non sono che le rappresentazioni in ram delle sezioni del sorgente (il file elf sul disco):
+-.text: codice eseguibile ,cioe' solo gli opcode(permessi di sola RX, lettura ed esecuzione).
+-.data / .bss: variabili globali e locali statiche. Data contiene quelle inizializzate,bss quelle non inizializzate o che valgono zero. Le prime devono essere codificate nell'eseguibile su disco,appesantendolo,le seconde
+ non pesano un singolo byte nell'eseguibile: il sistema operativo sa solo che all'avvio del programma deve allocare spazio per quelle variabili e riempirlo di zeri. Memoria RW(la cpu puo' leggere e scrivere,ma non eseguire,per evitare attacchi di tipo buffer overflow).
+-.rodata : la memoria dedicata alle costanti(per esempio le stringhe literal o le variabili const). Solo lettura R,niente scrittura o esecuzione.
+- heap: memoria allocata dinamicamente a runtime,che quindi non trova corrispondenza nel sorgente(es. malloc). Parte da un indirizzo basso (sinistra) e cresce verso destra (indirizzi crescenti).
+- stack : sezione di memoria RW(read/write) usata per l'allocazione temporanea dei dati,parte da un indirizzo altissimo (destra estrema) e cresce verso sinistra (indirizzi decrescenti). Anche lei non ha un corrispondente diretto nel sorgente: il kernel crea lo stack vuoto al momento del lancio dell'eseguibile.
+  Ci finiscono tutte le variabili locali dichiarate dentro le funzioni(main compreso),che nascono con la funzione e muoiono con il ret della funzione.
 In un architettura x86-64, la memoria dello stack,se immmaginiamo la ram come un enorme riga di celle da un msb 0x0 posto a sinistra ad un lsb 0xFFFFFFFFFFFFFFFF
 posto a destra(architettura little endian), cresce verso sinistra, cioe' verso indirizzi decrescenti.
 Le istruzioni PUSH,POP,CALL e RET sono mnemonici Assembly a cui corrispondono istruzioni opcode ISA dirette che manipolano automaticamente RSP e la memoria puntata da esso:
@@ -220,9 +255,9 @@ La System V ABI stabilisce che, al momento dell'esecuzione dell'istruzione call 
 Un indirizzo allineato a 16 byte significa che è un multiplo intero di 16,quindi in binario gli ultimi 4 bit devono essere zero(16 & 15 == 0). In notazione esadecimale ogni carattere rappresenta 
 esattamente un nibble di 4 bit. Quindi, qualsiasi indirizzo multiplo di 16 termina col carattere 0 (es. 0x7ffd9b8a0).
 Prima che il chiamante esegua call, lo stack è allineato a 16 byte. L'istruzione call spinge il return address (8 byte) sullo stack.
-All'ingresso della funzione, RSP NON è più allineato a 16 byte (risulta sfalsato di 8 byte: RSP % 16 == 8).Pertanto, prima di eseguire  una sotto-chiamata (call malloc, call write, ecc.),
-si deve ripristinare l'allineamento a 16 byte nello stack riservando memoria (es. sottraendo byte da RSP o effettuando un numero dispari di push). Un disallineamento provocherà Segmentation Fault 
-imprevedibili  all'interno di funzioni di libreria C che usano istruzioni SIMD/SSE. La libreria standard C (glibc) per funzioni come malloc o printf usa pesantemente estensioni SIMD/Vectoriali per 
+All'ingresso della funzione, RSP NON è più allineato a 16 byte (risulta sfalsato di 8 byte: RSP % 16 == 8).Pertanto, prima di eseguire  una sotto-chiamata,cioe' una chiamata a funzioni esterne,senza eccezioni,
+(call malloc, call write, ecc.),si deve ripristinare l'allineamento a 16 byte nello stack riservando memoria (es. sottraendo byte da RSP o effettuando un numero dispari di push). Un disallineamento provocherà 
+Segmentation Fault imprevedibili  all'interno di funzioni di libreria C che usano istruzioni SIMD/SSE. La libreria standard C (glibc) per funzioni come malloc o printf usa pesantemente estensioni SIMD/Vectoriali per 
 elaborazioni velocissime sui blocchi. Le istruzioni SIMD dell'ISA (come movaps) esigono che i dati in RAM si trovino ad indirizzi multipli di 16 (indirizzi che finiscono in 0). Se la memoria non è 
 allineata a 16 byte, la CPU solleva un hardware fault (Segmentation Fault).Quando il codice esegue call malloc, la call fa implicitamente un push di 8 byte (RIP). Questo significa che dentro malloc, 
 lo stack non è più un multiplo di 16, ma è sfalsato di 8. Per evitare che malloc crashi quando usa istruzioni SIMD, l'ABI impone che, prima di chiamare una qualsiasi funzione C, si debba assicurare che 
@@ -239,6 +274,7 @@ I primi 6 argomenti di tipo intero o puntatore vengono passati esclusivamente tr
 Gli eventuali argomenti successivi (dal 7° in poi) vengono spinti sullo stack in ordine inverso (da destra a sinistra).
 Il valore di ritorno restituito da una funzione (un valore scalare, un intero o un puntatore) deve essere salvato nel registro RAX.
 Se la funzione restituisce un valore a 8 bit (es. char), questo risiederà in AL; se a 32 bit (es. int), in EAX; se a 64 bit (es. puntatore o long), nell'intero RAX.
+Gli argomenti non interi o di tipo float non passano da RDI o RSI: l'ABI System V richiede che i float passino nei registri vettoriali da XMM0 fino a XMM7.
 
 ---CALLER, CALLEE E REGISTRI------------------------------------------------------------------------
 Il Chiamante (Caller) e' la funzione che sta eseguendo, per esempio il main. Il Chiamato (Callee) e' la funzione che viene invocata, ad esempio una chiamata ad ft_strlen nel main 
@@ -261,10 +297,13 @@ I registri in cui sono salvati gli argomenti delle syscall sono leggermente diff
 -1° Argomento: RDI
 -2° Argomento: RSI
 -3° Argomento: RDX
--4° Argomento: R10 (DIVERSO: le funzioni C usano RCX, ma l'istruzione syscall usa R10). Syscall necessita di usare RCX internamente per salvare temporaneamente l'indirizzo RIP aaaaaaaaaaaaaaaaaaaa cui tornare. Siccome `RCX` viene distrutto dall'istruzione, il kernel Linux ha deciso che il 4° argomento della syscall deve risiedere in `R10`, a differenza delle funzioni C che usano `RCX`.
+-4° Argomento: R10 (DIVERSO: le funzioni C usano RCX, ma l'istruzione syscall usa R10). Syscall necessita di usare RCX internamente per salvare temporaneamente l'indirizzo RIP a cui tornare. Siccome RCX viene distrutto dall'istruzione, 
+    il kernel Linux ha deciso che il 4° argomento della syscall deve risiedere in R10, a differenza delle funzioni C che usano RCX.
 -5° Argomento: R8
 -6° Argomento: R9
-Effetti collaterali hardware: l'istruzione syscall sovrascrive internamente i registri RCX e R11.
+Effetti collaterali hardware: l'istruzione syscall sovrascrive internamente i registri RCX e R11. L'istruzione syscall fa una cosa estrema: scavalca il Ring di sicurezza della CPU saltando nello spazio del Kernel. Come fa il Kernel, una volta finito, a sapere esattamente a quale indirizzo RIP tornare,
+senza sporcare la memoria stack (che cambierà contesto di esecuzione)? I progettisti hardware hanno deciso che, nell'istante in cui la CPU esegue syscall, il silicio prende fisicamente il valore corrente di RIP (l'indirizzo a cui tornare) e lo sovrascrive con violenza nel registro RCX. Contemporaneamente, 
+prende lo stato dei flag (RFLAGS) e lo sbatte in R11. Ecco l'effetto collaterale: non puoi usare RCX per passare argomenti, perché l'hardware lo piallerà in un nanosecondo per usarlo come salvataggio del RIP. Motivo per cui l'istruzione C usa RCX come 4° argomento, ma la chiamata syscall kernel ha dovuto ripiegare su R10.
 
 ---ERRNO--------------------------------------------------------------------------------------------
 In C, le funzioni di sistema ritornano -1 in caso di errore e impostano la variabile globale del thread chiamata errno. A livello kernel, tuttavia, la meccanica è diversa:
