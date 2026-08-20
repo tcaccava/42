@@ -61,14 +61,29 @@ ESEMPIO: mov rax, rbx ---> copia il valore del registro RBX nel registro RAX.
          mov rax, [rbx] ---> legge 8 byte dalla memoria situata all'indirizzo contenuto in RBX e li scrive in RAX.
 
 In C se fai *ptr = 5, il compilatore sa di quanti byte è il puntatore (char* o int*), in genere 64 bit su architetture a 64 bit.
-In Assembly, se fai mov [rax], 5, la CPU ha in mano solo un indirizzo di memoria: non sa se scriverci il 5 in formato 1 byte (0x05), 
+In Assembly, le parentesi quadre [...] servono per accedere al valore della memoria contenuta in un registro o in ram(tramite puntatore),ma per farlo la CPU deve sapere esattamente 
+quanti byte leggere,il cosiddetto operatore di dimensione. Per esempio se faccio mov [rax], 5, la CPU ha in mano solo un indirizzo di memoria: non sa se scriverci il 5 in formato 1 byte (0x05), 
 2 byte (0x0005), o 4 byte (0x00000005). Ecco perché va specificato esplicitamente: mov byte [rax], 5 oppure mov dword [rax], 5 .
 Se la dimensione dell'operazione è ambigua (es. quando si lavora con costanti immediate), occorre specificare l'operatore di 
-dimensione,cioe' l'ampiezza della memoria manipolata:
+dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
 -byte (1 byte / 8 bit)
 -word (2 byte / 16 bit)
 -dword (4 byte / 32 bit)
 -qword (8 byte / 64 bit)
+
+---LISTA DEI MNEMONICI PIU' UTILIZZATI
+-cmp (Compare): sintassi cmp dest, src .Esegue una sottrazione logica interna tra due operandi(dest - src) senza salvare il risultato ne' sovrascrivere il valore di dest,
+ aggiornando unicamente i flag di stato nel registro RFLAGS. Se dest == src, lo ZF sara' 1,se diversi sara' 0,se la differenza negativa il Sign Flag(SF) sara' impostato a 1. 
+-je / jz (Jump if Equal / Jump if Zero): sintassi je/jz label. Mnemonici di salto condizionale che compilano nello stesso identico opcode binario e che ispezionano esclusivamente lo ZF: se 1(cioe' 
+ se il confronto precedente ha dato zero trovando i due valori ==), la cpu carica l'indirizzo di label dentro il RIP effettuando il salto. In caso contrario la direttiva viene completamente
+ ignorata e la cpu passa alla istruzione successiva.
+-jne / jnz (Jump if Not Equal): esatto opposto di je/jz.Mnemonici di salto condizionale che eseguono il salto se lo Zero Flag è 0. 
+-jmp (Unconditional Jump): sintassi jmp label. Esegue un salto incondizionato verso un'etichetta,imponendo alla cpu di prendere l'indirizzo della label e metterlo in RIP, ignorando completamente gli RFLAGS.
+-inc (Increment): sintassi inc reg oppure inc byte [ptr] . Incrementa di 1 il contenuto del registro o della cella di memoria passato come operando (utilizzabile per far avanzare un indice o un puntatore o un accumulatore come rax).
+ Aggiorna lo ZF(se l'incremento porta il registro a zero per via di un wraparound/overflow) e lo SF,ma preserva immutato il Carry Flag(CF).
+-xor (Exclusive OR): sintassi xor dst, src. Applicato su un registro con se stesso, è lo standard per azzerare un registro. Genera un opcode più compatto(2 bytes), cancella i 32 bit superiori dell'estensione a 64 bit e rompe 
+ le dipendenze hardware nella pipeline della CPU. Infatti i circuiti interni di register renaming della CPU riconoscono xor reg, reg come un Dependency Breaker: dicono alla pipeline che il valore precedente 
+ del registro può essere scartato subito. Questo rompe le dipendenze dai cicli precedenti e permette l'esecuzione Out-of-Order istantanea senza attendere che RAX venga liberato da altre unità d'esecuzione.
 
 ---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
 A livello di Assemblatore (NASM), i mnemonici delle istruzioni e i nomi dei registri sono rigorosamente case-insensitive (insensibili alle maiuscole/minuscole).
@@ -236,6 +251,7 @@ La ram e' divisa in diverse sezioni logiche mappate dal kernel,che altro non son
 - heap: memoria allocata dinamicamente a runtime,che quindi non trova corrispondenza nel sorgente(es. malloc). Parte da un indirizzo basso (sinistra) e cresce verso destra (indirizzi crescenti).
 - stack : sezione di memoria RW(read/write) usata per l'allocazione temporanea dei dati,parte da un indirizzo altissimo (destra estrema) e cresce verso sinistra (indirizzi decrescenti). Anche lei non ha un corrispondente diretto nel sorgente: il kernel crea lo stack vuoto al momento del lancio dell'eseguibile.
   Ci finiscono tutte le variabili locali dichiarate dentro le funzioni(main compreso),che nascono con la funzione e muoiono con il ret della funzione.
+
 In un architettura x86-64, la memoria dello stack,se immmaginiamo la ram come un enorme riga di celle da un msb 0x0 posto a sinistra ad un lsb 0xFFFFFFFFFFFFFFFF
 posto a destra(architettura little endian), cresce verso sinistra, cioe' verso indirizzi decrescenti.
 Le istruzioni PUSH,POP,CALL e RET sono mnemonici Assembly a cui corrispondono istruzioni opcode ISA dirette che manipolano automaticamente RSP e la memoria puntata da esso:
@@ -247,7 +263,22 @@ Le istruzioni PUSH,POP,CALL e RET sono mnemonici Assembly a cui corrispondono is
  e punta all'istruzione successiva al call. Il call esegue segretamente un push rip (salva l'indirizzo a cui tornare sullo stack) e poi mette l'indirizzo della label dentro RIP.
 -l'istruzione RET esegue implicitamente un pop rip, quindi preleva gli 8 byte(l'indirizzo di memoria)che call aveva lasciato in cima allo stack ponendoli in RIP per tornare 
  al chiamante. L'esecuzione riprendera' da dove si era interrotta.
+
  
+---DICHIARAZIONE DI UNA FUNZIONE IN ASSEMBLY--------------------------------------------------------
+Nella sintassi NASM Assembly X86-64 la dichiarazione di una funzione non richiede alcuna firma,a differenza di quanto avviene in C,ma semplicemente la definizione di
+tre elementi:
+1) la definizione della direttiva global <nome_funzione> per rendere la funzione visibile all'esterno(che si tratti del main o del linker).
+2) la definizione della label, cioe' del nome della funzione seguito dai :   ,che funge da segnaposto che marca l'indirizzo di memoria dell'inizio della funzione.
+3) l'istruzione ret in fondo per restituire l'esecuzione al chiamante. Ret non ha nulla a che fare con il tipo di ritorno della funzione:
+
+STRUTTURA MINIMA DI BASE:
+global nome_funzione
+
+nome_funzione:
+    ; istruzioni
+    ret
+
 ---MEMORY ALIGNMENT E CHIAMATE A FUNZIONE-----------------------------------------------------------
 Quando una funzione scritta in C ne chiama un'altra (o quando chiamiamo una funzione di libreria da Assembly), entrambe devono rispettare una convenzione binaria 
 universale o calling convention(ABI- Application Binary Interface). Sui sistemi UNIX/Linux/macOS x86-64 si applica la System V AMD64 ABI. 
