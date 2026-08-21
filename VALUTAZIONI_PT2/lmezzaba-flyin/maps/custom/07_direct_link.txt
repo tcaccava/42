@@ -1,0 +1,7 @@
+# Edge case: the start hub is directly connected to the end hub.
+nb_drones: 4
+
+start_hub: base 0 0 [color=green]
+end_hub: goal 1 0 [color=yellow]
+
+connection: base-goal [max_link_capacity=4]

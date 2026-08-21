@@ -1,0 +1,12 @@
+# Edge case: a priority route is preferred at equal cost.
+nb_drones: 2
+
+start_hub: base 0 0 [color=green]
+hub: plain 1 1 [color=blue]
+hub: fast 1 -1 [zone=priority color=cyan]
+end_hub: goal 2 0 [color=yellow]
+
+connection: base-plain
+connection: plain-goal
+connection: base-fast
+connection: fast-goal

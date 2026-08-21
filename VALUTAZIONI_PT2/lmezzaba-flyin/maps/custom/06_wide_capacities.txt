@@ -1,0 +1,9 @@
+# Edge case: very large capacities, everything moves at once.
+nb_drones: 12
+
+start_hub: base 0 0 [color=green]
+hub: plaza 1 0 [color=blue max_drones=999]
+end_hub: goal 2 0 [color=yellow]
+
+connection: base-plaza [max_link_capacity=999]
+connection: plaza-goal [max_link_capacity=999]

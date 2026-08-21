@@ -16,12 +16,23 @@ ai .S (maiuscolo) che passano prima dal preprocessore C. Il file source contiene
 - .bss (Block Started by Symbol): contiene variabili globali non inizializzate o azzerate (es. int y;).
 - .rodata (Read-Only Data): contiene costanti, come le stringhe letterali (es. "Hello\n"), RO(READ only).
 - direttiva global <simbolo>: esporta l'etichetta affinché sia visibile dal linker C . Per es. global ft_strlen dice 
-  all'assemblatore di scrivere questo indirizzo in una tabella di esportazione(Symbol Table) nel file .o. Quando il compilatore C compila il main.c, trova 
-  una chiamata a ft_strlen ma non ha il codice della funzione. La direttiva extern serve per far dire al file che quel codice arrivera' da "fuori"(extern). 
+  all'assemblatore di scrivere questo indirizzo in una tabella di esportazione(Symbol Table) nel file .o.Quindi global serve in sostanza a cambiare lo scope di una label
+  nella symbol table del file oggetto rendendola visibile all'esterno del file oggetto per il linker ld. Di default invece qualsiasi label in Assembly e' locale,cioe' privata al file in cui e' definita.
+  Quindi per esempio se ho un unico sorgente .s con dentro un main e una funzione ft_strlen,non avro' bisogno di dichiarare la funzione come global perche' NASM risolve la chiamata call ft_strlen del main
+  internamente a compile_time. In questo contesto solo global main sara' obbligatoria,affinche' la c runtime possa trovare il main. Allo stesso modo se non uso gcc e la C runtime ma creo un Assembly puro linkato
+  con ld, definiro' la global _start,ma non per la C runtime,che senza gcc non esiste nel mio programma,ma per il linker ld che la usera' per scrivere l'entry point nell'header del file ELF,in modo che il kernel
+  sappia da quale indirizzo far partire la cpu al momento della esecuzione. Anche qui ft_strlen non dovra' essere global se viene chiamata solo da _start nello stesso file sorgente.
+  Quando il compilatore C compila il main.c, trova una chiamata a ft_strlen ma non ha il codice della funzione. La direttiva extern serve per far dire al file che quel codice arrivera' da "fuori"(extern). 
   Alla fine, il Linker (ld) prende tutti i file .o, collega le etichette esportate dal .s con la chiamata pendente nel .c e genera l'eseguibile.
 - direttiva extern <simbolo>: dichiarazione di un simbolo fornito esternamente, come malloc o il puntatore di sistema a errno. 
   Extern in sostanza lascia uno spazio vuoto(Relocation Entry) segnalando il nome della funzione esterna da cercare. Il Linker incrociera' le due direttive e
   riempira' quel buco ricalcolando gli offset.
+Quindi in sostanza global e extern sono due direttive gemelle che servono agli antipodi della relazione di importazione-esportazione: global e' usato da chi esporta,cioe' da chi definisce il codice da esportare,
+per metterlo a disposizione degli altri file oggetto,mentre extern si usa nel file che importa un simbolo definito in un altro file oggetto.
+
+ESEMPIO : Se scrivo un sorgente strlen.s e un altro main.s separati,dovro nel primo dichiarare strlen come global e nel secondo importare strlen come extern perche' la possa usare.
+in fase di build nasm produce un oggetto ft_strlen.o dove ft_strlen è contrassegnata come GLOBAL, e un oggetto main.o dove la call ft_strlen fa riferimento a un simbolo EXTERN. Compilando con gcc main.o strlen.o il linker 
+prende i due file .o, legge il simbolo ft_strlen esportato da strlen.o e lo inserisce nel punto in cui main.o aveva lasciato la chiamata call in sospeso.
 
 ---COMPILAZIONE, C E ASSEMBLY----------------------------------------------------------------------- 
 Il flusso completo di un programma C è questo:
@@ -32,10 +43,67 @@ Il flusso completo di un programma C è questo:
    del programma prima di tradurlo in crudo binario.
 3. Assemblatore (as o nasm): prende l'Assembly e genera i file oggetto (.o). I file .o contengono codice macchina puro, 
    ma mancano gli indirizzi di memoria di qualsiasi simbolo(funzioni o variabili globali) che non sia definito in quel file sorgente(es. printf).
+   L'assembler non crea il binario riga per riga in un singolo passaggio,ma,essendo un Multi-pass Assembler, dapprima (Pass 1) legge tutto il sorgente dall'alto in basso senza tradurre 
+   alcuna istruzione,ma solo costruendo una Symbol Table in cui annota la posizione di ogni etichetta e la sua distanza(offset) dall'inizio della sessione(per es.
+   .loop +2 byte di offset). Soltanto nel Pass 2 successivo traduce i mnemonici in opcode binari,usando la table costruita prima per saltare agli indirizzi interni esatti.
 4. Linker (ld): fonde assieme C e Assembly; prende tutti i file oggetto .o e le librerie esterne, risolve gli indirizzi vuoti e impacchetta tutto nel file 
    eseguibile finale (ELF su Linux). Il file a.out (Assembler OUTput) e' in formato ELF(Executable and Linkable Format).
 A differenza di C, dove il compilatore gestisce l'allocazione delle variabili locali e lo stack frame, in Assembly si ha il controllo diretto sui registri 
 della CPU e sugli indirizzi di memoria. 
+
+Chi gestisce l'avvio del processo?
+In cado di un programma Freestanding ,cioe' che definisce l'etichetta global _start, il linker (ld) per default cerca il simbolo _start per impostare l'header ELF dell'eseguibile (l'Entry Point Address). 
+Quando il kernel esegue l'ELF, trasferisce il controllo direttamente a quell'indirizzo. Siccome non c'è la libc, il simbolo main per la CPU e per il kernel semplicemente non esiste e non serve.
+Se invece si tratta di un programma ospitato da C,cioe' che definisce un etichetta global main, quando compilo o linko tramite gcc, il compilatore include silenziosamente il codice di avvio della libreria standard C (crt1.o). 
+Quel file contiene già la sua etichetta _start, che si occupa di allineare lo stack, preparare argc, argv, envp e l'ambiente di runtime. Alla fine di questo setup, la CRT esegue call main. In questo contesto non c'e' bisogno di definire la label _start,ma 
+devo definire la global main per permettere al _start della CRT di trovare ed eseguire la funzione.
+
+Il comando gcc non è un singolo eseguibile monolito, ma un wrapper frontend(un "orchestratore" della toolchain) che analizza l'estensione dei file di input e decide quali binari sottostanti chiamare:
+Se gli passo un file .c, invoca in sequenza:
+1. Il compilatore C vero e proprio (cc1) --> genera Assembly (.s)
+2. L'assembler (as) --> genera codice macchina (.o)
+3. Il linker (ld o collect2) --> genera l'eseguibile ELF finale.
+
+Se gli passo direttamente un file .o, gcc capisce che il codice macchina è già stato generato, salta i primi due passaggi e invoca unicamente il linker ld).
+
+Se provassi a linkare manualmente un main.o scritto in C o che usa la libc chiamando direttamente ld: ld main.o -o program,
+ld fallirebbe immediatamente. Questo accade perché non saprebbe dove trovare i file di avvio della C Runtime (crt1.o, crti.o, crtn.o) e le librerie di sistema (libc.so), restituendo un errore di undefined reference to _start.
+Gcc trasforma internamente quella chiamata isolando la complessità del sistema operativo e invocando ld con questa lista reale di parametri (si puo' vedere aggiungendo il flag -v, cioè verbose):
+ld /usr/lib/x86_64-linux-gnu/crt1.o \
+   /usr/lib/x86_64-linux-gnu/crti.o \
+   main.o \
+   -lc \
+   /usr/lib/x86_64-linux-gnu/crtn.o \
+   -o program
+
+In sintesi gcc non compila gli opcode. Riconosce che main.o è già un ELF Relocatable contiguo di codice macchina e lo passa direttamente a ld, aggiungendo in automatico le librerie di runtime necessarie per far girare il main.
+Mi risparmia in sostanza lo sforzo di dover scrivere a mano l'entrypoint _start,perche' fa il link con il C runtime(crt1.o) che a sua volta fornisce l'entrypoint _start,inizializza il processo e chiama il main.
+Quindi ha senso scrivere _start (Freestanding / Pure Assembly) per:
+- capire lo stack iniziale del Kernel: quando il kernel avvia l'ELF, non c'è nessuna funzione chiamante. Lo stack contiene direttamente argc su [rsp], i puntatori argv a seguire e le variabili d'ambiente envp.
+- zero dipendenze / size optimization: nessuna dipendenza da LibC o librerie esterne. Ottengo un binario minuscolo. È l'approccio necessario per bootloader, sviluppare un sistema operativo, embedded bare-metal o scrittura di shellcode.
+- controllo assoluto: non c'è codice "nascosto" eseguito prima o dopo le mie istruzioni.
+
+Ha senso usare invece la C Runtime / gcc (main) per:
+- allineamento dello stack: l'ABI impone che RSP sia allineato a 16 byte prima di eseguire qualsiasi call che usi istruzioni SIMD/vectorial (es. SSE, AVX). Il kernel consegna RSP non allineato per la chiamata di funzioni C: 
+  la CRT si occupa di allinearlo prima di saltare a main. Se chiamo funzioni C o printf da un _start scritto male, rischio un Segfault generato da istruzioni come movaps.
+- inizializzazione del runtime: la CRT gestisce la configurazione del Thread Local Storage (TLS), la registrazione dei distruttori e l'esecuzione delle sezioni .init e .fini.
+- interoperabilità: se l'obiettivo è scrivere librerie di funzioni in Assembly da linkare in progetti C, la mia funzione sarà una callee (invocata dal C). L'entry point _start è irrilevante: l'unica cosa che conta è rispettare 
+  rigorosamente la convenzione di chiamata System V (registri per gli argomenti, registri da preservare, valore di ritorno in RAX).
+
+In C quando eseguo un eseguibile ELF, la C Runtime (crt1.o) esegue una call main. In cima allo stack ([RSP]) c'è il return address e la CRT provvede ad allineare RSP a 16 byte come richiesto dall'ABI.
+Quando faccio return 0 nel main viene eseguita l'istruzione ret in main, che restituisce il controllo alla CRT passando l'exit code in RAX. Sarà poi la CRT stessa a gestire il teardown del processo (inclusi il flush dei buffer I/O della libc, i distruttori e 
+il rilascio delle risorse) prima di invocare sys_exit. Il main e' stato chiamato dalla _start della C runtime crt1.o,che cattura lo 0 e invoca sys_exit.  
+La C Runtime non ha un chiamante all'interno dello spazio utente, non è un programma autonomo ed è fusa direttamente nel binario.Il suo "chiamante" concettuale è il Kernel Linux.
+Quando eseguo un binario, la syscall execve legge l'header ELF dell'eseguibile, mappa i segmenti in RAM, imposta lo stack e inserisce il valore del campo e_entry dell'header ELF direttamente nel registro RIP della CPU.Il kernel passa così da Ring 0 (Kernel Mode) 
+a Ring 3 (User Mode) saltando al primo byte dell'etichetta _start contenuta nel file oggetto crt1.o.Se il binario usa librerie dinamiche, il kernel salta prima al linker dinamico ld.so, che carica le dipendenze, e poi salta a _start.
+La C Runtime è un insieme di file oggetto (crt1.o, crti.o, crtn.o) scritti per fare da "bootstrap". In fase di linking, gcc incolla fisicamente questo codice dentro il tuo file eseguibile finale. Fa parte dello stesso processo della applicazione.
+Fa parte della C Standard Library del sistema (su Linux solitamente la glibc, o la musl) integrata con la toolchain del compilatore (gcc/binutils). In che linguaggio è scritto la C runtime? L'entry point _start è rigorosamente scritto in Assembly. 
+In quel momento la CPU non ha uno stack frame valido per una funzione C; _start legge i parametri grezzi lasciati dal kernel su RSP (argc, argv), allinea lo stack a 16 byte per rispettare l'ABI e prepara i registri.
+Una volta sistemati i registri di basso livello, l'Assembly di _start fa una call alla funzione C __libc_start_main. Quest'ultima (scritta in C) si occupa di inizializzare la memoria, il Thread Local Storage (TLS), eseguire i costruttori globali (sezione .init_array),
+e infine chiamare il main(argc, argv, envp). Quindi la C runtime e' scritta in un misto di C e Assembly.
+Crt1.o e' un file oggetto unico, statico e pre-compilato. Risiede nel sistema operativo in /usr/lib/x86_64-linux-gnu/crt1.o ed è stato compilato una volta sola quando sono stati installati i pacchetti di sviluppo della glibc.
+Non cambia mai in base al codice che scrivo.
+
 
 ---MNEMONICI ASSEMBLY E RAPPORTO CON IL MACHINE CODE ISA--------------------------------------------   
 Esiste una corrispondenza quasi 1:1 tra un'istruzione Assembly e la rispettiva istruzione binaria. Quasi perche' Assembly è un'astrazione debole.
@@ -66,10 +134,10 @@ quanti byte leggere,il cosiddetto operatore di dimensione. Per esempio se faccio
 2 byte (0x0005), o 4 byte (0x00000005). Ecco perché va specificato esplicitamente: mov byte [rax], 5 oppure mov dword [rax], 5 .
 Se la dimensione dell'operazione è ambigua (es. quando si lavora con costanti immediate), occorre specificare l'operatore di 
 dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
--byte (1 byte / 8 bit)
--word (2 byte / 16 bit)
--dword (4 byte / 32 bit)
--qword (8 byte / 64 bit)
+-byte (1 byte / 8 bit) == char
+-word (2 byte / 16 bit) == short
+-dword (4 byte / 32 bit) == int 
+-qword (8 byte / 64 bit) == long
 
 ---LISTA DEI MNEMONICI PIU' UTILIZZATI
 -cmp (Compare): sintassi cmp dest, src .Esegue una sottrazione logica interna tra due operandi(dest - src) senza salvare il risultato ne' sovrascrivere il valore di dest,
@@ -82,8 +150,10 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
 -inc (Increment): sintassi inc reg oppure inc byte [ptr] . Incrementa di 1 il contenuto del registro o della cella di memoria passato come operando (utilizzabile per far avanzare un indice o un puntatore o un accumulatore come rax).
  Aggiorna lo ZF(se l'incremento porta il registro a zero per via di un wraparound/overflow) e lo SF,ma preserva immutato il Carry Flag(CF).
 -xor (Exclusive OR): sintassi xor dst, src. Applicato su un registro con se stesso, è lo standard per azzerare un registro. Genera un opcode più compatto(2 bytes), cancella i 32 bit superiori dell'estensione a 64 bit e rompe 
- le dipendenze hardware nella pipeline della CPU. Infatti i circuiti interni di register renaming della CPU riconoscono xor reg, reg come un Dependency Breaker: dicono alla pipeline che il valore precedente 
- del registro può essere scartato subito. Questo rompe le dipendenze dai cicli precedenti e permette l'esecuzione Out-of-Order istantanea senza attendere che RAX venga liberato da altre unità d'esecuzione.
+ le dipendenze hardware nella pipeline della CPU. Infatti i circuiti interni di register renaming della CPU riconoscono xor reg, reg come un Dependency Breaker(un idioma speciale di azzeramento): dicono alla pipeline che il valore precedente 
+ del registro può essere scartato subito.La cpu non eseguira' mai lo xor logico nelle ALU,ma riconoscera' direttamente l'operazione nella fase di decode,azzerando il registro. Questo rompe le dipendenze dalle istruzioni precedenti della pipeline
+ e permette l'esecuzione Out-of-Order istantanea senza attendere che RAX venga liberato da altre unità d'esecuzione.
+-loop(deprecata) : esiste solo per motivi di retrocompatibilita' legacy con li 8086,ma e' lenta,forza l'uso di RCX come contatore implicito ed e' mal ottimizzata per l'attuale pipeline out-of-order e superscalare delle cpu attuali. Ormai totalmente inutilizzata.
 
 ---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
 A livello di Assemblatore (NASM), i mnemonici delle istruzioni e i nomi dei registri sono rigorosamente case-insensitive (insensibili alle maiuscole/minuscole).
@@ -186,7 +256,7 @@ Le CPU moderne eseguono le istruzioni Out-of-Order (fuori ordine),cioe' non nece
 frontend. Se scrivo 8 bit in AL, la CPU non sa se la successiva istruzione userà l'intero registro RAX. Questo crea una Partial Register Stall: i vecchi 56 bit 
 di RAX restano intatti e la CPU deve fermare l'esecuzione per unire i nuovi 8 bit con i vecchi 56 bit (falsa dipendenza).
 Per x86-64, AMD ha deciso che le operazioni a 32 bit sono le più frequenti in C (int). Per ottimizzare il calcolo e rompere la dipendenza dal passato 
-del registro, l'hardware è cablato per cancellare istantaneamente con degli zeri i 32 bit superiori(zero extension), azzerando le dipendenze hw e accelerando l'esecuzione.
+del registro, l'hardware è cablato per cancellare istantaneamente con degli zeri i 32 bit superiori(zero-extension), azzerando le dipendenze hw e accelerando l'esecuzione.
 
 ---REGISTRI SPECIALI---------------------------------------------------------------------------------
 Registri Speciali, non general purpose:
@@ -259,21 +329,36 @@ Le istruzioni PUSH,POP,CALL e RET sono mnemonici Assembly a cui corrispondono is
 -l'istruzione POP DEST(es. pop rbx) legge gli 8 bytes all'indirizzo puntato  da [RSP], li mette nel registro di destinazione dest e incrementa RSP di 8 byte (RSP = RSP + 8),
  cioe' lo fa ritrarre verso destra.
 -l'istruzione CALL <LABEL>: una label in assembly (es. ft_strlen) è solo un segnaposto testuale che il compilatore rimpiazza con un vero indirizzo di memoria. 
- Spinge implicitamente(push rip) l'indirizzo dell'istruzione successiva (RIP, 8 byte) sullo stack e salta a label(jmp label).Mentre la CPU esegue call, RIP è già stato incrementato 
- e punta all'istruzione successiva al call. Il call esegue segretamente un push rip (salva l'indirizzo a cui tornare sullo stack) e poi mette l'indirizzo della label dentro RIP.
--l'istruzione RET esegue implicitamente un pop rip, quindi preleva gli 8 byte(l'indirizzo di memoria)che call aveva lasciato in cima allo stack ponendoli in RIP per tornare 
- al chiamante. L'esecuzione riprendera' da dove si era interrotta.
+ Quando la CPU esegue l'istruzione call, compie tre azioni atomiche sul chip:
+ 1. calcolo del Return Address: prende l'indirizzo corrente in RIP e gli somma la lunghezza in byte dell'istruzione call stessa. Il risultato è l'indirizzo dell'istruzione successiva, ovvero il punto esatto a cui rientrare al termine della chiamata.
+ 2. push sullo Stack (RSP): decrementa RSP di 8 byte (sub rsp, 8), poiché lo stack cresce verso indirizzi di memoria inferiori,e poi scrive l'indirizzo di ritorno calcolato al punto 1 nella cella di memoria puntata da [RSP](push rip).
+ 3. caricamento del nuovo RIP: sovrascrive RIP con l'indirizzo della funzione target.
+ Dal ciclo di clock successivo, il decodificatore della CPU inizia a pescare le istruzioni a partire dal nuovo indirizzo caricato in RIP. 
+ Quindi in sostanza call spinge mplicitamente(push rip) l'indirizzo dell'istruzione successiva (push rip) sullo stack e salta a label(jmp label).
+-l'istruzione RET(near return) esegue implicitamente un pop rip, quindi legge l'indirizzo a 64 bit presente nella cella di memoria puntata in quel momento dallo Stack Pointer ([RSP]),indirizzo che call aveva lasciato in cima allo stack,
+ poi incrementa il registro RSP di 8 byte (add rsp, 8), completando a livello hardware l'operazione di pop,quindi Carica l'indirizzo appena estratto direttamente dentro l'Instruction Pointer (RIP),cosi' che il chiamante
+ possa riprendere l'esecuzione da dove si era interrotta prima della call.
 
+ La simmetria tra ret e call e' assoluta: sono una l'esatto speculare dell'altra.
  
 ---DICHIARAZIONE DI UNA FUNZIONE IN ASSEMBLY--------------------------------------------------------
-Nella sintassi NASM Assembly X86-64 la dichiarazione di una funzione non richiede alcuna firma,a differenza di quanto avviene in C,ma semplicemente la definizione di
-tre elementi:
+Nella sintassi NASM Assembly X86-64 la dichiarazione di una funzione non richiede alcuna firma(quella e' un astrazione di linguaggi di alto livello come C che non lascia traccia nel machine code),
+ma semplicemente la definizione di tre elementi:
 1) la definizione della direttiva global <nome_funzione> per rendere la funzione visibile all'esterno(che si tratti del main o del linker).
 2) la definizione della label, cioe' del nome della funzione seguito dai :   ,che funge da segnaposto che marca l'indirizzo di memoria dell'inizio della funzione.
-3) l'istruzione ret in fondo per restituire l'esecuzione al chiamante. Ret non ha nulla a che fare con il tipo di ritorno della funzione:
+3) l'istruzione ret in fondo per restituire l'esecuzione al chiamante. Ret non ha nulla a che fare con il tipo di ritorno della funzione: ritornare un tipo o void e' un astrazione di C che serve 
+   unicamente per definire se dobbiamo o meno inserire un valore di ritorno in rax. L'istruzione ret non ha nulla a che fare nemmeno col valore restituito: serve solo a fare pop del return adress
+   ,salvato precedentemente dal chiamante in cima allo stack, per metterlo dentro RIP e restituire il flusso di esecuzione al chiamante. Senza ret la cpu non saprebbe che la funzione e' terminata e
+   continuerebbe a leggere ed eseguire i byte successivi in memoria == Segfault.
 
+Nessuna dichiarazione del tipo di ritorno,o del tipo e del numero di argomenti e' necessaria: Assembly e' un linguaggio di basso livello che si interfaccia direttamente con 
+bytes,registri e indirizzi. Il solo "contratto" che va rispettato e' l'accordo implicito sugli standard dei registri che verranno usati(ABI): la funzione assume che il chiamante abbia gia' caricato gli
+argomenti nei registri giusti e che il chiamante si aspetti il risultato nel registro rax.
+La firma formale della funzione esiste esclusivamente nel prototipo dichiarato nel file header C(.h) o nel sorgente C,ma serve solo al compilatore per controllare i tipi prima di generare le istruzioni che riempiono
+i registri.
+   
 STRUTTURA MINIMA DI BASE:
-global nome_funzione
+global
 
 nome_funzione:
     ; istruzioni

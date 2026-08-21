@@ -1,0 +1,42 @@
+[project]
+name = "fly-in"
+version = "1.0.0"
+description = "Object-oriented drone fleet routing simulator (42 Fly-in)."
+readme = "README.md"
+requires-python = ">=3.10"
+
+# The simulator itself uses the Python standard library only:
+# no graph library (networkx, graphlib, ...) is used anywhere, so the
+# program runs on a bare interpreter with nothing installed.
+dependencies = []
+
+[project.optional-dependencies]
+# Only needed for the optional --animate window. Kept out of the default
+# environment on purpose: pygame ships binary wheels only for some
+# Python versions, so a failure to build it must never block the core
+# tooling (flake8, mypy), which needs the standard library only.
+viz = ["pygame>=2.5"]
+
+[dependency-groups]
+# Tooling required by the subject (flake8 + mypy).
+dev = [
+    "flake8>=7.0",
+    "mypy>=1.8",
+]
+
+[tool.uv]
+# The project is a plain script layout, not an installable distribution:
+# `uv sync` only has to build the environment, never the project itself.
+package = false
+
+# mypy defaults mirror exactly the flags the subject makes mandatory, so
+# a bare `mypy .` and `make lint` agree. `make lint-strict` adds
+# --strict on the command line; the code is clean under both.
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+exclude = "(^\\.venv/|^venv/|^build/|^dist/)"

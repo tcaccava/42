@@ -1,0 +1,14 @@
+# Edge case: the direct route is blocked, the detour must be used.
+nb_drones: 3
+
+start_hub: base 0 0 [color=green]
+hub: wall 1 0 [zone=blocked color=gray]
+hub: detour1 1 1 [color=blue max_drones=2]
+hub: detour2 2 1 [color=blue max_drones=2]
+end_hub: goal 3 0 [color=yellow]
+
+connection: base-wall
+connection: wall-goal
+connection: base-detour1 [max_link_capacity=2]
+connection: detour1-detour2 [max_link_capacity=2]
+connection: detour2-goal [max_link_capacity=2]

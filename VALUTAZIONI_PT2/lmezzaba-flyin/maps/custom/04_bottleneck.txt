@@ -1,0 +1,9 @@
+# Edge case: eight drones through a single-slot corridor.
+nb_drones: 8
+
+start_hub: base 0 0 [color=green]
+hub: narrow 1 0 [color=orange max_drones=1]
+end_hub: goal 2 0 [color=yellow]
+
+connection: base-narrow
+connection: narrow-goal

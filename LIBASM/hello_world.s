@@ -17,6 +17,7 @@
 ; Assembly e' un linguaggio imperativo,letto e eseguito dall'alto in basso e da sx a dx,quindi nasm prima incontra msg,di cui salva l'indirizzo
 ; poi esegue db e scrive 6 byte,spostando l'indirizzo corrente $ di 6 bytes,ed ecco perche' la sottrazione matematica da proprio la lunghezza della stringa
 
+section .rodata
 
 msg: db "hello", 10 
 msg_len: equ $ - msg 
@@ -32,8 +33,24 @@ global _start
 ; in C quando facciamo return 0 dal main viene eseguita l'istruzione ret
 ; il main e' stato chiamato dalla _start della c runtime crt1.o,che cattura lo 0 e invoca sys_exit 
 ; in questo esercizio non c'e la glibc,non c'e' crt1,lo start lo scrivo io,quindi nella stack non c'e' alcun return adress salvato a cui tornare con ret
-; senza sys_exit la cpu avanzerebbe RIP al byte successivo alla syscall write e finirebbe per fetchare spazzatura che non apaprtiene al .text == SEGFAULT
+; definendo a mano _start, il kernel mi consegna RSP puntato direttamente sui dati grezzi del processo (argc, argv, envp). Non esiste un indirizzo di ritorno in memoria: se esegui ret,
+; la CPU legge argc credendolo un puntatore e va in Segmentation Fault. La sys_exit è l'unico modo per distruggere il processo.
+; senza sys_exit la cpu avanzerebbe RIP al byte successivo alla syscall write e finirebbe per fetchare spazzatura che non appartiene al .text == SEGFAULT
 ; quindi invocare esplicitamente sys_exit e' il solo modo di dire al kernel di killare il processo in modo pulito
+
+; se invece definissi un main, la C Runtime (crt1.o) eseguirebbe una call main. In cima allo stack ([RSP]) c'è il return address e la CRT provvede ad allineare RSP a 16 byte come richiesto dall'ABI.
+; quando eseguo ret in main, restituisco il controllo alla CRT passando l'exit code in RAX. Sarà poi la CRT stessa a gestire il teardown del processo (inclusi il flush dei buffer I/O della libc, i distruttori e 
+; il rilascio delle risorse) prima di invocare sys_exit. La C Runtime non ha un chiamante all'interno dello spazio utente, non è un programma autonomo ed è fusa direttamente nel tuo binario. 
+; la C Runtime è un insieme di file oggetto (crt1.o, crti.o, crtn.o) scritti per fare da "bootstrap". In fase di linking, gcc incolla fisicamente questo codice dentro il tuo file eseguibile finale. Fa parte dello stesso processo della tua applicazione.
+; fa parte della C Standard Library del sistema (su Linux solitamente la glibc, o la musl) integrata con la toolchain del compilatore (gcc/binutils)
+; in che linguaggio è scritto la C runtime? L'entry point _start è rigorosamente scritto in Assembly. In quel momento la CPU non ha uno stack frame valido per una funzione C; _start legge i parametri grezzi lasciati dal kernel su RSP (argc, argv), allinea lo stack a 16 byte per rispettare l'ABI e prepara i registri.
+; una volta sistemati i registri di basso livello, l'Assembly di _start fa una call alla funzione C __libc_start_main. Quest'ultima (scritta in C) si occupa di inizializzare la memoria, il Thread Local Storage (TLS), eseguire i costruttori globali (sezione .init_array), e infine chiamare il tuo main(argc, argv, envp).
+; Quindi la C runtime e' scritta in un misto di C e Assembly.
+
+; il "chiamante" concettuale della C runtime è il Kernel Linux
+; quando eseguo un binario, la syscall execve legge l'header ELF dell'eseguibile, mappa i segmenti in RAM, imposta lo stack e inserisce il valore del campo e_entry dell'header ELF direttamente nel registro RIP della CPU.
+; il kernel passa così da Ring 0 (Kernel Mode) a Ring 3 (User Mode) saltando al primo byte dell'etichetta _start contenuta nel file oggetto crt1.o.
+; se il binario usa librerie dinamiche, il kernel salta prima al linker dinamico ld.so, che carica le dipendenze, e poi salta a _start.
 
 section .text
     

@@ -1,0 +1,5 @@
+nb_drones: 2
+start_hub: base 0 0
+hub: island 5 5
+end_hub: goal 9 9
+connection: base-island

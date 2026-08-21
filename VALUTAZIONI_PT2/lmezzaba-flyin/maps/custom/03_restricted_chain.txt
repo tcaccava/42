@@ -1,0 +1,11 @@
+# Edge case: every intermediate zone costs 2 turns to enter.
+nb_drones: 3
+
+start_hub: base 0 0 [color=green]
+hub: slow1 1 0 [zone=restricted color=red max_drones=2]
+hub: slow2 2 0 [zone=restricted color=red max_drones=2]
+end_hub: goal 3 0 [color=yellow]
+
+connection: base-slow1 [max_link_capacity=2]
+connection: slow1-slow2 [max_link_capacity=2]
+connection: slow2-goal [max_link_capacity=2]
