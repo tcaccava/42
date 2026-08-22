@@ -1,3 +1,5 @@
+global ft_strlen
+
 section .text
 
 ; definisco la funzione strlen,per la quale ho bisogno di usare i :
@@ -46,7 +48,7 @@ ft_strlen:
 
 ;ft_strlen:
 ;    xor eax, eax
-    jmp .check
+;    jmp .check
 ;.loop:
 ;    inc rax
 ;.check:

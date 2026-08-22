@@ -61,9 +61,10 @@ devo definire la global main per permettere al _start della CRT di trovare ed es
 Il comando gcc non è un singolo eseguibile monolito, ma un wrapper frontend(un "orchestratore" della toolchain) che analizza l'estensione dei file di input e decide quali binari sottostanti chiamare:
 Se gli passo un file .c, invoca in sequenza:
 1. Il compilatore C vero e proprio (cc1) --> genera Assembly (.s)
-2. L'assembler (as) --> genera codice macchina (.o)
+2. L'assembler (gas, GNU assembler) --> genera codice macchina (.o)
 3. Il linker (ld o collect2) --> genera l'eseguibile ELF finale.
-
+Gcc invoca Gas,cioe' l'assembler di sistema standard per sistemi Unix-like,ma non e' in grado di invocare NASM. GAS infatti si aspetta codice scritto con direttive GNU e che rispetti la verbosa sintassi AT&T(per esempio .global invece di global, .text invece di 
+section .text,registri preceduti dal prefisso %,costanti con $,ordine degli operandi invertito,cioe' src ,dst).
 Se gli passo direttamente un file .o, gcc capisce che il codice macchina è già stato generato, salta i primi due passaggi e invoca unicamente il linker ld).
 
 Se provassi a linkare manualmente un main.o scritto in C o che usa la libc chiamando direttamente ld: ld main.o -o program,
@@ -103,7 +104,6 @@ Una volta sistemati i registri di basso livello, l'Assembly di _start fa una cal
 e infine chiamare il main(argc, argv, envp). Quindi la C runtime e' scritta in un misto di C e Assembly.
 Crt1.o e' un file oggetto unico, statico e pre-compilato. Risiede nel sistema operativo in /usr/lib/x86_64-linux-gnu/crt1.o ed è stato compilato una volta sola quando sono stati installati i pacchetti di sviluppo della glibc.
 Non cambia mai in base al codice che scrivo.
-
 
 ---MNEMONICI ASSEMBLY E RAPPORTO CON IL MACHINE CODE ISA--------------------------------------------   
 Esiste una corrispondenza quasi 1:1 tra un'istruzione Assembly e la rispettiva istruzione binaria. Quasi perche' Assembly è un'astrazione debole.
@@ -153,9 +153,20 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
  le dipendenze hardware nella pipeline della CPU. Infatti i circuiti interni di register renaming della CPU riconoscono xor reg, reg come un Dependency Breaker(un idioma speciale di azzeramento): dicono alla pipeline che il valore precedente 
  del registro può essere scartato subito.La cpu non eseguira' mai lo xor logico nelle ALU,ma riconoscera' direttamente l'operazione nella fase di decode,azzerando il registro. Questo rompe le dipendenze dalle istruzioni precedenti della pipeline
  e permette l'esecuzione Out-of-Order istantanea senza attendere che RAX venga liberato da altre unità d'esecuzione.
--loop(deprecata) : esiste solo per motivi di retrocompatibilita' legacy con li 8086,ma e' lenta,forza l'uso di RCX come contatore implicito ed e' mal ottimizzata per l'attuale pipeline out-of-order e superscalare delle cpu attuali. Ormai totalmente inutilizzata.
+-loop (deprecata) : esiste solo per motivi di retrocompatibilita' legacy con li 8086,ma e' lenta,forza l'uso di RCX come contatore implicito ed e' mal ottimizzata per l'attuale pipeline out-of-order e superscalare delle cpu attuali. Ormai totalmente inutilizzata.
+-mov dst, [src]: move sposta un quantitativo di dati che dipende esclusivamente dalla dimensione del registro che stai usando come operando. Per es. mov rax, rbx sposta 8 byte (64 bit), mov eax, ebx sposta 4 byte (32 bit), mov al, bl sposta 1 byte (8 bit).
+ mov con consente lo spostamento memory to memory mov [dst], [src],perche' fisicamente non esiste un bus diretto da ram a ram che non passi dalla cpu. Il dato devo obbligatoriamente fare un viaggio di andata e ritorno passando per la cpu: quindi dalla ram al processore
+ usando un registro temporaneo di appoggio,e poi da quel registro di nuovo alla ram. I due registri tra cui mov muove dati,cioe' la dimensione dei due operandi,deve essere identica,altrimenti l'assemblatore restituisce un errore. Se uno degli operandi si trova in memoria,
+ e quindi va dereferenziato con [], la sua dimensione andra' dichiarata esplicitamente affinche' corrisponda esattamente alla dimensione del registro con cui sta interagendo.
+-sub (Subtract): sintassi sub dst, src. Esegue l'operazione dst = dst - src e aggiorna i flag come ZF e SF in base al risultato dell'operazione
+-cmpsb (Compare String Byte) : sintassi cmpsb. Confronta il byte puntato da RSI con quello puntato da RDI, eseguendo dietro le quinte una sottrazione logica [rsi] - [rdi], e aggiorna i registri RFLAGS compatibilmente col risultato.
+ Inoltre incrementa o decrementa automaticamente rsi e rdi(a seconda dello stato del Direction Flag,che di solito e' impostato in avanti). Spesso usata con il prefisso repe o repne(Repeat while Equal / not equal).
+-movsx e movzx(Move with Sign Extension/ Zero Extension) : sintassi movsx dest_grande, src_piccola. Entrambe queste mnemoniche servono a risolvere un' problema fisico dei calcolatori: spostare dati da un contenitore piu' piccolo ad uno piu' grande senza 
+ alterare il valore del dato. Quindi queste estensioni correggono il principale limite di mov,ovvero la necessita' di usarla su registri src e dst con eguale dimensione di memoria. Movzx estende il dato riempendo tutti i bit superiori mancanti con zeri; si usa tipicamente 
+ per i tipi unsigned. Es. se dl contiene 0xFF(255) movzx eax,dl rendera' eax 0x000000FF. Movsx invece estende il dato preservando il segno(complemento a due),quindi guarda l'msb del registro sorgente e lo copia in tutti i bit superiori mancanti del registro di destinazione.
+ E' usato per i tipi signed.Es. dl contiene 0xFF,bit di segno = 1,quindi in signed corrisponde a -1, allora movsx eax, dl rende eax 0xFFFFFFFF, che corrisponde in 32 bit signed a -1.
 
----SINTASSI ASSEMBLY--------------------------------------------------------------------------------
+ ---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
 A livello di Assemblatore (NASM), i mnemonici delle istruzioni e i nomi dei registri sono rigorosamente case-insensitive (insensibili alle maiuscole/minuscole).
 Da un punto di vista strettamente tecnico, scrivere MOV RAX, 5, mov rax, 5, o perfino una mostruosità come MoV rAx, 5 produce esattamente lo stesso risultato. 
 L'assemblatore li interpreta tutti come la stessa astrazione e genera l'identico opcode binario hardware (48 C7 C0 05 00 00 00). Tuttavia se si consulta il 
@@ -399,10 +410,14 @@ o in un altra funzione. In virtu' di questa distinzione, i registri sono divisi 
  Se una funzione intende modificare uno di questi registri, ha l'obbligo di salvarne il valore originale sullo stack all'inizio della funzione (prologo) e ripristinarlo 
  prima di ritornare al chiamante (epilogo). Esempio: se il main ha un dato in RBX, e chiama ft_strlen, la convenzione ABI (System V) stabilisce che ft_strlen (il chiamato) non può 
  alterarlo in modo permanente. Se ft_strlen vuole usare RBX per i suoi scopi, deve pusharlo sullo stack, usarlo, e popparlo prima di fare ret.
--Caller-saved registers (preservati dal chiamante / volatili): RAX, RCX, RDX, RSI, RDI, R8, R9, R10, R11.
- Una funzione può sovrascrivere liberamente questi registri. Una qualsiasi chiamata di funzione esterna (es. call malloc o call write) potrebbe sovrascrivere indisturbata 
- tutti questi registri! Esempio: se il main ha un valore importante in RAX, e chiamo ft_strlen, quando ft_strlen ritorna, RAX sarà stato sovrascritto dal suo valore di ritorno. 
- E' responsabilità del chiamante salvarlo nello stack prima del call.
+-Caller-saved registers (preservati dal chiamante / volatili/ scratch register): RAX, RCX, RDX, RSI, RDI, R8, R9, R10, R11.
+ Una qualsiasi chiamata di funzione esterna (es. call malloc o call write) potrebbe sovrascrivere indisturbata tutti questi registri! Esempio: se il main ha un valore importante 
+ in RAX, e chiamo ft_strlen, quando ft_strlen ritorna, RAX sarà stato sovrascritto dal suo valore di ritorno. E' responsabilità del chiamante salvarlo nello stack prima del call.
+
+L'uso di un registro non volatile da parte di una funzione non produrra' alcun errore in fase di compilazione: ne NASM ne' ld eccepiranno alcunche'. Il disastro avverra' a runtime: se il callee 
+viola il contratto d'onore (ABI) che e' tenuto a rispettare e usa un registro(per esempio rbx), in cui il chiamante ha depositato un dato critico,senza farne il push sullo stack, quando la funzione fara'
+ret e il chiamante riprende l'esecuzione convinto che rbx contenga ancora il valore originale, si presentera' uno spettro di errori che puo' andare dal segfault immediato alla corruzione silenziosa di dati
+in memoria fino a crash inaspettati in esecuzione.
 
 ---DIFFERENZA TRA FUNZIONI DI LIBRERIA E SYSCALL----------------------------------------------------
 Mentre le chiamate a funzioni C impiegano l'istruzione call, le chiamate di sistema(System Calls) dirette al kernel Linux (come read e write) impiegano l'istruzione hardware speciale ISA syscall. 
