@@ -165,8 +165,10 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
  alterare il valore del dato. Quindi queste estensioni correggono il principale limite di mov,ovvero la necessita' di usarla su registri src e dst con eguale dimensione di memoria. Movzx estende il dato riempendo tutti i bit superiori mancanti con zeri; si usa tipicamente 
  per i tipi unsigned. Es. se dl contiene 0xFF(255) movzx eax,dl rendera' eax 0x000000FF. Movsx invece estende il dato preservando il segno(complemento a due),quindi guarda l'msb del registro sorgente e lo copia in tutti i bit superiori mancanti del registro di destinazione.
  E' usato per i tipi signed.Es. dl contiene 0xFF,bit di segno = 1,quindi in signed corrisponde a -1, allora movsx eax, dl rende eax 0xFFFFFFFF, che corrisponde in 32 bit signed a -1.
+-neg (Negate) : sintassi neg registro. Calcola il complemento a due dell'operando,invertendone il segno algebrico. Non usa registri esterni,modifica direttamente il registro in place. Ad esempio se il registro contiene -1(0xFFFFFFFFFFFFFFFF),il suo valore diventera' 1,cioe' 
+ 0x0000000000000001. Aggiorna gli RFLAGS,impostando il Carry flag a 1 se l'operando e' diverso da 0,lo ZF a 1 se l'operando era 0.
 
- ---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
+---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
 A livello di Assemblatore (NASM), i mnemonici delle istruzioni e i nomi dei registri sono rigorosamente case-insensitive (insensibili alle maiuscole/minuscole).
 Da un punto di vista strettamente tecnico, scrivere MOV RAX, 5, mov rax, 5, o perfino una mostruosità come MoV rAx, 5 produce esattamente lo stesso risultato. 
 L'assemblatore li interpreta tutti come la stessa astrazione e genera l'identico opcode binario hardware (48 C7 C0 05 00 00 00). Tuttavia se si consulta il 
@@ -347,7 +349,7 @@ Le istruzioni PUSH,POP,CALL e RET sono mnemonici Assembly a cui corrispondono is
  Dal ciclo di clock successivo, il decodificatore della CPU inizia a pescare le istruzioni a partire dal nuovo indirizzo caricato in RIP. 
  Quindi in sostanza call spinge mplicitamente(push rip) l'indirizzo dell'istruzione successiva (push rip) sullo stack e salta a label(jmp label).
 -l'istruzione RET(near return) esegue implicitamente un pop rip, quindi legge l'indirizzo a 64 bit presente nella cella di memoria puntata in quel momento dallo Stack Pointer ([RSP]),indirizzo che call aveva lasciato in cima allo stack,
- poi incrementa il registro RSP di 8 byte (add rsp, 8), completando a livello hardware l'operazione di pop,quindi Carica l'indirizzo appena estratto direttamente dentro l'Instruction Pointer (RIP),cosi' che il chiamante
+ poi incrementa il registro RSP di 8 byte (add rsp, 8), completando a livello hardware l'operazione di pop,quindi carica l'indirizzo appena estratto direttamente dentro l'Instruction Pointer (RIP),cosi' che il chiamante
  possa riprendere l'esecuzione da dove si era interrotta prima della call.
 
  La simmetria tra ret e call e' assoluta: sono una l'esatto speculare dell'altra.
@@ -422,7 +424,7 @@ in memoria fino a crash inaspettati in esecuzione.
 ---DIFFERENZA TRA FUNZIONI DI LIBRERIA E SYSCALL----------------------------------------------------
 Mentre le chiamate a funzioni C impiegano l'istruzione call, le chiamate di sistema(System Calls) dirette al kernel Linux (come read e write) impiegano l'istruzione hardware speciale ISA syscall. 
 L' utente (Ring 3) non puo' interagire con l'hardware del PC (scrivere su schermo, aprire un file, mappare memoria). Lo vietano i circuiti della CPU. Solo l'OS (Linux, Ring 0, modalità privilegiata) può farlo.
-Per scavalcare questo limite, l'ISA possiede l'istruzione syscall. Questa istruzione genera un interrupt hardware (trap): blocca la  esecuzione del codice user space, concede poteri assoluti al kernel Linux, il quale esegue la 
+Per scavalcare questo limite, l'ISA possiede l'istruzione syscall. Questa istruzione genera un interrupt: blocca la  esecuzione del codice user space, concede poteri assoluti al kernel Linux, il quale esegue la 
 richiesta in base al numero che viene caricato nel registro RAX (es. 0 = sys_read, 1 = sys_write, 9 = mmap... ce ne sono circa 350) ,cioe' l'identificatore numerico della syscall (registry ID syscall) .
 I registri in cui sono salvati gli argomenti delle syscall sono leggermente differenti da quelli delle funzioni di libreria:
 -1° Argomento: RDI
@@ -432,9 +434,62 @@ I registri in cui sono salvati gli argomenti delle syscall sono leggermente diff
     il kernel Linux ha deciso che il 4° argomento della syscall deve risiedere in R10, a differenza delle funzioni C che usano RCX.
 -5° Argomento: R8
 -6° Argomento: R9
+
 Effetti collaterali hardware: l'istruzione syscall sovrascrive internamente i registri RCX e R11. L'istruzione syscall fa una cosa estrema: scavalca il Ring di sicurezza della CPU saltando nello spazio del Kernel. Come fa il Kernel, una volta finito, a sapere esattamente a quale indirizzo RIP tornare,
 senza sporcare la memoria stack (che cambierà contesto di esecuzione)? I progettisti hardware hanno deciso che, nell'istante in cui la CPU esegue syscall, il silicio prende fisicamente il valore corrente di RIP (l'indirizzo a cui tornare) e lo sovrascrive con violenza nel registro RCX. Contemporaneamente, 
-prende lo stato dei flag (RFLAGS) e lo sbatte in R11. Ecco l'effetto collaterale: non puoi usare RCX per passare argomenti, perché l'hardware lo piallerà in un nanosecondo per usarlo come salvataggio del RIP. Motivo per cui l'istruzione C usa RCX come 4° argomento, ma la chiamata syscall kernel ha dovuto ripiegare su R10.
+prende lo stato dei flag (RFLAGS) e lo sbatte in R11. Ecco l'effetto collaterale: non si puo' usare RCX per passare argomenti, perché l'hardware lo piallerà in un nanosecondo per usarlo come salvataggio del RIP. Motivo per cui l'istruzione C usa RCX come 4° argomento, ma la chiamata syscall kernel ha dovuto ripiegare su R10.
+
+---INTERRUPT E SYSCALL------------------------------------------------------------------------------
+Un interrupt è un segnale di sistema che ordina alla CPU di sospendere immediatamente l'esecuzione del programma corrente per saltare a una routine speciale ad alta priorità (l'ISR - Interrupt Service Routine), per poi riprendere il programma originale da dove era stato interrotto.
+sono il meccanismo hardware fondamentale che abilita la prelazione (preemption) e il multitasking reale. In un sistema operativo moderno, la concorrenza non è "cooperativa" (ovvero un programma non cede il controllo spontaneamente quando ha finito). L'hardware usa gli interrupt per strappare il controllo al codice in esecuzione:
+-il Timer Interrupt (Heartbeat del OS): un chip hardware (l'APIC) invia alla CPU un interrupt a intervalli regolari (es. ogni millisecondo). Quando scatta, la CPU ferma qualsiasi programma stia eseguendo e passa il controllo allo scheduler del kernel, che decide se fare un context switch e passare a un altro processo.
+-priorità: gli interrupt hardware hanno priorità assoluta rispetto all'esecuzione in user-space. Se arriva un pacchetto di rete, il controller NIC invia un segnale hardware: la CPU sospende l'app utente, esegue la routine di ricezione dati nel driver e poi restituisce il controllo.
+La differenza tra interrupt sincrono e asincrono risiede nella relazione con il flusso di istruzioni che la CPU sta eseguendo in quel preciso istante:
+1) Sincrono (Syscall / Traps / Eccezioni): e' deterministico e legato all'istruzione corrente. Se scrivo syscall, una divisione per zero (div), o accedo a un puntatore nullo, l'evento viene generato dalla CPU stessa mentre decodifica ed esegue quell'istruzione.
+   Se rieseguo il programma con gli stessi dati, l'evento avverrà sempre e rigorosamente nello stesso identico punto (stesso RIP). È sincronizzato con il clock di esecuzione del codice.
+2) Asincrono (Hardware Interrupts / IRQ): e' completamente slegato dal codice in esecuzione. Viene generato da un componente hardware esterno alla CPU (tastiera, SSD, scheda di rete, timer).
+L'evento può scattare tra l'istruzione N e l'istruzione N+1 di un ciclo for in un momento del tutto imprevedibile. La CPU non sa quando arriverà: quando la linea elettrica del bus hardware si attiva, la CPU finisce l'istruzione corrente e devia l'esecuzione.
+
+La differenza tra un interrupt (hardware o software) e l'istruzione syscall è profonda e riguarda la microarchitettura della CPU: syscall non usa la tabella degli interrupt (IDT) e non salva nulla sullo stack.
+I tre meccanismi a confronto:
+1) Interrupt Hardware (IRQ): asincrono, generato dalle periferiche fisiche (mouse, scheda di rete,controller ssd,tastiera, timer APIC). Quando la periferica ha dati pronti, invia un segnale elettrico a una linea fisica del processore o invia un messaggio di rete sul bus PCIe (tecnologia MSI/MSI-X).
+La CPU ferma quello che sta facendo, salva lo stato completo sullo stack, consulta la IDT e salta al driver. Il driver è semplicemente il codice (la ISR) che il kernel carica in memoria e a cui la CPU salta quando riceve quel segnale hardware.
+2) Interrupt Software / Trap (int 0x80): sincrono. Meccanismo storico a 32 bit, ormai obsoleto e inutilizzato per le syscall sui sistemi a 64 bit: la CPU simula un interrupt hw via software: legge la IDT (Interrupt Descriptor Table) in RAM, fa i controlli sui privilege level (DPL/CPL), cambia stack frame via TSS (Task State Segment) e 
+pusha automaticamente sullo stack CS, RIP, RFLAGS, SS, e RSP.Latenza: enorme (anche oltre 100-200 cicli di clock solo per passare a Ring 0). Per quanto riguarda la richiesta di servizi al sistema operativo (syscall), sono obsoleti. Ma gli interrupt software (più propriamente detti eccezioni e trap) sono vivi e fondamentali per altre mansioni:
+-Eccezioni del processore: quando fai una dereferenziazione NULL o accedi a memoria non mappata, l'MMU genera un Page Fault (#PF, interrupt 14). Quando dividi per zero, la CPU scatena un #DE (interrupt 0).
+-Debugging: i breakpoint di GDB o l'istruzione int 3 (opcode 0xCC) invocano l'interrupt software 3 per fermare l'esecuzione e restituire il controllo al debugger.
+3) Fast System Call (syscall): sincrono. Istruzione assembly dedicata introdotta con x86-64 (AMD64) per saltare interamente la IDT e i Push hardware sullo stack. Latenza: minima(~20-30 cicli di clock). Sui sistemi operativi moderni a 64 bit (Linux, macOS, Windows) le syscall usano esclusivamente 
+le Fast System Call (syscall su architettura x86-64 e svc su ARM64).
+
+Come funziona syscall a basso livello? All'avvio del sistema operativo (boot), il kernel Linux configura dei registri speciali interni alla CPU chiamati MSR (Model-Specific Registers) tramite l'istruzione wrmsr.I tre MSR fondamentali per le syscall sono:
+1) IA32_LSTAR (Long Mode Target Address): contiene l'indirizzo di memoria virtuale della funzione di entry point del kernel per tutte le syscall (in Linux è entry_SYSCALL_64).
+2) IA32_STAR: contiene i Segment Selector per i segmenti di codice e dati di Ring 0 (kernel) e Ring 3 (user).
+3) IA32_FMASK (Flag Mask): maschera hw usata per azzerare automaticamente specifici bit di RFLAGS (ad esempio disabilita gli interrupt hardware azzerando l'Interrupt Flag IF). Il kernel scrive una sequenza di bit con valore 1 in corrispondenza di ogni flag di RFLAGS che vuole disabilitare quando si entra in Ring 0.
+
+Cosa fa l'hardware quando eseguo syscall? Quando la CPU incontra l'opcode di syscall in modalità a 64 bit, esegue esclusivamente in hardware questa sequenza atomica:
+1) Salva lo stato corrente nei registri (non sullo stack): copia l'indirizzo dell'istruzione successiva (RIP) nel registro RCX e il registro di stato RFLAGS nel registro R11. 
+2) Applica la maschera di stato: RFLAGS = RFLAGS AND NOT (IA32_FMASK). Una pura operazione bitwise per azzerare specifici bit di controllo del registro RFLAGS al momento dell'ingresso in kernel mode. NOT inverte tutti i bit della maschera (IA32_FMASK),e l'AND tra RFLAGS e la maschera invertita forza a 0 gli indirizzi di RFLAGS accoppiati ad indirizzi
+della maschera che sono attualmente 0(quindi che erano ad 1 nella maschera prima del not,e che sono quelli che voglio disabilitare in RFLAGS),lasciando inalterati tutti gli altri. Il bit piu' importante di IA32_FMASK e' il bit 9,che corrisponde all'interrupt Flag(IF) di RFLAGS. Quando la cpu esegue l'istruzione syscall,passa a ring 0,ma l'instruction 
+pointer RIP nei primi microsecondi si trova ancora nell'entry point del kernel e la cpu sta ancora usando lo stack dell'utente(RSP punta in sostanza a memoria user space). Se in questo esatto istante arrivasse un interrupt hw e gli interrupt fossero attivi,la cpu tenterebbe di salvare lo stato dell'interrupt sullo stack utente,causando 
+una corruzione immediata del kernel o aprendo la porta a vulnerabilita' di sicurezza(privilege escalation).Azzerando il bit IF, la cpu disabilita temporaneamente l'ascolto di qualsiasi interrupt hw,dando cosi' il tempo al kernel di eseguire in sicurezza l'istruzione swapgs,
+sostituire RSP con uno stack sicuro in kernel space,e solo successivamente riattivare gli interrupt. Quindi nel passaggio al kernel mode IF viene impostato a 0 e gli interrupt disabilitati.
+3) Cambia i Segmenti e il Livello di Privilegio (Ring 3 --> Ring 0): carica i nuovi CS e SS presi da IA32_STAR (impostando il CPL a 0).
+4) Salta all'entry point del Kernel: carica l'Instruction Pointer RIP direttamente da IA32_LSTAR, bypassando completamente la mappa delle interruzioni
+
+Chi ha priorita' tra un interrupt hw,uno software e una syscall?
+Ecco come interagiscono e come l'architettura gestisce le precedenze:
+1) Interrupt HW vs Flusso del programma (compresa syscall). Gli Interrupt Hardware hanno precedenza sull'esecuzione del codice normale. Se arriva un segnale da un chip esterno (es. tastiera o scheda di rete) mentre il mio programma sta per eseguire syscall, la CPU sospende l'esecuzione, gestisce l'interrupt hardware e solo dopo fa eseguire la syscall.
+   L'unica eccezione e' se l'Interrupt Flag è disabilitato (IF = 0, come accade nei primi microsecondi di ingresso nel kernel), gli interrupt hardware rimangono in attesa ("pending") finché IF non viene riportato a 1.
+
+2) Gerarchia di priorità x86 (Eventi nello STESSO ciclo di clock)
+   Se durante l'esecuzione di un'istruzione si verifica un'eccezione interna e contemporaneamente arriva un segnale hardware sulla scheda madre, la CPU x86 applica questa gerarchia rigida:
+   -Hardware Reset / Fault catastrofici: (es. Power Failure, Machine Check, errore di bus durante il fetch).
+   -Eccezioni dell'istruzione corrente / Interrupt SW: (es. divisione per zero, Page Fault, int 3). Devono essere gestiti immediatamente perché l'istruzione corrente è fallita e non può essere completata.
+   -Interrupt Hardware esterni: (es. APIC Timer, pacchetto di rete, disco). Vengono serviti subito dopo aver terminato/risolto l'istruzione corrente, prima di passare all'istruzione successiva indicata da RIP.
+
+Perché è fondamentale distinguerli? Se fosse un interrupt software la CPU scriverebbe sulla memoria (stack dell'utente o del kernel) prima ancora di far eseguire una sola riga di codice al kernel. RCX e R11 non verrebbero toccati.
+Con syscall invece ci sono zero accessi in RAM da parte dell'hardware. La CPU non fa nessun push sullo stack.Il cambio di stack da quello utente a quello kernel viene gestito successivamente dal codice del kernel stesso tramite l'istruzione swapgs.Ecco perché nell'ABI delle syscall rcx e r11 vengono distrutti: 
+è la CPU stessa a sovrascriverli nell'istante in cui viene eseguita syscall.
 
 ---ERRNO--------------------------------------------------------------------------------------------
 In C, le funzioni di sistema ritornano -1 in caso di errore e impostano la variabile globale del thread chiamata errno. A livello kernel, tuttavia, la meccanica è diversa:
@@ -473,56 +528,7 @@ tenere traccia del suo indirizzo di memoria, oltre a ricordagli che contiene dat
 Una macro è pura, stupida e brutale sostituzione di testo destinata al preprocessore, che si occupa di un banale editing del sorgente prima della compilazione.
 
 
-7. Analisi Architetturale dei Requisiti di Progetto
-L'analisi seguente mappa le funzioni richieste dal soggetto sui rispettivi pattern algoritmici di livello registro.  
-PDF
 
-Parte Obbligatoria
-1. ft_strlen (const char *s)
-Argomenti: RDI contiene il puntatore alla stringa.
-
-Logica Architetturale:
-
-Inizializzare un registro indice/contatore a 0 (es. RAX).
-
-Eseguire un ciclo di scansione della memoria: accedere al singolo byte situato a [RDI + RAX].
-
-Confrontare il byte letto con il valore nullo (0x00).
-
-Se è zero, interrompere il ciclo; altrimenti incrementare RAX e ripetere.
-
-Ritorno: RAX contiene la lunghezza trovata.
-
-2. ft_strcpy (char *dst, const char *src)
-Argomenti: RDI puntatore a destinazione, RSI puntatore a sorgente.
-
-Logica Architetturale:
-
-Usare un registro d'appoggio per l'indice (es. RCX = 0).
-
-Leggere un byte dalla sorgente ([RSI + RCX]) usando un registro a 8-bit (es. AL).
-
-Scrivere il byte letto nella destinazione ([RDI + RCX]).
-
-Confrontare il byte copiato (AL) con 0x00. Se diverso da zero, incrementare l'indice e continuare.
-
-Ritorno: RAX deve contenere il puntatore originario alla destinazione (RDI).
-
-3. ft_strcmp (const char *s1, const char *s2)
-Argomenti: RDI puntatore a s1, RSI puntatore a s2.
-
-Logica Architetturale:
-
-Per garantire la conformità allo standard POSIX C, i caratteri devono essere trattati come unsigned char.
-
-Leggere un byte da s1 e un byte da s2 in registri a 8-bit.
-
-Effettuare la Zero-Extension dei byte a 32/64 bit (tramite istruzioni come movzx) per evitare interferenze dal segno durante la sottrazione.
-
-Confrontare i byte. Se differiscono o se si incontra il byte nullo (0x00), calcolare la differenza aritmetica (s1_char - s2_char) ponendola in RAX.
-
-4. ft_write (int fd, const void *buf, size_t count) e ft_read (int fd, void *buf, size_t count)
-Argomenti: RDI (fd), RSI (buf), RDX (count).
 
 Logica Architetturale:
 
