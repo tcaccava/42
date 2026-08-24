@@ -167,8 +167,10 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
  E' usato per i tipi signed.Es. dl contiene 0xFF,bit di segno = 1,quindi in signed corrisponde a -1, allora movsx eax, dl rende eax 0xFFFFFFFF, che corrisponde in 32 bit signed a -1.
 -neg (Negate) : sintassi neg registro. Calcola il complemento a due dell'operando,invertendone il segno algebrico. Non usa registri esterni,modifica direttamente il registro in place. Ad esempio se il registro contiene -1(0xFFFFFFFFFFFFFFFF),il suo valore diventera' 1,cioe' 
  0x0000000000000001. Aggiorna gli RFLAGS,impostando il Carry flag a 1 se l'operando e' diverso da 0,lo ZF a 1 se l'operando era 0.
+-test : sintassi test registro,registro. Esegue un AND bitwise tra due operandi,ma scarta il risultato e aggiorna unicamente gli RFLAGS. Quindi a differenza di and dst, src  ,non sovrascrive il risultato dell'operazione in dst, garantendo che i registri coinvolti
+ non vengano modificati.
 
----SINTASSI ASSEMBLY--------------------------------------------------------------------------------
+ ---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
 A livello di Assemblatore (NASM), i mnemonici delle istruzioni e i nomi dei registri sono rigorosamente case-insensitive (insensibili alle maiuscole/minuscole).
 Da un punto di vista strettamente tecnico, scrivere MOV RAX, 5, mov rax, 5, o perfino una mostruosità come MoV rAx, 5 produce esattamente lo stesso risultato. 
 L'assemblatore li interpreta tutti come la stessa astrazione e genera l'identico opcode binario hardware (48 C7 C0 05 00 00 00). Tuttavia se si consulta il 
@@ -528,38 +530,6 @@ tenere traccia del suo indirizzo di memoria, oltre a ricordagli che contiene dat
 Una macro è pura, stupida e brutale sostituzione di testo destinata al preprocessore, che si occupa di un banale editing del sorgente prima della compilazione.
 
 
-
-
-Logica Architetturale:
-
-Caricare in RAX l'ID della syscall (1 per write, 0 per read su Linux).
-
-Invocare l'istruzione hardware syscall.
-
-Valutare se RAX indica errore (<0). In caso affermativo, instradare l'esecuzione verso la procedura di gestione d'errore errno descritta nel Capitolo 6.  
-PDF
-
-5. ft_strdup (const char *s)
-Argomenti: RDI puntatore alla stringa sorgente.
-
-Logica Architetturale:
-
-Calcolare la lunghezza della stringa (tramite chiamata interna a ft_strlen).
-
-Incrementare la lunghezza di 1 (per includere il terminatore nullo \0).
-
-Preservare il puntatore sorgente RDI in un registro callee-saved (es. RBX) o sullo stack, per evitare che venga distrutto da chiamate successive.
-
-Garantire l'allineamento dello stack a 16 byte e chiamare malloc (RDI deve contenere la dimensione calcolata).  
-PDF
-
-Se malloc restituisce NULL (RAX == 0), ritornare immediatamente 0.
-
-Copiare la stringa originale nella nuova memoria allocata restituita da malloc e ritornare il puntatore in RAX.
-
-Parte Bonus: Layout delle Strutture Dati e Liste Concatenate
-Il soggetto definisce la struttura C della lista concatenata:  
-PDF
 
 C
 typedef struct s_list
