@@ -139,7 +139,7 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
 -dword (4 byte / 32 bit) == int 
 -qword (8 byte / 64 bit) == long
 
----LISTA DEI MNEMONICI PIU' UTILIZZATI
+---LISTA DEI MNEMONICI PIU' UTILIZZATI--------------------------------------------
 -cmp (Compare): sintassi cmp dest, src .Esegue una sottrazione logica interna tra due operandi(dest - src) senza salvare il risultato ne' sovrascrivere il valore di dest,
  aggiornando unicamente i flag di stato nel registro RFLAGS. Se dest == src, lo ZF sara' 1,se diversi sara' 0,se la differenza negativa il Sign Flag(SF) sara' impostato a 1. 
 -je / jz (Jump if Equal / Jump if Zero): sintassi je/jz label. Mnemonici di salto condizionale che compilano nello stesso identico opcode binario e che ispezionano esclusivamente lo ZF: se 1(cioe' 
