@@ -56,17 +56,17 @@ section .text
     
 _start:
     ; prepariamo i registri per la syscall sys_write(id = 1)
-    mov rax, 1    ; metto l'id della syscall in rax
-    mov rdi, 1    ;primo arg di write e' l'fd di stdout,cioe' 1
-    mov rsi, msg  ;secondo arg di write il pointer all'inizio della stringa
+    mov rax, 1       ; metto l'id della syscall in rax
+    mov rdi, 1       ; primo arg di write e' l'fd di stdout,cioe' 1
+    mov rsi, msg     ; secondo arg di write il pointer all'inizio della stringa
     mov rdx, msg_len ; terzo arg la lunghezza della stringa
     syscall          ; interrupt hardware: passiamo in kernel mode(ring 0)
 
 
     ; prepariamo i registri per sys_exit(id = 60)
-    mov rax , 60   ;metto in rax l'id di exit
+    mov rax , 60   ; metto in rax l'id di exit
     mov rdi , 0    ; primo e unico argomento di exit, zero,cioe' successo
-    syscall        ; il kernel esegue exit,uccide il processo e ne libera la memoria
+    syscall        ; il kernel esegue exit, uccide il processo e ne libera la memoria
 
 
 

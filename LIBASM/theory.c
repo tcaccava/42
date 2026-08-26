@@ -105,6 +105,24 @@ e infine chiamare il main(argc, argv, envp). Quindi la C runtime e' scritta in u
 Crt1.o e' un file oggetto unico, statico e pre-compilato. Risiede nel sistema operativo in /usr/lib/x86_64-linux-gnu/crt1.o ed è stato compilato una volta sola quando sono stati installati i pacchetti di sviluppo della glibc.
 Non cambia mai in base al codice che scrivo.
 
+---DIRETTIVE NASM PIU' COMUNI----------------------------------------------------------------------
+ESEMPIO: 
+section .rodata
+msg: db "hello", 10 
+msg_len: equ $ - msg 
+msg e msg_len sono due label, cioe' placeholder testuali che nasm sostituira' con l'indirizzo di memoria fisico in cui inizia quella sequenza di byte .
+Db sta per Define Byte,non e' uno mnemonico assembly, ma una direttiva per l'assembler che gli dice di scrivere gli esatti bytes(in questo caso in formato ascii, ma potevano essere forniti anche in esadecimale) nel file binario di output,
+separati dalla virgola,un singolo byte alla volta. Nasm legge la stringa "hello" e la converte nei bytes ascii corrispondenti; il 10 dopo la virgola e' il valore ascii della \n, che db scrive in ram subito dopo la o di hello. 
+Se avessi voluto una stringa con null terminator,avrei dovuto usare 0 al posto di 10. Perche' non scrivere direttamente db "hello\n"?.NASM non interpreta gli escape di C come \n o \t,quindi Perche' nasm leggerebbe \ e n come due bytes ascii distinti,allocando 7 bytes.
+Mentre la parte stampabile della stringa puo' essere definita con la direttiva db,i caratteri speciali per i white space vanno indicati con i loro valori ascii.
+Un' alternativa e' l' uso degli apici inversi (backtick, ` `), con cui NASM abilita automaticamente l'escape dei caratteri esattamente come fa il compilatore C. Questo è molto più leggibile: msg: db `hello\n`. 
+Esistono anche altre direttive come dw(define word),che scrive a blocchi di 2 byte,dd(dualword) a 4 byte,e dq(quadword) a 8 bytes.
+equ sta per Equals,e' anche lui una direttiva che dice a nasm di calcolare l'offset tra il byte corrente $ e l'inizio della stringa msg a compile time e di definirla come una costante : in sostanza e' una sorta di #define in C.
+$ e' una variabile speciale di nasm che contiene l'indirizzo di memoria corrente a cui l'assemblatore e' arrivato a compilare. 
+Assembly e' un linguaggio imperativo,letto e eseguito dall'alto in basso e da sx a dx,quindi nasm prima incontra msg,di cui salva l'indirizzo,poi esegue db e scrive 6 byte,spostando l'indirizzo corrente $ di 6 bytes,ed ecco perche' la sottrazione matematica 
+da proprio la lunghezza della stringa. 
+
+
 ---MNEMONICI ASSEMBLY E RAPPORTO CON IL MACHINE CODE ISA--------------------------------------------   
 Esiste una corrispondenza quasi 1:1 tra un'istruzione Assembly e la rispettiva istruzione binaria. Quasi perche' Assembly è un'astrazione debole.
 Esistono circa un migliaio di mnemonici Assembly, ma le codifiche ISA binarie sottostanti sono decine di migliaia. Un mnemonico (dal greco, "che 
@@ -169,8 +187,15 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
  0x0000000000000001. Aggiorna gli RFLAGS,impostando il Carry flag a 1 se l'operando e' diverso da 0,lo ZF a 1 se l'operando era 0.
 -test : sintassi test registro,registro. Esegue un AND bitwise tra due operandi,ma scarta il risultato e aggiorna unicamente gli RFLAGS. Quindi a differenza di and dst, src  ,non sovrascrive il risultato dell'operazione in dst, garantendo che i registri coinvolti
  non vengano modificati.
+-jae (Jump if Above/Equal): sintassi jae .label. Salta alla label se il risultato della comparazione precedente vede dst >= src.
+-lea (Load Effective Adress) : sintassi lea registro ,registro. Esempio: lea rsi, [string]. A differenza di mov che sposta il valore contenuto all'interno di un indirizzo di memoria e aggiorna gli RFLAGS, lea calcola l'indirizzo stesso della label e lo scrive nel registro senza modificare gli RFLAGS. 
+ Nel codice esempio non sto leggendo il primo byte della stringa,ma sto mettendo in rsi l'indirizzo di memoria del puntatore alla stringa. In NASM, le parentesi quadre [ ] significano storicamente "accedi alla memoria a questo indirizzo",ma mov e lea reagiscono alle quadre in modo opposto: mov reg, [indirizzo] fa Dereferenziazione,cioe' 
+ fa' si che la CPU calcola l'indirizzo, vada fisicamente nel banco di RAM a quell'indirizzo, legga i byte contenuti e li copi nel registro. In sostanza e' l'equivalente in C di uint64_t rsi = *(uint64_t*)indirizzo. Invece lea reg, [indirizzo] esegue l' Address-Of,cioe'l'equivalente in C di &: la CPU calcola l'indirizzo e si ferma. 
+ Non dereferenzia, prende il numero nudo e crudo appena calcolato e lo scrive nel registro,l'equivalente in C di char *rsi = &indirizzo. Se facessi mov rsi, [rel string], in rsi non ci finirebbe il puntatore, ma i primi 8 byte della stringa , visti come un numero intero a 64 bit. Quindi in sostanza lea non accede mai alla ram,
+ ma sfrutta l'hw deputato al calcolo degli indirizzi(MMU) ed eventualmente la Alu per fare aritmetica dei puntatori.
 
- ---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
+
+---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
 A livello di Assemblatore (NASM), i mnemonici delle istruzioni e i nomi dei registri sono rigorosamente case-insensitive (insensibili alle maiuscole/minuscole).
 Da un punto di vista strettamente tecnico, scrivere MOV RAX, 5, mov rax, 5, o perfino una mostruosità come MoV rAx, 5 produce esattamente lo stesso risultato. 
 L'assemblatore li interpreta tutti come la stessa astrazione e genera l'identico opcode binario hardware (48 C7 C0 05 00 00 00). Tuttavia se si consulta il 

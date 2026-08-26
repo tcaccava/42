@@ -51,17 +51,13 @@ int is_invalid_base(char *base)
 
 int is_char_in_base(char c, char *base)
 {
-    int i = 1;
     while (*base)
     {
         if (c == *base)
-        {
-            i = 0;
-            break;
-        }
+            return 1;
         base++;
     }
-    return !i;
+    return 0;
 }
 
 int return_base_value(char *base, char c)
@@ -76,7 +72,7 @@ int return_base_value(char *base, char c)
     return 0;
 }
 
-int ft_atoi_base(char *str, char *base)
+int ft_atoi_base(char *base, char *str)
 {
     int sign = 1;
     int res = 0;
@@ -85,12 +81,13 @@ int ft_atoi_base(char *str, char *base)
     size_t base_len = ft_strlen(base);
     while (*str == 32 || (*str >= 9 && *str <= 13))
         str++;
-    if (*str == '+' || *str == '-'){
+    if (*str == '+' || *str == '-')
+    {
         if (*str == '-')
             sign = -sign;
         str++;
     }
-    
+
     while (is_char_in_base(*str, base))
     {
         int digit = return_base_value(base, *str);
