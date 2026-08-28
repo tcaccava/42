@@ -72,7 +72,7 @@ int return_base_value(char *base, char c)
     return 0;
 }
 
-int ft_atoi_base(char *base, char *str)
+int ft_atoi_base(char *str,char *base)
 {
     int sign = 1;
     int res = 0;
@@ -87,10 +87,9 @@ int ft_atoi_base(char *base, char *str)
             sign = -sign;
         str++;
     }
-
-    while (is_char_in_base(*str, base))
+    int digit = 0;
+    while ((digit = return_base_value(base, *str)) >= 0)
     {
-        int digit = return_base_value(base, *str);
         res = (res * base_len) + digit;
         str++;
     }

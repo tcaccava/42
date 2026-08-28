@@ -19,7 +19,8 @@ forbidden: db " +-", 9, 10, 11, 12, 13, 0  ; salvo nella memoria read-only la la
                              ; un' alternativa e' l' uso degli apici inversi (backtick, ` `), con cui NASM abilita automaticamente l'escape dei caratteri esattamente 
                              ; come fa il compilatore C. Questo è molto più leggibile: forbidden db ` +-\t\n\v\f\r`, 0
 
-    
+whitespace : db " ", 9, 10, 11, 12, 13, 0   ; mi servira' per saltare i whitespace
+
 section .text
 
 ; ==============================================================================
@@ -184,8 +185,8 @@ return_base_value :
     mov rax, rdi         ; ritorno il risultato dell'aritmetica dei puntatori in rax
     ret
 
-.not_in_base :           ; char non in base, ritorno -1 per indicare errore`
-    xor eax, -1
+.not_in_base :           ; char non in base, ritorno -1 per indicare errore
+    mov rax, -1
     ret
 
 
@@ -194,19 +195,73 @@ return_base_value :
 ; ==============================================================================
 
 ft_atoi_base :
-    mov rcx, 1
-    xor edx, edx
-    mov r8 , rdi
-    mov r9, rsi
-    call is_invalid_base
-    test eax, eax
-    jnz .invalid_base
-    mov rdi, r8
-    call ft_strlen
-    mov r10, rax
-    .jmp whitespace_loop
+    push rbx             ; pusho in stack i registri callee-saved prima di utilizzarli
+    push r12
+    push r13
+    push r14
+    push r15
+    mov rbx, rdi         ; str == rbx
+    mov r12, rsi         ; base == r12
+    mov rdi, r12         ; carico base in rdi per la call successiva
+    call ft_strlen       ; calcolo la base_len
+    mov r15, rax         ; pusho baselen in r15
+    mov rdi, r12         ; sposto base in rdi per la call successiva
+    call is_invalid_base ; verifico che la base sia valida
+    test eax, eax        ; & bitwise del return value con se stesso
+    jnz .invalid_base    ; base invalida,esco e ritorno 0
+    
+    mov r13, 1           ; sign == r13
+    xor r14, r14         ; res == r14          
+    mov rcx, 0x100003E00 ; carico la bitmask a 32bit dei whitespace una sola volta fuori dal loop
+                         ; la posizione di ogni bit acceso nella bitmask riflette il valore ascii dei whitespace 
+                         ; che voglio saltare, quindi saranno accesi i bit 32,9,10,11,12,13
+    jmp .whitespace_loop ; procedo a saltare i whitespace
 
 .whitespace_loop :
-.invalid_base :
+    movzx rax, byte [rbx] ; carico il carattere corrente della stringa in rax con zero extension a 64bit
+    cmp al , 32           ; lo confronto subito con 32, se siamo sopra non e' un whitespace e allora salto al sign check
+    ja .sign_check        ; se above, salto al sign check
+    bt rcx, rax           ; bit test estrae il bit di rcx all'indice rax e imposta il carry flag di conseguenza a seconda che sia 1 o 0
+    jnc .sign_check       ; se il carryflag e' 0, allora NON e' un whitespace,quindi passo al sign check
+    inc rbx               ; in caso contrario salto il whitespace, str++
+    jmp .whitespace_loop  ; ricomincio il ciclo
+
+.sign_check :
+    cmp byte [rbx], 43    ; verifico che il carattere corrente sia +
+    jz .is_plus
+    cmp byte [rbx], 45    ; -
+    jz .is_minus
+    jmp .digits_build     ; che sia - o + ,passo alla costruzione del numero
+
+.is_minus :               ; se - inverto il flag sign
+    neg r13
+.is_plus :                ; se + avanzo al carattere successivo e salto a digits_build
+    inc rbx               
+
+.digits_build:
+    mov rdi, r12           ; carico base in rdi
+    mov sil, byte [rbx]    ; carico il carattere della stringa in rsi
+    call return_base_value ; calcolo il valore di quel carattere nella base,oppure -1 se non trovato
+    cmp rax , 0            ; confront del return value con zero
+    jl .done               ; la call ha restituito -1,abbiamo finito
+    imul r14, r15          ; moltiplico res * base_len
+    add r14, rax           ; aggiungo digit al risultato
+    inc rbx                ; avanzo al carattere successivo
+    jmp .digits_build      ; ritorno nel loop 
+
+.done :
+    imul r14 , r13       ; se arrivo qui significa che il carattere non fa parte della base,mi limito a ritornare il risultato
+    mov rax, r14         ; sposto il risultato nel return register
+    jmp .exit
+
+.invalid_base :          ; base invalida,ritorno 0
     xor eax, eax
-    ret
+    jmp .exit
+
+.exit :                  ; label di uscita in cui,in tutti i casi,ritorno il valore salvato in rax e ricompongo i registri callee-saved
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    ret    

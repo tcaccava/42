@@ -188,12 +188,50 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
 -test : sintassi test registro,registro. Esegue un AND bitwise tra due operandi,ma scarta il risultato e aggiorna unicamente gli RFLAGS. Quindi a differenza di and dst, src  ,non sovrascrive il risultato dell'operazione in dst, garantendo che i registri coinvolti
  non vengano modificati.
 -jae (Jump if Above/Equal): sintassi jae .label. Salta alla label se il risultato della comparazione precedente vede dst >= src.
+-jbe (Jump if Below/Equal): sintassi jbe .label . Salta alla label se dst <= src
+-ja (Jump Above) : sintassi ja .label . Salta alla label quando il risultato della precedente comparazione vede dst rigorosamente > src
+-je (Jump Equal) : sintassi je .label. Salta alla label se il cmp precedente ha dato 1 come risultato,quindi dst == src
 -lea (Load Effective Adress) : sintassi lea registro ,registro. Esempio: lea rsi, [string]. A differenza di mov che sposta il valore contenuto all'interno di un indirizzo di memoria e aggiorna gli RFLAGS, lea calcola l'indirizzo stesso della label e lo scrive nel registro senza modificare gli RFLAGS. 
  Nel codice esempio non sto leggendo il primo byte della stringa,ma sto mettendo in rsi l'indirizzo di memoria del puntatore alla stringa. In NASM, le parentesi quadre [ ] significano storicamente "accedi alla memoria a questo indirizzo",ma mov e lea reagiscono alle quadre in modo opposto: mov reg, [indirizzo] fa Dereferenziazione,cioe' 
  fa' si che la CPU calcola l'indirizzo, vada fisicamente nel banco di RAM a quell'indirizzo, legga i byte contenuti e li copi nel registro. In sostanza e' l'equivalente in C di uint64_t rsi = *(uint64_t*)indirizzo. Invece lea reg, [indirizzo] esegue l' Address-Of,cioe'l'equivalente in C di &: la CPU calcola l'indirizzo e si ferma. 
  Non dereferenzia, prende il numero nudo e crudo appena calcolato e lo scrive nel registro,l'equivalente in C di char *rsi = &indirizzo. Se facessi mov rsi, [rel string], in rsi non ci finirebbe il puntatore, ma i primi 8 byte della stringa , visti come un numero intero a 64 bit. Quindi in sostanza lea non accede mai alla ram,
  ma sfrutta l'hw deputato al calcolo degli indirizzi(MMU) ed eventualmente la Alu per fare aritmetica dei puntatori.
+-bt (Bit Test) : sintassi bt Base, Offset . La Cpu tratta la maschera contenuta in base come un array di 64 boleeani(bit array) e il valore di Offset come un indice vettoriale. In sostanza accede al bit di Base corrispondente all'indice indicato da Offset e lo copia nel Carry Flag,impostandolo a 0 o 1 di conseguenza.  
+-mul (Unsigned Multiply): sintassi mul registro esplicito. Esegue una moltiplicazione senza segno in x86/x86-64. La sua caratteristica fondamentale è che accetta un solo operando esplicito (il moltiplicatore). Il moltiplicando e la destinazione del risultato sono sempre fissati dall'hardware (registri impliciti) in base 
+ alla dimensione dell'operando fornito. Poiché la moltiplicazione di due numeri da N bit produce un risultato largo fino a 2N bit, la CPU accoppia due registri per evitare l'overflow dei dati.
+ Dimensione Operando(src)	Moltiplicando Implicito	Destinazione Risultato (Parte Alta : Parte Bassa)
+ 8 bit (r8 / m8)	            AL	                        AX (AH per la parte alta, AL per la bassa)
+ 16 bit (r16 / m16)	         AX	                        DX : AX
+ 32 bit (r32 / m32)	         EAX	                     EDX : EAX
+ 64 bit (r64 / m64)	         RAX	                     RDX : RAX
+ 
+ Esempio Pratico a 64-bit per fare RAX * RBX :
+ mov rax, 0x100000000   ; Moltiplicando caricato nel registro implicito RAX
+ mov rbx, 0x2           ; Moltiplicatore nel registro esplicito RBX
+ mul rbx                ; Esegue RAX * RBX
+                        ; RAX contiene i 64 bit Meno Significativi (LSB)
+                        ; RDX contiene i 64 bit Più Significativi (MSB)
 
+ mul modifica lo stato dei flag di sistema per segnalare se il risultato ha sforato la dimensione del registro di partenza:
+ CF = 1 e OF = 1: la metà superiore del risultato (es. RDX in 64-bit o AH in 8-bit) non è zero. Significa che il valore era troppo grande per stare nel solo registro di partenza.
+ CF = 0 e OF = 0: la metà superiore è zero. Il risultato entra interamente nel registro di partenza (RAX, EAX, etc.).
+ I flag SF, ZF, AF, PF sono da considerarsi indefiniti (undefined).
+ Non e' consentito usare mul con valori immediati o costanti,per esempio mul 10. L'operando deve essere un registro o un indirizzo di memoria (mul rbx oppure mul qword [rsp]). Per moltiplicare per una costante si carica prima la costante in un registro o si usa imul.
+ mul sovrascrive sempre RDX (o EDX/DX/AH), distruggendone il valore precedente anche se il risultato non sfora i 64 bit. Bisogna prestare attenzione se RDX conteneva dati utili.
+ La coppia RDX:RAX prodotta da mul r64 è il blocco elementare per implementare l'aritmetica a precisione arbitraria (es. bignum / crittografia a 128, 256 o 512 bit).
+-imul (Signed Multiply). A differenza di mul (che è rigida e accetta un solo operando implicito), imul è molto più flessibile: l'hardware x86-64 mette a disposizione 3 forme sintattiche differenti. Per questo motivo i compilatori (come GCC o Clang) preferiscono usare quasi sempre imul, anche quando lavorano con interi 
+ senza segno (purché il risultato stia nei 64 bit).
+ 1) Forma a 1 Operando (Precisione Doppia) ,identica a mul: svolge la moltiplicazione estendendo il segno a 128 bit. Sfrutta i registri impliciti RAX e RDX.Esempio imul rbx  RDX:RAX = RAX * RBX (con segno). Operazione: Moltiplica RAX per RBX, salva i 64 bit meno significativi in RAX e la sign-extension / bit alti in RDX.
+ 2) Forma a 2 Operandi (Distruttiva / Registro-Registro) : la più usata, moltiplica il primo operando per il secondo e salva il risultato direttamente nel primo operando, troncando a 64 bit. Non tocca RDX. Esempio: imul rax, rbx   ; RAX = RAX * RBX, oppure imul rdi, 10    ; RDI = RDI * 10 .Accetta valori immediati!.
+ Vantaggio enorme: non sovrascrive RDX (evitando di distruggere dati utili) e permette di usare valori immediati (costanti). Nella forma a 1 operando, i flag CF e OF si comportano diversamente da mul:CF = 0 e OF = 0: Significa che RDX è semplicemente l'estensione del segno di RAX (ovvero RDX contiene tutti 0 se RAX è positivo, 
+ o tutti 1 (0xFFFFFFFFFFFFFFFF) se RAX è negativo). Il risultato entra interamente a 64 bit in RAX. CF = 1 e OF = 1: il risultato ha sforato i 64 bit (overflow con segno) e RDX contiene bit di dati significativi.
+ 3) Forma a 3 Operandi (Non Distruttiva con Costante): prende il secondo operando, lo moltiplica per il terzo (che deve essere un valore immediato) e salva il risultato nel primo.Esempio : imul rax, rbx, 50   ; RAX = RBX * 50
+ Vantaggio: utile nelle operazioni di indicizzazione di array o strutture, dove vuoi scalare un registro per una costante e salvare il risultato in un registro diverso in un'unica istruzione.Nelle forme a 2 e 3 operandi, CF e OF si azzerano se il risultato matematico rientra perfettamente nei bit del registro di destinazione,
+ oppure si azionano a 1 se c’è stato un troncamento (overflow).
+
+ Perché in complemento a 2 il troncamento è identico?In complemento a 2, i N bit meno significativi del prodotto di due numeri sono identici sia che i numeri vengano interpretati come signed sia come unsigned.Ecco perché GCC usa spesso imul rax, rbx (2 operandi) anche per il codice C unsigned uint64_t: evita di toccare RDX e 
+ calcola i 64 bit LSB corretti in un solo colpo.
+-jc e jnc(Jump If/ If not Carry Flag) : sintassi jc label. Eseguono un salto condizionato alla label a seconda che il carry flag impostato dalla precedente mnemonica(per esempio bt) sia impostato a 0 o a 1. 
 
 ---SINTASSI ASSEMBLY--------------------------------------------------------------------------------
 A livello di Assemblatore (NASM), i mnemonici delle istruzioni e i nomi dei registri sono rigorosamente case-insensitive (insensibili alle maiuscole/minuscole).
