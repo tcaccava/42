@@ -10,7 +10,7 @@ section .text
 ft_list_sort :
     test rdi , rdi          ; verifico che begin_list non sia NULL
     jz .null_pointers       ; in tal caso return
-    cmp qword [rdi], 0            ; verifico che *begin_list non sia NULL
+    cmp qword [rdi], 0      ; verifico che *begin_list non sia NULL
     jz .null_pointers       ; in tal caso return 
     push rbx                ; salvo rbx in stack
     push r12                ; salvo r12 in stack
@@ -18,13 +18,13 @@ ft_list_sort :
     push r14                ; salvo r14 in stack
     sub rsp, 8              ; allineamento rsp % 16
     mov r14, [rdi]          ; r14 = *begin_list
-    mov rbx, r14             ; rbx = *curr = *begin_list 
+    mov rbx, r14            ; rbx = *curr = *begin_list 
     mov r12, rsi            ; r12 = *cmp
     
 .loop :
     mov r13, [rbx + s_list.next]   ; r13 = curr->next
     test r13, r13           ; verifico che curr->next != NULL
-    jz .end_loop                ; in caso contrario ritorno
+    jz .end_loop            ; in caso contrario ritorno
     mov rdi, [rbx]          ; curr->data = rdi
     mov rsi, [r13]          ; curr->next->data = rsi 
     
@@ -42,7 +42,7 @@ ft_list_sort :
     mov rbx , r14           ; curr = *begin_list
     jmp .loop               ; ritorno nel loop dall'inizio
 
-.end_loop :                      ; ripristino stack e ritorno
+.end_loop :                 ; ripristino stack e ritorno
     add rsp, 8
     pop r14
     pop r13

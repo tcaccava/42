@@ -52,3 +52,60 @@ void ft_list_sort(t_list **begin_list, int (*cmp)())
             curr = curr->next;
     }
 }
+
+void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)(), void (*free_fct)(void *))
+{
+    if (!begin_list || !*begin_list)
+        return;
+
+    t_list *curr = *begin_list;
+    t_list *top = curr;
+    t_list *previous = NULL;
+    t_list *next;
+
+    while (curr)
+    {
+        next = curr->next;
+        if (!(cmp(curr->data, data_ref)))
+        {
+            free_fct(curr->data);
+            if (curr == top)
+            {
+                top = next;
+                previous = NULL;
+            }
+            else
+                previous->next = next;
+
+            free(curr); // <-- FIX: Liberazione del nodo t_list
+        }
+        else
+            previous = curr;
+
+        curr = next;
+    }
+    *begin_list = top;
+}
+
+void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)(), void (*free_fct)(void *))
+{
+    if (!begin_list || !*begin_list)
+        return;
+
+    t_list **curr = begin_list;
+
+    while (*curr)
+    {
+        if (cmp((*curr)->data, data_ref) == 0)
+        {
+            t_list *tmp = *curr;
+            *curr = (*curr)->next; // Ricollega automaticamente la testa o il nodo precedente!
+            free_fct(tmp->data);
+            free(tmp);
+        }
+        else
+        {
+            curr = &(*curr)->next; // Avanza il puntatore al prossimo next
+        }
+    }
+}
