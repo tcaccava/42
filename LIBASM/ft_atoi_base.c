@@ -72,7 +72,7 @@ int return_base_value(char *base, char c)
     return 0;
 }
 
-int ft_atoi_base(char *str,char *base)
+int ft_atoi_base(char *str, char *base)
 {
     int sign = 1;
     int res = 0;

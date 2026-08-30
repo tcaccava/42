@@ -18,7 +18,7 @@ ft_list_push_front:
     mov rbx , rdi              ; salvo begin list in rbx
     mov r12,  rsi              ; salvo data in r12
     mov rdi, s_list_size       ; sposto la size in rdi per chiamare malloc                
-    call malloc                ; chiamo malloc
+    call malloc wrt ..plt      ; chiamo malloc
     test rax, rax              ; verifico che la chiamata non sia fallita
     jz .cleanup                ; in caso di fallimento cleanup stack e ritorno
     mov [rax] , r12            ; faccio in modo che new_node->data punti a data
