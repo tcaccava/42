@@ -48,6 +48,10 @@ void test_ft_strlen(void) {
     print_result("Empty string", ft_strlen(s2) == strlen(s2));
     print_result("Single character", ft_strlen(s3) == strlen(s3));
     print_result("Long alphanumeric string", ft_strlen(s4) == strlen(s4));
+    // Edge case: puntatore NULL protetto (se gestito a restituzione 0)
+    //size_t null_res = ft_strlen(NULL);
+    //print_result("NULL pointer safety (expects 0)", null_res == 0);
+
 }
 
 void test_ft_strcpy(void) {
@@ -80,6 +84,13 @@ void test_ft_strcmp(void) {
     print_result("Prefix vs Full string", (ft_strcmp(s1, s4) < 0) && (strcmp(s1, s4) < 0));
     print_result("Empty string vs non-empty", (ft_strcmp(empty, s1) < 0) && (strcmp(empty, s1) < 0));
     print_result("Empty strings", (ft_strcmp(empty, empty) == 0) && (strcmp(empty, empty) == 0));
+    // Edge case: Caratteri estesi (confronto unsigned char)
+    unsigned char u1[] = { 'a', 255, 0 };
+    unsigned char u2[] = { 'a', 127, 0 };
+    int res_ft = ft_strcmp((char *)u1, (char *)u2);
+    int res_libc = strcmp((char *)u1, (char *)u2);
+    print_result("Extended chars unsigned comparison", (res_ft > 0 && res_libc > 0) || (res_ft < 0 && res_libc < 0));
+
 }
 
 void test_ft_write(void) {
@@ -105,10 +116,15 @@ void test_ft_write(void) {
     errno = 0;
     ssize_t err_ft = ft_write(-99, "fail", 4);
     int err_code_ft = errno;
+    char *err_str_ft = strerror(err_code_ft);
 
     errno = 0;
     ssize_t err_libc = write(-99, "fail", 4);
     int err_code_libc = errno;
+    char *err_str_libc = strerror(err_code_libc);
+
+    printf("    [INFO] ft_write(-99) -> ret: %zd | errno: %d (%s)\n", err_ft, err_code_ft, err_str_ft);
+    printf("    [INFO]    write(-99) -> ret: %zd | errno: %d (%s)\n", err_libc, err_code_libc, err_str_libc);
 
     print_result("ft_write invalid FD return (-1)", err_ft == -1);
     print_result("ft_write invalid FD errno match", err_code_ft == err_code_libc);
@@ -140,10 +156,15 @@ void test_ft_read(void) {
     errno = 0;
     ssize_t err_ft = ft_read(-99, buf1, 10);
     int err_code_ft = errno;
+    char *err_str_ft = strerror(err_code_ft);
 
     errno = 0;
     ssize_t err_libc = read(-99, buf2, 10);
     int err_code_libc = errno;
+    char *err_str_libc = strerror(err_code_libc);
+
+    printf("    [INFO] ft_read(-99) -> ret: %zd | errno: %d (%s)\n", err_ft, err_code_ft, err_str_ft);
+    printf("    [INFO]    read(-99) -> ret: %zd | errno: %d (%s)\n", err_libc, err_code_libc, err_str_libc);
 
     print_result("ft_read invalid FD return (-1)", err_ft == -1);
     print_result("ft_read invalid FD errno match", err_code_ft == err_code_libc);
