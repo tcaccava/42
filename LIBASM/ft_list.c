@@ -2,8 +2,8 @@
 
 typedef struct s_list
 {
-    void *data;          // Offset 0  (8 byte su x86-64)
-    struct s_list *next; // Offset 8  (8 byte su x86-64)
+    void *data;          // Offset 0
+    struct s_list *next; // Offset 8
 } t_list;
 
 void ft_list_push_front(t_list **begin_list, void *data)
