@@ -1,0 +1,52 @@
+# ============================================================
+# WARNING — STILL SUBJECT TO CHANGE
+#
+# The metadata below is provisional. At least these must be
+# revisited before the defense:
+#   * version      : bump when the package layout settles
+#   * description  : rewrite once the algorithm is decided
+# The build configuration itself (src layout, backend) is
+# working and should not need changes.
+# ============================================================
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "1.0.0"
+description = "Reusable maze generator from the 42 A-Maze-ing project"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE.md" }
+keywords = ["maze", "generator", "42"]
+dependencies = []
+
+authors = [
+    { name = "anade-mo" },
+    { name = "ltamiano" },
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Games/Entertainment",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = ["flake8", "mypy", "build"]
+
+# The reusable packages live under src/, so setuptools is told where to
+# look. app/ and tests/ stay out of the wheel.
+#
+# Two packages ship: mazegen, which is what the subject asks for, and
+# rainbow, the colour names the renderer draws with. rainbow is kept
+# here rather than installed from elsewhere so the project stands on
+# its own — "pip install -e ." is still all anyone needs.
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

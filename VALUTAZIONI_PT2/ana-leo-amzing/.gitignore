@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+*.egg-info/
+.coverage
+
+# Virtual environments
+venv/
+.venv/
+
+# Build artifacts. The wheel itself is committed: the subject asks for
+# a pip-installable mazegen-* file at the root of the repository.
+build/
+dist/
+mazegen-*.tar.gz
+
+# Generated mazes
+maze.txt
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*:Zone.Identifier
+*.swp
+.vscode/
+
+# Manim animations: scene scripts and the videos they render
+docs/manim/
