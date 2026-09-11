@@ -1,2 +1,0 @@
-#include <unistd.h>
-int main(){char*s="#include <unistd.h>^int main(){char*s=$@$;char*p=s;while(*p){if(*p==64){int i=0;while(s[i])i++;write(1,s,i);}else if(*p==36){char q=34;write(1,&q,1);}else if(*p==94){char n=10;write(1,&n,1);}else write(1,p,1);p++;}return 0;}^";char*p=s;while(*p){if(*p==64){int i=0;while(s[i])i++;write(1,s,i);}else if(*p==36){char q=34;write(1,&q,1);}else if(*p==94){char n=10;write(1,&n,1);}else write(1,p,1);p++;}return 0;}
