@@ -592,42 +592,4 @@ Una variabile è un costrutto semantico del linguaggio C destinato al compilator
 tenere traccia del suo indirizzo di memoria, oltre a ricordagli che contiene dati formattati come interi con segno, e di scriverci dentro il valore 5. La variabile esiste nello spazio e nel tempo durante l'esecuzione del programma. 
 Una macro è pura, stupida e brutale sostituzione di testo destinata al preprocessore, che si occupa di un banale editing del sorgente prima della compilazione.
 
-
-
-C
-typedef struct s_list
-{
-    void          *data;
-    struct s_list *next;
-}   t_list;
-Layout di Memoria di t_list in Architettura a 64 bit:
-Un puntatore in architettura x86-64 occupa 8 byte (64 bit). Pertanto, l'offset di memoria della struttura t_list è rigorosamente determinato:  
-PDF
-+ 1
-
-Offset 0 (0x00): Campo data (8 byte).  
-PDF
-
-Offset 8 (0x08): Campo next (8 byte).  
-PDF
-
-Dimensione totale del nodo: 16 byte.
-
-  Indirizzo Nodo
-  +-----------------------+-----------------------+
-  |  void *data (8 byte)  | struct t_list *next   |
-  +-----------------------+-----------------------+
-  Offset: 0x00            Offset: 0x08
-  
-PDF
-+ 4
-Principi Operativi per i Bonus:
-Navigazione del Puntatore: Per accedere al nodo successivo, si dereferenzia il puntatore offsettato di 8 byte: mov reg, [nodo_ptr + 8].
-
-Invocazione di Function Pointer (cmp o free_fct):
-Quando si passa un puntatore a funzione in un registro (es. RDX o RCX), l'invocazione dinamica si effettua mediante chiamata indiretta tramite il registro stesso (es. call rdx o call r10).
-
-Preservazione dello Stato nei Cicli: Durante le iterazioni sulla lista che comportano chiamate esterne a cmp o free, i puntatori correnti della lista (t_list **begin_list) e i riferimenti ai nodi devono essere memorizzati nei registri Callee-Saved (RBX, R12-R15) per evitare che vengano corrotti dalla funzione di comparazione chiamata.
-Rispondiamo a ogni singola domanda scendendo a livello dei transistor e del sistema operativo. Allacciati le cinture.
-
 */
