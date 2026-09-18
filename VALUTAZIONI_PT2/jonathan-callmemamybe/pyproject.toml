@@ -1,0 +1,34 @@
+[project]
+name = "call-me-maybe"
+version = "0.1.0"
+description = "Function calls with llm parsing from prompt"
+readme = "README.md"
+authors = [
+    { name = "jludolph", email = "jludolph@student.42roma.it" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.5.2",
+    "pydantic>=2.13.4",
+    "mypy",
+    "flake8",
+    "llm-sdk",
+    "accelerate>=1.14.0",
+    "json-schema-to-pydantic>=0.4.11",
+    "argparse>=1.4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.uv.workspace]
+members = [
+    "llm_sdk",
+]
+
+[tool.uv.sources]
+llm-sdk = { workspace = true }
