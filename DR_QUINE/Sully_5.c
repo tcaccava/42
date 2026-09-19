@@ -7,7 +7,7 @@
 
 int main(int argc,char **argv,char **envp)
 {
-    static unsigned short runs = 0;
+    static unsigned short runs = 5;
     if(runs > 5)
         return 0;
     char filename[] = "Sully_ .c";
