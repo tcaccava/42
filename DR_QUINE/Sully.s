@@ -48,7 +48,7 @@ main:
     mov [r14], al
     lea rdi, [rel r14 - 6]
     mov rsi,  0x241
-    mov rdx , 0o777
+    mov rdx , 0o770
     xor eax, eax
     call open wrt ..plt
     cmp eax, 0
