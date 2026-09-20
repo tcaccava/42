@@ -1,6 +1,6 @@
 
 // ==============================================================================
-// IL PARADOSSO DELL'INFINITO REGRESSO (Il limite del codice monolitico)
+// IL PARADOSSO DELL'INFINITO REGRESSO (limite del codice monolitico)
 
 // Questo e' il massimo livello di autoriferimento che un blocco di codice 
 // monolitico puo' raggiungere senza distinzione tra componente attiva e passiva.
@@ -73,11 +73,6 @@ void pseudo_quine_argv_file(int argc, char **argv) {
    Un VERO Quine (che usa dati in memoria) stamperà il sorgente .c indipendentemente 
    dal fatto che esista sul disco o meno.
  */
-
-
-// ==============================================================================
-// MAIN DI TEST
-// ==============================================================================
 
 int main(int argc, char **argv) {
     printf("--- RISULTATO DEL CODICE MONOLITICO ---\n");
