@@ -59,6 +59,17 @@ void pseudo_quine_argv_file(int argc, char **argv) {
     }
 }
 
+// oppure
+#include <fcntl.h>
+
+int main() {
+    char buf[1024];
+    int fd = open(__FILE__, O_RDONLY);
+    int n = read(fd, buf, sizeof(buf));
+    write(1, buf, n);
+    close(fd);
+}
+
 /*
  Perche' e' scientificamente invalido ed equivale ad un cheat:
  - Definizione di input: un vero Quine è una Macchina di Turing definita
