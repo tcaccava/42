@@ -58,7 +58,7 @@ Il Primo Teorema mi salva garantendo che per un simile costrutto circolare esist
 In logica formale e teoria degli insiemi,non posso scrivere una definizione circolare,cioe' definire un'entità menzionando il suo stesso nome prima che quell'entità sia stata completamente definita. È un errore sintattico e logico insormontabile. Per aggirare questo blocco e dimostrare che la ricorsione 
 e' corretta sotto il profilo logico-formale, i matematici devono fare un giro di boa: creano un operatore esterno F (il generatore),dicono che F prende una funzione "grezza" o incompleta g e la espande di un gradino,quindi definiscono la vera funzione ricorsiva f come quel particolare oggetto che rappresenta 
 il punto d'arresto dell'operatore, cioè F(f) = f.L'operatore F è il trucco formale necessario per strappare la ricorsione al paradosso logico della circolarità.
-Quando scrivo una funzione ricorsiva in C, per es. int f(int n) { return n == 0 ? 1 : n * f(n-1); }, matematicamente sto scrivendo un'equazione in cui f compare sia a destra che a sinistra: f = F(f),ovvero quella funzione f deve soddisfare una regola(un equazione) in cui compare se stessa.  Sto cercando quella funzione f tale che, se la do in pasto all'
+Quando scrivo una funzione ricorsiva in C, per es. int f(int n) { return n == 0 ? 1 : n * f(n-1); }, matematicamente sto scrivendo un'equazione in cui f compare sia a destra che a sinistra: f = F(f),ovvero quella funzione f deve soddisfare una regola(un equazione) in cui compare se stessa. Sto cercando quella funzione f tale che, se la do in pasto all'
 operatore di trasformazione F, ti restituisce esattamente se stessa. Questa è la definizione algebrica di punto fisso. Il problema matematico è che un'equazione ricorsiva del genere ha quasi sempre infiniti punti fissi. Esistono cioe' infinite funzioni diverse che, se infilate dentro F, fanno quadrare l'equazione. 
 Tra queste ci sono funzioni corrette, ma anche funzioni non corrette.Non corrette rispetto a quale rule set?Il "rule set" è la specifica formale del problema che voglio computare (ad esempio, le proprietà matematiche che definiscono univocamente il fattoriale o la serie di Fibonacci).Se scrivo un'equazione ricorsiva scritta male,
 l'algebra formale potrebbe trovare dei punti fissi che soddisfano formalmente l'equazione F(f) = f ma che, rispetto al problema reale che volevo risolvere, sono spazzatura (es. restituiscono valori costanti, o non terminano dove dovrebbero). Tra tutti i punti fissi possibili che fanno quadrare l'equazione algebrica, solo il minimo punto fisso corrisponde esattamente alla semantica pulita 
@@ -75,7 +75,6 @@ Come si costruisce questo minimo? Il teorema non si limita a dire che esiste, ma
 
 Quando scrivo la logica di una ricorsione, sto in realta' scrivendo un'equazione.
 Esempio: se scrivo int f(int x) { return f(x); }, qual è la funzione matematica che esce fuori? È la funzione "vuota", cioè una funzione parziale che diverge (va in loop) su qualunque input. Quella funzione vuota è il minimo punto fisso di quell'equazione ricorsiva.
-In matematica un'equazione deve comunque avere un significato formale. 
 
 Esempio pratico del Primo Teorema:
 Mettiamo il caso che scriva un fattoriale in C dimenticandomi il caso base:
@@ -121,7 +120,7 @@ Ed ecco il problema: appena inserisco il codice nella printf, il file sorgente o
 int main() { printf("int main() { printf(\"int main() { ... }\"); }"); }
 ...il file cresce ancora. È un regresso all'infinito. Più cerco di descrivere o "hardcodare" il programma dentro se stesso, più il programma si espande, e non riusciro' mai a scrivere l'ultima virgoletta.Il che non significa che il compito sia impossibile,ma solo che un
 approccio additivo ,basato sulla concezione del sorgente come un blocco monolitico di codice e dati, e' totalmente fallimentare by design.
-Il Secondo Teorema di ricorsione entra in gioco qui: dimostra matematicamente che esiste sempre una via di fuga a questo loop infinito,garantendo che è possibile separare la logica del programma dai suoi dati (componente attiva e passiva) per aggirare il problema dell'espansione infinita,
+Il Secondo Teorema di ricorsione entra in gioco qui: dimostra matematicamente che esiste sempre una via di fuga a questo loop infinito,garantendo che è possibile separare la logica esecutiva del programma dai suoi dati (componente attiva e passiva) per aggirare il problema dell'espansione infinita,
 che è il principio esatto su cui si basa l'architettura di un Quine. Esiste sempre un modo per un programma di calcolare il proprio numero di Gödel (il proprio codice sorgente) e passarlo come argomento a sé stesso.
 
 ---STRUTTURA DI UN QUINE------------------------------------------------------------------------------------------------
@@ -142,8 +141,8 @@ Qui entra in gioco un ulteriore complicazione tipica di linguaggi come C : per s
 Se provo a scriverlo, cadro' in questo ciclo di regressione infinita:
 -devo stampare una stringa: "..."
 -la stringa deve contenere la sua stessa definizione: " "..." "
--ma in C devi mettere i caratteri di escape per le virgolette interne perche' vengano interpretate come tali: " \"...\" "
--ma ora la stringa deve contenere i caratteri di escape \, quindi devi fare l'escape delle escape: " \\\"...\\\" "
+-ma in C devo mettere i caratteri di escape per le virgolette interne perche' vengano interpretate come tali: " \"...\" "
+-ma ora la stringa deve contenere i caratteri di escape \, quindi devo fare l'escape delle escape: " \\\"...\\\" "
 -questo genera una ricorsione logica infinita in fase di scrittura del codice: non posso definire la stringa passiva includendo letteralmente le virgolette o i ritorni a capo (newline) necessari per formattarla, perché per farlo sarei costretto ad aggiungere altri caratteri di escape,
  alterando la stringa che stavo cercando di rappresentare.
 

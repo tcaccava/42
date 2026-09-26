@@ -4,7 +4,11 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <sys/types.h>
-
+// Questo approccio con un main autoricorsivo e' concettualmente valido e puo' essere a tutti gli effetti considerato un Quine,ma non e' pienamente conforme al subject
+// perche' prevede che ci sia un solo processo padre che ad ogni ricorsione forka,generando un figlio che si limita a compilare il nuovo file Sully_x.c generando un eseguibile 
+// che pero' non viene mai eseguito. Se ho inteso bene il subject,pretende che ogni nuovo figlio ,che differisce dal precedente solo per il valore di run,compili generando un 
+// eseguibile che viene runnato,generando un nuovo sorgente e cosi' via. Ho implementato questo approccio,in cui il padre forka due volte,generando due figli,una per la compilazione
+// e una per la esecuzione,nel codice che ho pushato.
 int main(int argc, char **argv, char **envp)
 {
     static short runs = 5;

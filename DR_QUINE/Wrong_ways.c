@@ -1,7 +1,5 @@
-
-// ==============================================================================
 // IL PARADOSSO DELL'INFINITO REGRESSO (limite del codice monolitico)
-
+// ==============================================================================
 // Questo e' il massimo livello di autoriferimento che un blocco di codice 
 // monolitico puo' raggiungere senza distinzione tra componente attiva e passiva.
 
@@ -13,7 +11,7 @@ void monolithic_limit() {
 }
 
 /*
- ANALISI MATEMATICA (Perche' fallisce):
+ ANALISI MATEMATICA del perche' fallisce :
  Se eseguo la funzione, l'output sara':
  #include <stdio.h>
  #define S 
@@ -21,7 +19,7 @@ void monolithic_limit() {
     printf(S);
   } 
  Manca la stringa stessa assegnata alla macro S nella riga 2.
- Per far sì che il codice stampi la propria stringa, la stringa 'S' dovrebbe 
+ Per far sì che il codice stampi la propria stringa, la stringa S dovrebbe 
  contenere se stessa. Se provassimo ad aggiungerla, S conterrebbe S, che a sua 
  volta contiene S, generando una stringa di lunghezza infinita. 
  Questo è il limite invalicabile dimostrato dal Teorema di Ricorsione di Kleene.
@@ -32,9 +30,8 @@ void monolithic_limit() {
  */
 
 
-// ==============================================================================
 // IL FALSO QUINE (tramite I/O, argv e __FILE__)
-
+// ==============================================================================
 // Molti credono che aprire il file sorgente dal disco sia un Quine. 
 // E' un approccio perdente e concettualmente nullo.
 
@@ -84,13 +81,3 @@ int main() {
    Un VERO Quine (che usa dati in memoria) stamperà il sorgente .c indipendentemente 
    dal fatto che esista sul disco o meno.
  */
-
-int main(int argc, char **argv) {
-    printf("--- RISULTATO DEL CODICE MONOLITICO ---\n");
-    monolithic_limit();
-    
-    printf("\n--- RISULTATO DEL CHEAT ---\n");
-    pseudo_quine_argv_file(argc, argv);
-    
-    return 0;
-}
