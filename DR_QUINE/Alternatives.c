@@ -11,19 +11,29 @@
 
    VARIANTE 1: Raw Syscall write() + Parser Byte-per-Byte con Marker ASCII
    --------------------------------------------------------------------------
+   Con write (o con la system call sys_write in Assembly) non ho a disposizione la printf che fa la magia dell'espansione, quindi cambia completamente l'approccio: 
+   si passa alla stampa sequenziale a blocchi (o tecnica prefix-data-suffix).
+   Invece di unire codice e dati in un'unica stringa di formato, divido il programma in parti distinte e faccio più chiamate a write consecutive per ricomporre il puzzle:
+   - il Prefisso: stampo tutto il blocco di codice che precede la dichiarazione della stringa dati.
+   - il Delimitatore d'Apertura: stampo il carattere delle virgolette doppie (").
+   - il Contenuto: stampo la stringa dati stessa (che contiene l'intero codice sorgente inclusa la riga che chiama la write).
+   - il Delimitatore di Chiusura: stampo di nuovo le virgolette doppie (").
+   - il Suffisso: stampo la parte finale del codice che chiude il programma.
+   
    MECCANICA:
    Elimina totalmente le funzioni di formattazione della libc (printf/dprintf)
-   e la gestione delle format-string (%s, %c).
+   e la gestione delle format-string (%s, %c). Senza una funzione che interpreti i segnaposti (%s, %c), la write si limita a trasferire byte grezzi 
+   dalla memoria al descrittore di file 1 (stdout)
    
    Usa un'unica stringa D contenente tre caratteri marker di controllo:
-     - '^' (ASCII 94): rappresenta il character '\n' (ASCII 10).
-     - '$' (ASCII 36): rappresenta il character '"'  (ASCII 34).
-     - '@' (ASCII 64): rappresenta l'auto-riferimento al puntatore 's' stesso.
+     - ^ (ASCII 94): rappresenta il character \n (ASCII 10).
+     - $ (ASCII 36): rappresenta il character "  (ASCII 34).
+     - @ (ASCII 64): rappresenta l'auto-riferimento al puntatore s stesso.
 
    ALGORITMO:
    Un ciclo while (*p) scorre il payload D. Quando incontra @, sospende la
    stampa puntuale e invoca write(1, s, len) stampando l'intera stringa D
-   tra le virgolette aperte e chiuse dal marker '$'.
+   tra le virgolette aperte e chiuse dal marker $.
 */
 
 #include <unistd.h>

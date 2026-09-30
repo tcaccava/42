@@ -125,8 +125,8 @@ che è il principio esatto su cui si basa l'architettura di un Quine. Esiste sem
 
 ---STRUTTURA DI UN QUINE------------------------------------------------------------------------------------------------
 Per costruire un Quine valido, la teoria di base (spesso associata al costruttore universale di von Neumann) richiede la scomposizione del sorgente in due entità ontologicamente distinte ma interdipendenti:
-1) la componente attiva (codice): le istruzioni operative incaricate di formattare e stampare.
-2) la componente passiva (dati): una rappresentazione in memoria (generalmente una stringa o un buffer) che mappa esattamente le istruzioni della componente attiva.
+1) la componente attiva (codice o fenotipo): le istruzioni operative incaricate di formattare e stampare.
+2) la componente passiva (dati o genotipo): una rappresentazione in memoria (generalmente una stringa o un buffer) che mappa esattamente le istruzioni della componente attiva.
 Il parallelismo con un linguaggio a basso livello come Assembly ,ma anche con C, e' immediato: 
 1) la componente attiva e' il .text segment,cioe' le istruzioni macchina vere e proprie.
 2) la componente passiva e' l'insieme di .data/.bss/.ROData segments: cioe' variabili globali inizializzate e non,e variabili o buffer costanti.
@@ -156,3 +156,187 @@ La struttura teorica si regge su tre pilastri concettuali puri:
    in un'identità chiusa dove l'input descrittivo e l'output generato coincidono perfettamente.Questo è il motivo per cui la teoria esclude qualsiasi input esterno o lettura da file: l'autoriferimento non è un'operazione di I/O, ma una proprietà topologica dello spazio di computazione, garantita dal fatto che la 
    logica e la stringa descrittiva sono legate da un punto fisso matematico.
 */
+
+
+/*
+   ===================================================================================================================
+   NOZIONI DI CODICE FONDAMENTALI PER AFFRONTARE IL PROGETTO
+   ===================================================================================================================
+
+   SEQUENZE DI ESCAPE
+   In C, le sequenze di escape numeriche si esprimono in due modi:
+   - Notazione Ottale (\ooo): usa cifre da 0 a 7 (fino a un massimo di 3 cifre). Il carattere delle virgolette doppie (") ha codice ASCII 34 in decimale. Convertito in base ottale, 34 diventa 42. Di conseguenza, la sequenza ottale corretta per le virgolette è \42 (o \042).
+   - Notazione Esadecimale (\xhh): usa il prefisso \x seguito da cifre esadecimali. Il valore esadecimale del codice ASCII 34 è 22. La sequenza esadecimale corretta per le virgolette è quindi \x22.
+   In Assembly non esiste un insieme universale di caratteri di escape a livello di ISA/linguaggio, poiché l'Assembly tratta la memoria come byte puri. Tuttavia, il modo in cui vengono interpretati i caratteri di escape dipende interamente dall' assembler utilizzato (nel mio caso NASM).
+   In NASM esistono due modalità principali per gestire i caratteri speciali e i ritorni a capo nelle stringhe:
+   1) La sintassi con i Backtick (``...``) — C-Style Escapes
+      Se racchiudo una stringa tra backtick (l'accento grave `), NASM abilita l'interpretazione dei caratteri di escape in stile C.
+      Principali caratteri di escape supportati nei backticks:
+      | Sequenza | Significato | Valore ASCII (Dec / Hex) |
+      | --- | --- | --- |
+      | `\n` | Newline (Line Feed) | `10` (`0x0A`) |
+      | `\r` | Carriage Return | `13` (`0x0D`) |
+      | `\t` | Tabulazione orizzontale | `9` (`0x09`) |
+      | `\0` | Byte nullo (Null terminator) | `0` (`0x00`) |
+      | `\\` | Backslash | `92` (`0x5C`) |
+      | `\'` | Apice singolo | `39` (`0x27`) |
+      | `\"` | Virgoletta doppia | `34` (`0x22`) |
+      | `\`` | Backtick | `96` (`0x60`) |
+      | `\e` / `\E` | Carattere Escape (ANSI escape codes) | `27` (`0x1B`) |
+      | `\xHH` | Byte esadecimale arbitrario (es. `\x0A`) | Specificato da `HH` |
+      | `\000` | Byte ottale arbitrario (es. `\012`) | Specificato dal valore ottale |
+
+   2) Le virgolette classiche ("..." o '...') — Nessun Escape
+      Se uso le virgolette doppi o i singoli apici NASM NON interpreta alcun carattere di escape. Se scrivi '\n', l'assembler scriverà in memoria letteralmente un backslash (0x5C) seguito dal carattere n (0x6E).
+      Per inserire caratteri speciali con la sintassi classica, si separano le stringhe con i valori numerici ASCII trascritti in decimale o esadecimale tramite virgola nella direttiva db.
+      Esempio:
+
+      s_classica: db "Linea 1", 10, "Linea 2 con ", 34, "virgolette", 34, 0
+
+
+   I due approcci seguenti generano identici byte nella sezione dati del binario compiled:
+
+   section .data
+      ; Metodo 1: Backtick (C-style)
+      str1: db `Hello\nWorld\0`
+
+      ; Metodo 2: Separazione per virgola (Classic NASM)
+      str2: db "Hello", 10, "World", 0
+
+
+   ARGOMENTI POSIZIONALI IN FUNZIONI DELLA FAMIGLIA PRINTF
+   %1 e' ad esempio una specifica di argomento posizionale supportata dall'estensione POSIX della printf (presente nella libreria standard di sistemi come Linux/glibc). In una printf standard, gli argomenti vengono consumati in ordine sequenziale: il primo % prende il primo argomento dopo la stringa, il secondo % prende il secondo,
+   e così via. Inserendo un numero seguito da un dollaro prima del modificatore (%1$c, %2$s), sto dicendo esplicitamente alla printf quale specifico argomento della va list prendere, scavalcando l'ordine sequenziale:
+   - %1$c significa: prendi il primo argomento extra passato alla funzione e formattalo come carattere.
+   - %2$s significa: prendi il secondo argomento extra e formattalo come stringa.
+   Nei Quine questo è vitale perché permette di riutilizzare lo stesso identico valore (come il codice ASCII 34 o la stringa s stessa) decine di volte in punti diversi del testo senza dover impazzire a rispettare un ordine rigido di parametri nella chiamata. Variadicita' posizionale alla ennesima potenza.
+   
+   DIFFERENZA TRA DEFINIZIONE MANUALE DELL'ENTRYPOINT _START(binario bare metal) E USO DELLA C RUNTIME
+   Per capire perché esiste questa distinzione, bisogna guardare a come il kernel Linux e il linker (ld) gestiscono l'esecuzione di un binario ELF.
+   1) L'approccio _start (Naked ELF / nasm + ld) :
+      - Meccanismo del Kernel: quando il kernel esegue la syscall execve, carica l'eseguibile ELF in memoria, prepara lo stack (inserendovi argc, argv, envp) e passa il controllo direttamente all'indirizzo di memoria specificato nell'header ELF sotto il simbolo _start.
+      - Assenza di Paracadute: non esiste alcun codice di inizializzazione prima della prima istruzione di _start. Lo stack non contiene un indirizzo di ritorno valido. Di conseguenza, terminare la routine con un'istruzione ret causa inevitabilmente un SegFault, perché lo stack pointer rsp punta a argc e non a un frame di chiamata.
+        Per terminare un programma con _start è teoricamente obbligatorio invocare esplicitamente la syscall sys_exit.
+   2) L'approccio main (C Runtime / gcc + nasm) :
+      - Inizializzazione CRT (crt1.o): quando compili o linki tramite gcc, il compilatore inserisce automaticamente il proprio entry point _start fornito dalla libreria C standard.
+      - Flusso di esecuzione: il kernel salta a _start della CRT. Questo codice di bootstrap inizializza i costruttori globali, allinea lo stack, estrae argc/argv dallo stack e invoca la funzione main come una normale chiamata call. All'ingresso di main, i registri contengono già i parametri della firma C classica(rdi == argc, rsi == argv, rdx == envp).
+      - Ritorno Pulito: poiché main viene invocata via call, puoi terminare la funzione semplicemente con ret (restituendo il codice di uscita in rax), lasciando che la CRT gestisca la pulizia e la syscall di uscita. La C Runtime riprenderà il controllo dall'indirizzo di ritorno presente nello stack ed eseguirà la exit(rax) per mio conto. 
+        Non serve alcuna syscall manuale di uscita (sys_exit).
+      - Visibilità del simbolo: l'unica regola vincolante lato assembler è dichiarare il simbolo come globale (global main in NASM), in modo che il linker di gcc possa trovarlo e collegarlo alla CRT.
+      - L'unica trappola: l'allineamento dello Stack. Trattare main come una normale funzione implica rispettare l'ABI di sistema quando entro ed esco. Quando la C Runtime esegue call main, spinge nello stack l'indirizzo di ritorno (8 byte). Di conseguenza, alla prima istruzione dentro main, lo stack pointer rsp si trova sfasato: rsp % 16 == 8.
+        Se dentro main voglio chiamare un'altra funzione (come la sotto-routine richiesta da Colleen o la printf/write) l'istruzione call spingerà altri 8 byte nello stack. Se non correggo rsp prima della call, la funzione chiamata vedrà uno stack non allineato a 16 byte, causando un crash o comportamenti indefiniti.
+        Per mantenere main aderente alle regole di una normale funzione C e poter chiamare sotto-routine in sicurezza, la struttura tipica in NASM prevede il canonico prologo/epilogo per riallineare lo stack:
+         global main
+
+         main:
+            push rbp        ; Salva rbp (8 byte) -> ora rsp % 16 == 0!
+            mov  rbp, rsp   ; Crea il frame pointer
+
+            ; --- Logica di main / Chiamata a sotto-routine ---
+
+            mov  rax, 0     ; Return value 0
+            mov  rsp, rbp   ; Ripristina lo stack
+            pop  rbp        ; Ripristina rbp -> ora rsp % 16 == 8
+            ret             ; Torna alla C Runtime
+            
+      Se uso gcc, definisco global main nel codice NASM, compilo l'oggetto .o e lascio che gcc gestisca la fase di linking. Quando compilo e faccio il linking tramite gcc, per il toolchain main non è altro che una normalissima funzione definita come etichetta globale.
+      Per la C Runtime (crt1.o) inserita automaticamente da gcc, il mio codice non è il punto di partenza dell'eseguibile, ma una sotto-routine che viene invocata con una classica istruzione call main.
+      gcc riconosce nativamente l'estensione .s delegando il lavoro a as (GNU Assembler/GAS). Tuttavia, GAS si aspetta di default la sintassi AT&T (oppure la direttiva .intel_syntax noprefix). Per assemblare codice scritto in sintassi NASM pulita è indispensabile chiamare nasm -f elf64.
+      Sui sistemi Linux recenti, gcc compila di default in modalità PIE (Position Independent Executable). Se nel codice NASM faccio riferimenti ad indirizzi di memoria usando nomi di etichette senza indirizzamento relativo, il linker potrebbe generare un errore di rilocazione (relocation R_X86_64_32S against .data...).
+      Due modi per gestire la cosa: 
+      - Aggiungere la direttiva default rel in cima al file .s per istruire NASM a calcolare sempre offset relativi al registro RIP. Di default, su architettura a 64 bit, NASM tratta i riferimenti a etichette in memoria come indirizzi assoluti (abs).
+        Nei sistemi moderni GCC compila di default come PIE (Position Independent Executable). Se cerco di caricare un indirizzo assoluto, il linker fallisce con un errore di rilocalizzazione (relocation R_X86_64_32S against .rodata cannot be used when making a PIE object).
+        Per fare codice position-independent, x86-64 usa l'indirizzamento relativo all'Instruction Pointer (RIP-relative addressing). Senza direttiva, sarei costretto a specificare rel a mano a ogni singola istruzione.
+        Inserendo la direttiva default rel in cima, dico a NASM che tutti gli accessi a label di memoria devono essere RIP-relative di default. In questo modo posso scrivere semplicemente lea rdi, [msg] e NASM genererà automaticamente il codice macchina relativo a RIP.
+      - Disabilitare il PIE in fase di linking passando la flag -no-pie a GCC:                 
+
+   LE TRAPPOLA MORTALI DELLE FUNZIONI VARIADICHE IN ASSEMBLY
+   Le funzioni C che utilizzano le istruzioni SIMD/SSE (come printf, che impiega registri XMM per argomenti variadici) effettuano operazioni di memoria vettoriale che generano un General Protection Fault se lo stack non è perfettamente allineato a 16 byte al momento della chiamata.
+   Inoltre per la System V AMD64 ABI (il sistema standard su Linux x86-64), i primi 6 argomenti interi o puntatori non si spingono nello stack, ma vanno caricati nei registri dedicati secondo questo ordine tassativo:
+
+   1° parametro | rdi | Puntatore alla stringa di formato (format string) |
+   2° parametro | rsi | Primo valore da sostituire nel formato |
+   3° parametro | rdx | Secondo valore da sostituire |
+   4° parametro | rcx | Terzo valore da sostituire |
+   5° parametro | r8 | Quarto valore da sostituire |
+   6° parametro | r9 | Quinto valore da sostituire |
+
+   Per passare l'indirizzo della stringa al primo parametro (in rdi) o a un parametro successivo, l'istruzione corretta è l'uso di lea (Load Effective Address) combinato con l'indirizzamento RIP-relative:
+   lea rdi, [rel s]    ; Carica l'indirizzo effettivo della label s in rdi (PIE-compliant)
+   Perché lea e non mov? mov rdi, s tenta di inserire un indirizzo assoluto a 32/64 bit hardcodato. Se compili in modalità PIE (Position Independent Executable, il default di gcc), il linker fallirà o genererà errori di rilocazione. lea rdi, [rel s] calcola l'indirizzo calcolando l'offset relativo al registro RIP corrente a runtime.
+   Non c'è alcuna dereferenziazione in quell'istruzione: lea NON legge né tocca mai la memoria. La confusione nasce dalla sintassi di NASM, dove le parentesi quadre [...] hanno due significati diversi a seconda dell'istruzione che le usa.
+   1) Con mov (Dereferenziazione vera): mov rax, [rel s]
+      Le quadre dicono alla CPU di calcolare l'indirizzo di s e andare a leggere i byte in RAM presenti a quell'indirizzo per copiarli in rax. Questa è una dereferenziazione (come fare *ptr in C).
+   2) Con lea ((Nessuna dereferenziazione): lea rax, [rel s]
+      Le quadre servono solo per definire la formula di calcolo dell'indirizzo. lea ignora la RAM e dice alla CPU di eseguiew solo l'aritmetica (RIP + offset) e mettere il risultato del calcolo (l'indirizzo) in rax. È l'equivalente esatto dell'operatore & in C.
+      È una pura regola sintattica dell'architettura x86: l'istruzione lea richiede tassativamente come operando di origine un operando di memoria (scritto tra quadre). Le quadre servono perché lea nasce per fare aritmetica sui puntatori in un singolo ciclo di clock.
+
+   In sintassi x86/x86-64 (e in NASM in particolare), lea richiede SEMPRE le parentesi quadre. Senza le quadre l'assembler rifiuta proprio di compilare, generando un errore di sintassi.
+   Il motivo è strutturale a livello di CPU: l'istruzione lea  nasce per calcolare un indirizzo di memoria, e in NASM l'espressione di un indirizzo di memoria è rappresentata tassativamente dalla notazione con le quadre.
+   mov rax, [rbx] | Calcola l'indirizzo rbx e legge il valore in RAM | rax = *rbx; |
+   lea rax, [rbx]`| Calcola l'indirizzo rbx e salva l'indirizzo stesso | rax = rbx; (oppure &(*rbx)) |
+
+   In C o in Assembly a 32-bit ero abituato a scrivere semplicemente s per indicare l'indirizzo. In x86-64 con PIE (Position Independent Executable)  abilitato da gcc, questo non funziona più per due motivi:
+   1) ASLR (Address Space Layout Randomization): il sistema operativo carica l' eseguibile a un indirizzo di memoria casuale ogni volta che lo avvii. L'indirizzo assoluto di s non è noto a tempo di compilazione.
+   2) Limitazione delle istruzioni x86-64: non esiste un'istruzione mov rdi, <imm64> che accetti un offset relativo a 64-bit in modo efficiente per i registri dati senza generare rilocazioni complesse per il linker.
+   Aggiungendo rel all'interno delle quadre [rel s] dico a NASM di calcolare la distanza in byte (offset) tra l'istruzione corrente RIP e la label s. A runtime, la CPU eseguirà RIP + offset: siccome la distanza tra il codice e la sezione dati è fissa nel binario, l'indirizzo calcolato sarà sempre corretto, indipendentemente da dove il kernel 
+   ha caricato il programma in RAM.
+
+   In C, printf è una funzione variadica. L'ABI x86-64 impone una regola precisa quando si invoca una funzione variadica: il registro rax (o meglio la sua porzione al) deve contenere il numero di registri vettoriali (XMM0–XMM7),da 1 ad 8, utilizzati per passare argomenti floating-point(float o double).
+   Poiché per il Quine passo solo numeri interi o puntatori (e zero numeri in virgola mobile) e' necessario resettare rax a 0 prima di chiamare printf
+   xor rax, rax
+   call printf
+   Se dimentico xor rax, rax, printf andrà a leggere un valore casuale rimasto in rax. Se quel valore è diverso da 0, printf proverà a salvare i registri XMM nello stack, generando un Segmentation Fault immediato.
+
+   MASCHERA DEI PERMESSI PER LE FUNZIONI DI IO
+   La maschera dei permessi per le chiamate di creazione file  si esprime in ottale e segue lo schema standard POSIX diviso su 3 cifre: Proprietario (User), Gruppo (Group), Altri (Others).
+   Ogni cifra è la somma di tre bit fondamentali: 4 = Lettura (r - read),2 = Scrittura (w - write),1 = Esecuzione (x - execute). Il valore standard 0644(rw-r--r--) e' la combinazione ideale per file creati da un programma (il proprietario legge e scrive, gli altri possono solo leggere):
+   Altre maschere comuni: 0600(rw-------, File privato/sensibile (lettura e scrittura solo per l'user), 0755 (rwxr-xr-x ,Eseguibile o cartella standard (esecuzione/accesso per tutti).
+   In C scrivo semplicemente 0644 (il prefisso 0 indica l'ottale al compilatore). In **NASM**, se scrivo 644 o 0644 viene interpretato come decimale, corrompendo la maschera dei permessi inviata al kernel!
+   In NASM e' necessario specificare l'ottale o l'esadecimale in modo esplicito: 0o644 oppure 644q per l'ottale, 0x1A4 per l'hex. NASM adotta lo stesso standard di linguaggi moderni (come Python o Rust) per i prefissi numerici:
+   0x per l'esadecimale ,0b per il binario e 0o per l'ottale.In alternativa al prefisso 0o, NASM accetta anche il suffisso q (da quaternary/octal): 644q.
+
+   DIFFERENZA TRA FLAG E PERMESSI NELLA SYSCALL OPEN
+   La differenza fondamentale tra flags e permessi (mode) nella system call open() è la distinzione tra comportamento a runtime del descrittore e metadati di sistema del file.
+   FLAGS (2° argomento): come il processo usa il file
+   I flags dicono al kernel in che modo il tuo processo intende interagire con il file descriptor durante questa specifica apertura. È una bitmask creata combinando costanti `O_*` tramite l'operatore bitwise OR .
+   I flags si dividono in due categorie principali:
+   1) Modalità di Accesso (Mutuamente esclusive) : bisogna specificarne obbligatoriamente una e una sola (i primi 2 bit del valore).
+      O_RDONLY (0): apertura in sola lettura.
+      O_WRONLY (1): apertura in sola scrittura.
+      O_RDWR (2): apertura in lettura e scrittura.
+   2) Modificatori di Controllo e Creazione (Combinabili via OR)
+      O_CREAT: se il file non esiste sul filesystem, lo crea. Richiede l'invocazione del 3° argomento (mode`).
+      O_TRUNC: se il file esiste già ed è aperto in scrittura (O_WRONLY o O_RDWR), ne azzera la lunghezza a 0 byte (lo svuota).
+      O_APPEND: ogni operazione di scrittura (write) sposta automaticamente l'offset alla fine del file (EOF) prima di scrivere.
+      O_EXCL: usato esclusivamente insieme a O_CREAT. Se il file esiste già, open() fallisce e restituisce -1 settando errno a EEXIST. Garantisce la creazione atomica del file senza race conditions.
+
+   MODE / Permessi (3° argomento): chi può fare cosa sul filesystem
+   I permessi definiscono i diritti di accesso POSIX (rwx) scritti nell'inode del file sul filesystem. Vengono presi in considerazione dal kernel esclusivamente se flags contiene O_CREAT (o O_TMPFILE). Se il file esiste già, il 3° argomento viene totalmente ignorato dal kernel.
+   È una rappresentazione ottale a 3 cifre che definisce i bit di accesso per Proprietario (User), Gruppo (Group) e Altri (Others).
+
+   L'effetto della umask:i permessi reali scritti sull'inode non sono mai identici al parametro mode passato a open(), ma vengono filtrati tramite la umask del processo: Permessi Effettivi = mode & ~ umask
+   Esempio: se chiedi 0666 e la umask di sistema è 0022, il file verrà creato con permessi 0644).
+
+   MACRO IN C E ASSEMBLY
+   Nello standard C, le direttive del preprocessore (come #define) terminano tassativamente alla fine della riga fisica (al primo carattere \n). Il carattere backslash \ posto immediatamente prima di un a capo attiva la cosiddetta splicing phase (fase 2 della compilazione C):
+   dice al preprocessore di ignorare la newline e considerare la riga successiva come la continuazione logica della stessa direttiva. Permette di scrivere una macro su più righe leggibili anziché condensare tutto su un'unica riga orizzontale illeggibile di 200 caratteri.
+
+   NASM ha due tipi di macro nel suo preprocessore:
+   1) Macro a riga singola: %define .È l'equivalente diretto del #define del C. Sostituisce testualmente identificatori o costanti:
+
+   Snippet di codice
+   %define FILENAME "Grace_kid.s"
+   %define FLAGS    0x241            ; O_WRONLY (0x1) | O_CREAT (0x40) | O_TRUNC (0x200)
+   %define MODE     0o644            ; 0644 ottale (oppure 0x1A4)
+
+   2) Macro multi-linea: %macro / %endmacro . Permette di definire blocchi interi di istruzioni Assembly. La sintassi richiede il nome della macro e il numero di parametri attesi (se non accetta parametri, si mette 0):
+
+   Snippet di codice
+   %macro NOME_MACRO numero_argomenti
+      ; istruzioni assembly
+   %endmacro
+   Per invocarla nel codice, scrivo semplicemente il suo nome (senza prefisso % e senza parentesi):
+
+
+   */

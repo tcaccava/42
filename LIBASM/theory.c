@@ -501,7 +501,7 @@ I registri in cui sono salvati gli argomenti delle syscall sono leggermente diff
 -6° Argomento: R9
 
 Effetti collaterali hardware: l'istruzione syscall sovrascrive internamente i registri RCX e R11. L'istruzione syscall fa una cosa estrema: scavalca il Ring di sicurezza della CPU saltando nello spazio del Kernel. Come fa il Kernel, una volta finito, a sapere esattamente a quale indirizzo RIP tornare,
-senza sporcare la memoria stack (che cambierà contesto di esecuzione)? I progettisti hardware hanno deciso che, nell'istante in cui la CPU esegue syscall, il silicio prende fisicamente il valore corrente di RIP (l'indirizzo a cui tornare) e lo sovrascrive con violenza nel registro RCX. Contemporaneamente, 
+senza sporcare la memoria stack (che cambierà contesto di esecuzione)? I progettisti hardware hanno deciso che, nell'istante in cui la CPU esegue syscall, il silicio prende fisicamente il valore corrente di RIP (l'indirizzo a cui tornare) e lo sovrascrive  nel registro RCX. Contemporaneamente, 
 prende lo stato dei flag (RFLAGS) e lo sbatte in R11. Ecco l'effetto collaterale: non si puo' usare RCX per passare argomenti, perché l'hardware lo piallerà in un nanosecondo per usarlo come salvataggio del RIP. Motivo per cui l'istruzione C usa RCX come 4° argomento, ma la chiamata syscall kernel ha dovuto ripiegare su R10.
 
 ---INTERRUPT E SYSCALL------------------------------------------------------------------------------
