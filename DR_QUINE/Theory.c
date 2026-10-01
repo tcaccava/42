@@ -318,6 +318,11 @@ La struttura teorica si regge su tre pilastri concettuali puri:
    L'effetto della umask:i permessi reali scritti sull'inode non sono mai identici al parametro mode passato a open(), ma vengono filtrati tramite la umask del processo: Permessi Effettivi = mode & ~ umask
    Esempio: se chiedi 0666 e la umask di sistema è 0022, il file verrà creato con permessi 0644).
 
+   Nel rispetto della System V AMD64 ABI, il secondo argomento di qualsiasi funzione intera/puntatore si passa nel registro RSI.
+   In Assembly, però, non ci sono a disposizione le costanti simboliche del C (O_WRONLY, O_CREAT, O_TRUNC dell'header <fcntl.h>): si deve passare direttamente il valore numerico della maschera bitwise: O_WRONLY = 0x01 (decimale 1), O_CREAT = 0x40 (decimale 64, ottale 0100), O_TRUNC = 0x200 (decimale 512, ottale 01000).
+   Eseguendo il bitwise OR tra i tre valori: 0x01 | 0x40 | 0x200 = 0x241 (decimale 577)
+
+
    MACRO IN C E ASSEMBLY
    Nello standard C, le direttive del preprocessore (come #define) terminano tassativamente alla fine della riga fisica (al primo carattere \n). Il carattere backslash \ posto immediatamente prima di un a capo attiva la cosiddetta splicing phase (fase 2 della compilazione C):
    dice al preprocessore di ignorare la newline e considerare la riga successiva come la continuazione logica della stessa direttiva. Permette di scrivere una macro su più righe leggibili anziché condensare tutto su un'unica riga orizzontale illeggibile di 200 caratteri.
@@ -338,5 +343,105 @@ La struttura teorica si regge su tre pilastri concettuali puri:
    %endmacro
    Per invocarla nel codice, scrivo semplicemente il suo nome (senza prefisso % e senza parentesi):
 
+   A livello di sistema operativo, la trasformazione di un file di testo appena scritto su disco in un nuovo processo attivo nello scheduler della CPU richiede la cooperazione di tre sottosistemi del kernel Linux: il **Virtual Memory Manager**, il sottosistema dei **Processi (task management)** e l'**ELF Loader**.
 
+   PIPELINE DI SULLY : FORK, EXECVE, WAIT
+   Per orchestrare la compilazione e l'esecuzione del figlio dall'interno del programma, esistono due paradigmi teorici: la pipeline a basso livello basata su chiamate di sistema native (fork + execve\ + waitpid) e l'astrazione ad alto livello fornita dalla funzione di libreria system().
+
+   1) La Pipeline Nativa: fork, execve e waitpid
+      Nel modello UNIX puro, la creazione di un programma non avviene in un unico passaggio, ma scindendo la duplicazione del contesto d'esecuzione dalla sostituzione dell'immagine binaria.
+      Quando il processo genitore decide di compilare o eseguire, invoca la syscall fork:
+      Il kernel non copia fisicamente l'intera memoria RAM occupata dal genitore. Duplica soltanto la tabella delle pagine (Page Table) e marca tutte le pagine di memoria fisica come Copy-on-Write (COW) a sola lettura.
+      Viene allocato un nuovo task struct con un PID univoco. Da questo istante esistono due flussi d'istruzione identici che riprendono l'esecuzione dall'istruzione immediatamente successiva alla syscall: il genitore riceve come valore di ritorno il PID del figlio, mentre il figlio riceve 0.
+      Il processo figlio invoca execve specificando il percorso dell'eseguibile (prima il compilatore, poi il binario del quine figlio). Il kernel distrugge l'intero spazio d'indirizzamento virtuale del processo invocante: lo stack, l'heap, il segmento .data e il segmento .text vengono spazzati via e deallocati.
+      L'ELF Loader del kernel mappa in memoria i segmenti del nuovo file binario (PT_LOAD), prepara il nuovo stack iniettando argomenti (argv) e variabili d'ambiente (envp), e reimposta l'Instruction Pointer (RIP) all'entry point del nuovo eseguibile (_start).
+      Nota critica sui file descriptor: a differenza della memoria, i file descriptor aperti rimangono aperti e condivisi attraverso execve, a meno che non siano stati marcati preventivamente con il flag FD_CLOEXEC.
+      Non è possibile avviare il binario figlio prima che il compilatore abbia terminato di scriverlo su disco e chiuso il suo file descriptor. Se tentassi di eseguire un binario parzialmente scritto, il kernel rifiuterebbe l'esecuzione con l'errore ETXTBSY (Text file busy) o l'interprete ELF fallirebbe nel caricamento delle intestazioni corrotte.
+      Il genitore deve sospendere la propria esecuzione tramite waitpid, cedendo la CPU fino a quando il processo del compilatore non transita nello stato di terminazione (zombie) restituendo il proprio codice di stato (exit status). Solo se il compilatore è uscito con stato 0, il genitore è autorizzato a generare un secondo processo per eseguire il binario appena prodotto.
+
+   2) L'Astrazione di Libreria: system()
+      La funzione di libreria system(const char *cmd) incapsula internamente l'intera sequenza fork --> execve --> waitpid, ma introduce un intermediario fondamentale: la shell di sistema (/bin/sh).
+      Quando si invoca system: la C runtime esegue una fork(),poi il processo figlio esegue execve puntando a /bin/sh passando come argomenti i flag -c e la stringa del comando,infine il processo genitore si blocca in una chiamata waitpid() mascherando temporaneamente i segnali SIGINT e SIGQUIT e bloccando SIGCHLD.
+      L'utilizzo di un interprete di comando permette di sfruttare l'operatore booleano di sequenziamento && : Compilazione && Esecuzione.
+      La shell garantisce a livello sintattico e temporale la serializzazione deterministica: il secondo comando viene invocato soltanto se il primo si conclude con exit code 0. La sincronizzazione è implicita: la shell attende la chiusura dei descrittori del compilatore prima di passare il controllo al loader per il nuovo processo.
+
+   Un processo in ambiente UNIX non è semplicemente un file binario in esecuzione, ma un'istanza viva gestita dal kernel, composta da due elementi fondamentali: uno spazio d'indirizzamento virtuale isolato (gestito dalla MMU tramite tabelle delle pagine) e un contesto di esecuzione nel kernel (rappresentato in Linux dalla struttura task_struct).
+   Il task_struct contiene tutte le informazioni di stato: identificativo del processo (PID), identificativo del genitore (PPID), registri CPU correnti, credenziali utente, maschera dei segnali e la File Descriptor Table (la tabella dei descrittori di file aperti).
+   Ogni processo ha la sua Page table : la propria gerarchia di tabelle delle pagine a 4 livelli (PML4, PDPT, PD, PT su x86-64). L'indirizzo fisico in RAM della radice della tabella delle pagine del processo (la PML4) viene caricato dal kernel all'interno del registro di controllo della CPU CR3 a ogni context switch.
+   Questo è il motivo per cui due processi distinti possono puntare entrambi allo stesso indirizzo virtuale (es. 0x400000), ma la MMU della CPU risolverà quell'indirizzo virtuale traducendolo in frame di memoria RAM fisica completamente distinti.
+   Quando il sistema operativo decide di togliere la CPU al tuo processo per darla a un altro (Context Switch): il kernel salva una copia esatta del valore di ogni singolo registro della CPU all'interno di una sotto-struttura del task_struct (chiamata thread_struct) o sullo stack kernel del processo.
+   Quando il processo viene ricaricato sulla CPU dallo scheduler, il kernel rilegge quei valori dalla memoria e li ricarica fisicamente nei registri della CPU. Il registro RIP (Instruction Pointer) riprenderà esattamente dall'istruzione in cui era stato interrotto, rendendo la sospensione invisibile al codice.
+   POSIX specifica che con la fork() il figlio parte con i contatori di tempo azzerati: statistiche di CPU come i contatori di tempo speso in user-space e kernel-space (tms_utime, tms_stime) tornano a 0.Lo stesso per i timer di allarme: se il padre aveva programmato un allarme o un timer periodico (tramite le chiamate alarm(), setitimer() o timer_create()), 
+   questi timer pendenti non vengono ereditati dal figlio; per il figlio vengono cancellati.
+   In UNIX, ogni processo (ad eccezione di PID 1, tipicamente systemd o init) nasce da un altro processo mediante un rapporto gerarchico asimmetrico: 
+   - il Padre e' il processo generatore, mantiene il controllo sul ciclo di vita del figlio; ha l'obbligo contrattuale nei confronti del sistema operativo di raccoglierne lo stato di terminazione.
+   - il Figlio e' il processo clonato, nasce con una copia quasi esatta dello stato del padre, ma con un'identità autonoma (nuovo PID, proprio spazio di indirizzamento, timer azzerati).
+   La chiamata di sistema pid_t fork(void) duplica il processo chiamante. La sua caratteristica unica è che viene chiamata una volta sola, ma ritorna due volte in due spazi di memoria ora distinti.
+   La CPU riprende l'esecuzione esattamente dall'istruzione macchina successiva alla syscall fork. Il kernel inserisce nel registro RAX dei due processi due valori differenti per permettere al codice di discriminare il proprio ruolo:
+   - nel processo Padre  fork() restituisce il PID del figlio (un intero positivo > 0). Il padre deve memorizzare questo PID per poter identificare quel figlio specifico in seguito.
+   - nel processo Figlio fork() restituisce 0 : il valore 0 non indica un PID reale, ma è un marcatore convenzionale per identificare il processo appena nato. Per conoscere il proprio vero PID, il figlio deve invocare getpid().
+   In caso di errore fork restituisce -1 nel contesto del padre (es. limite massimo di processi di sistema raggiunto, EAGAIN/ENOMEM); nessun processo figlio viene creato.
+   In passato, fork() copiava fisicamente l'intero contenuto della RAM del padre nel figlio, un'operazione lentissima e vorace di risorse. I moderni kernel x86-64 usano il Copy-on-Write: alla fork(), il kernel si limita a duplicare la Page Table del padre per assegnarla al figlio.
+   Tutte le pagine di memoria virtuale di entrambi i processi vengono marcate con il flag hardware di sola lettura (Read-Only) ed entrambi i processi leggono dalle medesime pagine di RAM fisica. Non appena uno dei due (padre o figlio) tenta di modificare una variabile (scrivere in memoria), la MMU della CPU genera un Page Fault.
+   Il kernel intercetta il fault, alloca una nuova pagina fisica di RAM, vi copia i dati originali, assegna la nuova pagina al processo che voleva scrivere e rimarca la pagina come scrivibile.
+   La fork() clona anche la tabella dei descrittori di file: vengono duplicati gli indici della tabella del processo (0, 1, 2, fd...), ma le voci duplicate puntano alle medesime strutture di file aperto nel kernel (Open File Description). Ciò significa che padre e figlio condividono il file offset: se il figlio sposta il puntatore 
+   di lettura/scrittura con un'operazione di I/O o con lseek, il cursore si sposta contemporaneamente anche per il padre.
+   Mentre fork() crea un clone che esegue lo stesso codice, execve trasforma il processo corrente caricando ed eseguendo un nuovo programma binario: int execve(const char *pathname, char *const argv[], char *const envp[]);
+   Il kernel dealloca completamente il vecchio spazio d'indirizzamento virtuale (stack, heap, .data, .text). Il vecchio codice scompare dalla memoria. L'ELF Loader del kernel legge il file specificato in pathname, ne mappa i segmenti PT_LOAD nelle nuove pagine di memoria virtuale e alloca un nuovo stack pulito.
+   Il kernel popola la cima del nuovo stack con i parametri passati:
+   - argv: array di puntatori a stringhe che rappresentano gli argomenti a riga di comando. Deve essere tassativamente terminato da un puntatore NULL. Convenzione vuole che argv[0] contenga il nome del comando stesso.
+   - envp: array di puntatori a stringhe contenenti le variabili d'ambiente (CHIAVE=VALORE), terminato anch'esso da NULL.
+   Il registro Instruction Pointer RIP della CPU viene impostato all'entry point del nuovo eseguibile (_start).
+   Se la chiamata execve ha successo, essa NON ritorna mai, perché il codice chiamante non esiste più: è stato rimpiazzato dal nuovo programma.Ritorna solo in caso di fallimento (valore -1), impostando errno (es. ENOENT se il file non esiste, EACCES se mancano i permessi di esecuzione). Se vedo un'istruzione eseguita subito dopo una execve, 
+   significa matematicamente che la chiamata è fallita.
+   Il PID e il PPID del processo che ha invocato execve sopravvivono alla chiamata rimanendo identici: per il kernel è sempre lo stesso processo. I File Descriptor aperti rimangono aperti e fruibili dal nuovo programma, a meno che al momento dell'apertura non sia stato impostato il flag O_CLOEXEC (o tramite fcntl con FD_CLOEXEC).
+   Un processo non svanisce nel nulla quando termina con exit() o con un return da main. Il sistema operativo deve consentire al genitore di sapere come e perché il figlio è morto:  pid_t waitpid(pid_t pid, int *wstatus, int options);
+   Quando un figlio invoca exit(code) :
+   1. il kernel distrugge la sua memoria virtuale e chiude i suoi file descriptor (rilasciando la RAM).
+   2. il kernel mantiene in vita la sua task_struct ,quella del figlio, nella Process Table del kernek, congelando: il PID, il codice di uscita e le statistiche sull'uso delle risorse.
+   3. in questa fase il processo è uno Zombie (visibile con ps come <defunct>).
+   4. lo zombie rimane nel kernel fino a quando il padre non esegue una chiamata della famiglia wait(). Nel momento in cui il padre raccoglie lo stato con waitpid(), lo zombie viene definitivamente rimosso dal sistema ("sepolto").
+   L'exit code e' un valore numerico a 8 bit (intervallo da 0 a 255) che il processo uscente invia al sistema operativo per comunicare il proprio esito. Se in C scrivo exit(42) o return 42 il numero 42 viene salvato dal kernel nel task_struct del figlio. 
+   Per convenzione UNIX: 0 significa successo, qualsiasi valore diverso da zero (1-255) indica un codice di errore personalizzato.Se passo numeri maggiori di 255 (es. exit(256)), il kernel considera solo il modulo a 8 bit (256 & 0xFF = 0).
+   Se il padre muore prima del figlio senza attenderlo, il figlio diventa "orfano". Il kernel riassegna immediatamente il PPID del figlio a PID 1 (systemd/init), il quale chiama periodicamente wait() ripulendo automaticamente gli orfani terminati.
+   PID 1 e' il primo processo utente avviato dal kernel al termine della fase di bootstrap della macchina. È la radice assoluta dell'albero dei processi. Ha un dovere istituzionale primario: l'adozione degli orfani.
+   Quando un processo genitore muore prima del figlio, il kernel cambia il PPID (Parent PID) del figlio impostandolo a 1. systemd/init include un loop infinito che esegue chiamate wait() asincrone per raccogliere e cancellare gli stati zombie lasciati dai processi orfani, evitando il saturamento della memoria kernel.
+
+   Parametri di waitpid
+   - pid: 0 attende il figlio specifico avente quel determinato PID, -1 attende un qualunque figlio generato dal processo corrente (equivalente a wait()).
+   - wstatus: puntatore a un intero a 32 bit dove il kernel scriverà un bitfield codificato con il motivo della terminazione.
+   - options : flag di comportamento (es. 0 per attesa bloccante sincrona; WNOHANG per interrogare lo stato senza bloccare la CPU).
+   Il valore scritto in wstatus non è semplicemente il codice passato a exit(), ma un bitfield che impacchetta informazioni sulla causa della morte (uscita pulita vs segnale di crash). Non si legge mai direttamente con operazioni aritmetiche grezze, ma tramite le apposite macro:
+   | WIFEXITED(status) | Restituisce vero se il figlio è terminato volontariamente (return o exit()). |
+   | WEXITSTATUS(status) | Valida solo se WIFEXITED è vero. Estrae gli 8 bit bassi dell'argomento di exit (0-255). |
+   | WIFSIGNALED(status) | Restituisce vero se il figlio è stato terminato bruscamente da un segnale non intercettato (SIGSEGV, SIGKILL, ecc.). |
+   | WTERMSIG(status) | Valida solo se WIFSIGNALED è vero. Restituisce il numero del segnale che ha ucciso il figlio. |
+
+   Il pattern con cui una shell o un programma coordinatore manda in esecuzione un comando esterno (come la compilazione del sorgente figlio) si articola in tre momenti ordinati:
+
+   [ Processo Genitore ]
+         |
+         +--- 1. fork() --------------------------------+
+         |                                              |
+         | (pid > 0)                                    | (pid == 0)
+         v                                              v
+      waitpid(pid, &status, 0)                  execve("/usr/bin/gcc", ...)
+      [Sospeso nello scheduler]                           |
+         |                                              | [Esecuzione binario esterno]
+         |                                              v
+         |                                         exit(0)
+         |                                              |
+         |<--- Notifica del Kernel (SIGCHLD) -----------+
+         |     [Zombie eliminato]
+         v
+      Analisi macro:
+      if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+         -> Successo: possiamo procedere alla fase successiva
+
+   Che differenza c'e' tra exit e return?
+   Nel punto terminale del main(), fare return code; ed eseguire exit(code); producono lo stesso effetto finale perché la funzione di avvio della libc (__libc_start_main) fa internamente: exit(main(argc, argv, envp));
+   La differenza emerge quando sei fuori dal main (in funzioni secondarie):
+   - return code : termina solo la funzione locale corrente, distruggendo il relativo stack frame e restituendo il valore alla funzione chiamante.
+   - exit (code) : termina istantaneamente l'intero processo da qualsiasi punto dell'albero delle chiamate, invoca tutte le funzioni di cleanup registrate con atexit(), svuota i buffer di I/O dello user-space (fflush) e richiama la syscall exit_group del kernel.
+   Esiste anche _exit() / _Exit(), che chiude il processo all'istante a livello kernel senza svuotare i buffer di I/O della libc).
    */
