@@ -165,6 +165,25 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
  ignorata e la cpu passa alla istruzione successiva.
 -jne / jnz (Jump if Not Equal): esatto opposto di je/jz.Mnemonici di salto condizionale che eseguono il salto se lo Zero Flag è 0. 
 -jmp (Unconditional Jump): sintassi jmp label. Esegue un salto incondizionato verso un'etichetta,imponendo alla cpu di prendere l'indirizzo della label e metterlo in RIP, ignorando completamente gli RFLAGS.
+ Un'istruzione di salto (jmp, je, jne, jl, ecc.) è un salto unidirezionale (un goto a basso livello). Modifica direttamente l'Instruction Pointer (RIP in x86-64) facendolo puntare all'indirizzo dell'etichetta di destinazione. 
+ La CPU non salva da nessuna parte l'indirizzo da cui provenivo, quindi, una volta eseguite le istruzioni della destinazione, il flusso prosegue semplicemente in modo sequenziale verso le istruzioni successive ("fall-through").
+ Se voglio che il codice esegua un blocco di istruzioni e poi ritorni al punto di partenza, devo usare la coppia call e ret:
+ Quando uso call la CPU fa un push sullo stack dell'indirizzo dell'istruzione successiva alla call (l'indirizzo di ritorno),quindi salta all'etichetta indicata e quando incontra l'istruzione ret, la CPU fa un pop dallo stack dell'indirizzo di ritorno e 
+ lo ricarica in RIP, riprendendo l'esecuzione esattamente da dove si era interrotta.
+
+   Snippet di codice
+   _start:
+      call .mia_funzione   ; 1. Salva l'indirizzo di 'mov rdi, rax' sullo stack
+                           ; 2. Salta a .mia_funzione
+      
+      mov rdi, rax         ; 4. Il controllo RITORNA QUI dopo il 'ret'!
+      mov rax, 60
+      syscall
+
+   .mia_funzione:
+      mov rax, 42
+      ret                  ; 3. Legge l'indirizzo dallo stack e torna indietro
+      
 -inc (Increment): sintassi inc reg oppure inc byte [ptr] . Incrementa di 1 il contenuto del registro o della cella di memoria passato come operando (utilizzabile per far avanzare un indice o un puntatore o un accumulatore come rax).
  Aggiorna lo ZF(se l'incremento porta il registro a zero per via di un wraparound/overflow) e lo SF,ma preserva immutato il Carry Flag(CF).
 -xor (Exclusive OR): sintassi xor dst, src. Applicato su un registro con se stesso, è lo standard per azzerare un registro. Genera un opcode più compatto(2 bytes), cancella i 32 bit superiori dell'estensione a 64 bit e rompe 
@@ -389,6 +408,7 @@ molto diversi e non intercambiabili.
 3. RBP (Base Pointer) : e' storicamente usato per salvare una copia statica di RSP all'inizio di una funzione.In sostanza all' inizio di una funzione si fa push rbp, 
    poi mov rbp, rsp. Essendo RBP fisso, permette di trovare facilmente le variabili locali e gli argomenti sullo stack a offset costanti (es. [rbp - 8] per la prima 
    variabile locale, - 16 per la seconda e cosi' via), anche se RSP cambia durante la funzione.
+
 
 ---STACK E ISTRUZIONI RSP---------------------------------------------------------------------------
 La ram e' divisa in diverse sezioni logiche mappate dal kernel,che altro non sono che le rappresentazioni in ram delle sezioni del sorgente (il file elf sul disco):

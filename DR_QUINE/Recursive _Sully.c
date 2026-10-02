@@ -6,9 +6,16 @@
 #include <sys/types.h>
 // Questo approccio con un main autoricorsivo e' concettualmente valido e puo' essere a tutti gli effetti considerato un Quine,ma non e' pienamente conforme al subject
 // perche' prevede che ci sia un solo processo padre che ad ogni ricorsione forka,generando un figlio che si limita a compilare il nuovo file Sully_x.c generando un eseguibile 
-// che pero' non viene mai eseguito. Se ho inteso bene il subject,pretende che ogni nuovo figlio ,che differisce dal precedente solo per il valore di run,compili generando un 
+// che pero' non viene mai eseguito.Il punto didattico di Sully (che è tecnicamente un Quine Relay o Bounded Fork Bomb) è che ogni generazione deve essere un'entità indipendente.
+// Se ho inteso bene il subject,pretende che ogni nuovo figlio ,che differisce dal precedente solo per il valore di run,compili generando un 
 // eseguibile che viene runnato,generando un nuovo sorgente e cosi' via. Ho implementato questo approccio,in cui il padre forka due volte,generando due figli,una per la compilazione
 // e una per la esecuzione,nel codice che ho pushato.
+// In C e' legale secondo lo standard ISO C usare un main ricorsivo,essendo il main a tutti gli effetti una normale funzione con linkage esterno. Puo' quindi Può essere chiamata ricorsivamente (sia direttamente che indirettamente) e 
+// se ne può anche prelevare l'indirizzo tramite un puntatore a funzione. Ogni chiamata ricorsiva crea un nuovo stack frame nello stack utente. Se non si definisce una condizione di terminazione, il programma andrà in stack overflow (SIGSEGV).
+// Il ritorno (return) dalle chiamate ricorsive intermedie smonta semplicemente lo stack frame corrente; l'esecuzione del processo termina solo quando si esegue il return dal main originale (quello invocato dalla libc) o quando viene chiamata exit().
+// In C++ (Standard ISO C++) invece un main ricorsivo è vietato. Lo standard ISO C++ (sezione [basic.start.main]) stabilisce esplicitamente:"The function main shall not be used within a program. "Non è consentito chiamare main() ricorsivamente, prenderne l'indirizzo, 
+// né effettuare l'overloading della funzione.Invocare main() in un sorgente C++ produce un errore di compilazione oppure un Undefined Behavior (UB) se il compilatore non applica rigorosamente il vincolo.
+
 int main(int argc, char **argv, char **envp)
 {
     static short runs = 5;
