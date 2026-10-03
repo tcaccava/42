@@ -1,0 +1,21 @@
+# Re-points the SAME Argo CD Application created in p3 (same name: iot-app) at the local
+# GitLab instance instead of GitHub, so "everything from Part 3" (the Application, the
+# dev namespace, the Deployment/Service) keeps working, just sourced from local GitLab.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: iot-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: http://gitlab-webservice-default.gitlab.svc:8181/root/iot-gitops.git
+    targetRevision: HEAD
+    path: manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,75 @@
+
+global:
+  edition: ce
+  hosts:
+    domain: gitlab.local
+  ingress:
+    enabled: false
+    configureCertmanager: false
+  gatewayApi:
+    enabled: false
+    configureCertmanager: false
+  smtp:
+    enabled: false
+  appConfig:
+    applicationSettingsCacheSeconds: 60
+    object_store:
+      enabled: true
+      connection:
+        secret: gitlab-rails-storage
+        key: connection
+    backups:
+      bucket: gitlab-backup-storage
+      tmpBucket: gitlab-tmp-storage
+  psql:
+    host: gitlab-postgresql.gitlab.svc.cluster.local
+    password:
+      secret: gitlab-postgres-app
+      key: password
+  redis:
+    host: gitlab-redis.gitlab.svc.cluster.local
+    auth:
+      secret: gitlab-redis-auth
+      key: password
+  minio:
+    enabled: false
+
+installCertmanager: false
+
+nginx-ingress:
+  enabled: false
+
+gitlab-runner:
+  install: false
+
+prometheus:
+  install: false
+
+grafana:
+  enabled: false
+
+registry:
+  enabled: false
+
+gitlab:
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+    resources:
+      requests:
+        cpu: 300m
+        memory: 1.5Gi
+  sidekiq:
+    minReplicas: 1
+    maxReplicas: 1
+  gitaly:
+    persistence:
+      size: 10Gi
+  toolbox:
+    enabled: true
+    backups:
+      objectStorage:
+        backend: s3
+        config:
+          secret: gitlab-backup-s3cfg
+          key: config

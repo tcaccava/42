@@ -1,0 +1,14 @@
+# Vagrant
+.vagrant/
+node-token
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.vi/
+
+# Kubernetes
+kubeconfig
+*.kubeconfig

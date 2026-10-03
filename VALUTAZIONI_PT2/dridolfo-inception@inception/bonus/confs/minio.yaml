@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab-minio
+  namespace: gitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitlab-minio
+  template:
+    metadata:
+      labels:
+        app: gitlab-minio
+    spec:
+      containers:
+      - name: minio
+        image: cgr.dev/chainguard/minio:latest
+        args: ["server", "/data"]
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: gitlab-minio-root
+              key: root-user
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gitlab-minio-root
+              key: root-password
+        ports:
+        - containerPort: 9000
+        readinessProbe:
+          tcpSocket:
+            port: 9000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-minio
+  namespace: gitlab
+spec:
+  selector:
+    app: gitlab-minio
+  ports:
+  - port: 9000
+    targetPort: 9000
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gitlab-minio-create-buckets
+  namespace: gitlab
+spec:
+  backoffLimit: 6
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: mc
+        image: cgr.dev/chainguard/minio-client:latest
+        command:
+        - mc
+        - mb
+        - --ignore-existing
+        - gitlab/gitlab-uploads-storage
+        - gitlab/gitlab-artifacts-storage
+        - gitlab/gitlab-lfs-storage
+        - gitlab/gitlab-packages-storage
+        - gitlab/gitlab-backup-storage
+        - gitlab/gitlab-tmp-storage
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: gitlab-minio-root
+              key: root-user
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gitlab-minio-root
+              key: root-password
+        - name: MC_HOST_gitlab
+          value: http://$(MINIO_ROOT_USER):$(MINIO_ROOT_PASSWORD)@gitlab-minio:9000
