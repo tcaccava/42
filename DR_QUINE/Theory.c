@@ -37,6 +37,7 @@ ed esecuzione, ritornando se stessa.
 Se prendiamo un compilatore o un interprete, possiamo vederlo come una funzione E (Execution environment) che prende in input un codice sorgente S e produce in output un risultato R: E(S) = R.
 Un Quine non è altro che un codice sorgente Q il cui output è esattamente sé stesso. Quindi E(Q) = Q.
 Un Quine è letteralmente il punto fisso dell' interprete o compilatore. E il fatto che i quine esistano per qualunque linguaggio di programmazione Turing-completo è garantito al 100% proprio dal Secondo Teorema di Ricorsione.
+il primo quine documentato è stato scritto nel 1953 (su schede perforate!) da Paul Bratley e Jean Millot su un computer EDSAC, ben prima che venisse coniato il termine "quine" (in onore del filosofo Willard Van Orman Quine, famoso per i suoi studi sull'autoreferenza logica).
 
 ---------TEOREMI DI RICORSIONE DI KLEEN E NUMERAZIONE DI GODEL----------------------------------------------------------------------------
 I due teoremi di ricorsione di Kleen poggiano su un assioma fondamentale: la numerazione di Godel. Qualsiasi macchina di Turing puo' essere codificata nella forma di un intero o di una singola stringa univoca. Questo annulla la distinzione del codice sorgente di un 
@@ -308,7 +309,7 @@ La struttura teorica si regge su tre pilastri concettuali puri:
       O_APPEND(valore decimale 1024,hex 0x400): ogni operazione di scrittura (write) sposta automaticamente l'offset alla fine del file (EOF) prima di scrivere.
       O_EXCL: usato esclusivamente insieme a O_CREAT. Se il file esiste già, open() fallisce e restituisce -1 settando errno a EEXIST. Garantisce la creazione atomica del file senza race conditions.
 
-   MODE / Permessi (3° argomento): chi può fare cosa sul filesystem
+   MODE / Permessi (3° argomento): chi può fare cosa sul filesystem,espressi in ottale(04 read,02 write,01 exec; in Assembly l'ottale si esprime con 0o)
    I permessi definiscono i diritti di accesso POSIX (rwx) scritti nell'inode del file sul filesystem. Vengono presi in considerazione dal kernel esclusivamente se flags contiene O_CREAT (o O_TMPFILE). Se il file esiste già, il 3° argomento viene totalmente ignorato dal kernel.
    È una rappresentazione ottale a 3 cifre che definisce i bit di accesso per Proprietario (User), Gruppo (Group) e Altri (Others).
 
@@ -710,9 +711,58 @@ execve entra in kernel mode salvando i vecchi registri come qualsiasi altra chia
 la CPU non torna al vecchio codice, ma si ritrova proiettata all'inizio del nuovo programma.
 
 --------VARIABILI STATICHE IN ASSEMBLY-------------------------------------------------------
-In Assembly esistono solo bytes,non tipi primitivi. Una variabile "statica" equivale a riservare una locazione di memoria fissa che non risiede nello stack (quindi preserva il suo valore tra le chiamate di funzione) e non viene esportata tramite
+In Assembly esistono solo bytes,non tipi primitivi. Una variabile statica equivale a riservare una locazione di memoria fissa che non risiede nello stack (quindi preserva il suo valore tra le chiamate di funzione) e non viene esportata tramite
 la direttiva global (quindi rimane privata per quel file sorgente). Usare la direttiva global equivarrebbe infatti a renderla una variabile globale di C.
 In base all'inizializzazione, si dichiara nella sezione .data(se inizializzata ad un valore diverso da 0) oppure .bss(non inizializzata o inizializzata a 0).
 A differenza delle variabili locali sullo stack ([rsp + offset]), le variabili statiche si leggono e scrivono usando l'indirizzamento RIP-relative ([rel nome_variabile]
+
+----------DIFF----------------------------------------------------------------------------------
+Il flag -U sta per Unified Format (formato unificato), lo standard de facto utilizzato per la lettura dei delta e per generare le patch (è lo stesso motore di output usato sotto il cofano da git diff). Rispetto al diff classico che usa < e >, il 
+formato unificato mostra le righe rimosse precedute da - e quelle aggiunte precedute da +. Il numero affianco alla flag indica le righe di contesto (context lines).
+Normalmente, il formato unificato (spesso invocato con la flag breve -u, che equivale a -U 3) stampa 3 righe di codice intatto prima e dopo la modifica. Questo serve a orientare l'occhio umano fornendo le coordinate logiche del blocco alterato.
+Forzando il parametro a 0, impongo a diff di comportarsi in modo chirurgico: sopprime totalmente il codice circostante. L'output si riduce al puro delta.
+
+------QUINE IN PYTHON-----------------------------------------------------------------------------
+Il passaggio da C/Assembly a Python sposta l'asse della difficoltà: scompare la gestione manuale della memoria e dei file descriptors, ma emergono nuove insidie legate a come l'interprete parsa i dati.
+Per non violare la regola del no cheat (niente open(__file__), niente sys.modules), bisogna rimanere conformi al il Teorema di Kleene (P = A + D). In Python, per implementare questa struttura in modo chirurgico,servono tre nozioni architetturali.
+
+1) %r (repr())
+   Python possiede nativamente il concetto di Rappresentazione Ufficiale dell'Oggetto, accessibile tramite la funzione builtin repr() o lo specificatore di formato %r che la richiama.
+   Se passo una stringa a %r, Python non si limita a incollare i caratteri (come farebbe %s), ma la avvolge automaticamente nelle virgolette (singole o doppie) e fa l'escape automatico di tutti i ritorni a capo (\n diventa il testo letterale \ e n).
+   Questo disintegra la complessità dello stringone in un attimo. Il quine minimo assoluto in Python si scrive così:
+
+   s = 's = %r\nprint(s %% s)'
+   print(s % s)
+
+   Invece di printf(s, 10, 34, s), uso la string interpolation vecchio stile col %. %r prende la variabile passata e le inietta virgolette e escape. %% fa l'escape del carattere percentuale (esattamente come in printf), ed e' l'unico escape necessario per l'uso 
+   dell'interprete.
+   L'uso delle f-string e' sconsigliato,mi costringerebbe a raddoppiare ogni singola parentesi graffa in tutto il blocco di codice per farne l'escape, trasformando il file in spaghetti code illeggibile.
+
+2) Adattamento della Macro
+   Il subject recita: "In case of a language without define/macro, you will naturally have to adapt the program accordingly."  Python è interpretato a runtime e non ha una fase di preprocessing. Per tradurre l'architettura di una macro rispettando l'intento del subject, 
+   esistono due pattern Pythonici equivalenti:
+   
+   - Global Lambda: una funzione anonima dichiarata a livello di modulo (fuori da qualsiasi scope interno) che viene invocata alla fine. Equivalente funzionale del richiamare la macro alla fine del file.
+   ESEMPIO:
+   # Al posto di #define WRITE(...)
+   MACRO_WRITE = lambda fd, payload: fd.write(payload)
+
+   - stringa costante globale + execution block: definisco tutto nello scope globale in uppercase (convenzione Python per le costanti), e lo passo a una funzione che esegue l'I/O.
+
+3) File I/O e Lifecycle Management
+   Sully in C compila con gcc, esegue con execve (o system), e muore.
+   In Python la fase di compilazione non esiste, ma il processo di clonazione deve essere riprodotto fedelmente.
+
+   - I/O pulito: uso sempre i context manager (with open(...) as f:). Oltre a chiudere automaticamente il file (evitando resource leak dei descrittori file in un processo ricorsivo), mi risparmia righe di codice che andrebbero a ingrassare il payload D.
+   - esecuzione del child: al posto di chiamare un binario ./Sully_X, devo invocare l'interprete passando il nuovo script.
+   In Python, usare brutalmente os.system("python3 Sully_X.py") è sconsigliato (potrebbero esserci alias o virtual environment che deviano l'eseguibile).Il miglior approccio usa sys.executable, che contiene il path assoluto esatto del binario Python che sta eseguendo il padre in quel momento:
+   ESEMPIO: 
+   import os
+   import sys
+
+   # ... generazione file ...
+   os.system(f"{sys.executable} {new_file_name}")
+
+   - interpolazione multipla: dato che Sully richiede la mutazione del contatore X, la stringa di formato non avrà solo %r, ma anche %d per iniettare l'intero, seguendo la stessa logica che ho applicato con dprintf in Assembly e C.
 
 */

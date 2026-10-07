@@ -173,10 +173,10 @@ dimensione,cioe' i qualificatori di ampiezza della memoria manipolata:
 
    Snippet di codice
    _start:
-      call .mia_funzione   ; 1. Salva l'indirizzo di 'mov rdi, rax' sullo stack
+      call .mia_funzione   ; 1. Salva l'indirizzo di mov rdi, rax sullo stack
                            ; 2. Salta a .mia_funzione
       
-      mov rdi, rax         ; 4. Il controllo RITORNA QUI dopo il 'ret'!
+      mov rdi, rax         ; 4. Il controllo RITORNA QUI dopo il ret!
       mov rax, 60
       syscall
 
