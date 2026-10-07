@@ -299,13 +299,13 @@ La struttura teorica si regge su tre pilastri concettuali puri:
    I flags dicono al kernel in che modo il tuo processo intende interagire con il file descriptor durante questa specifica apertura. È una bitmask creata combinando costanti `O_*` tramite l'operatore bitwise OR .
    I flags si dividono in due categorie principali:
    1) Modalità di Accesso (Mutuamente esclusive) : bisogna specificarne obbligatoriamente una e una sola (i primi 2 bit del valore).
-      O_RDONLY (0): apertura in sola lettura.
-      O_WRONLY (1): apertura in sola scrittura.
-      O_RDWR (2): apertura in lettura e scrittura.
+      O_RDONLY (valore decimale 0, hex 0x0): apertura in sola lettura.
+      O_WRONLY (valore decimale 1,hex 0x1): apertura in sola scrittura.
+      O_RDWR (valore decimale 2, hex 0x2): apertura in lettura e scrittura.
    2) Modificatori di Controllo e Creazione (Combinabili via OR)
-      O_CREAT: se il file non esiste sul filesystem, lo crea. Richiede l'invocazione del 3° argomento (mode`).
-      O_TRUNC: se il file esiste già ed è aperto in scrittura (O_WRONLY o O_RDWR), ne azzera la lunghezza a 0 byte (lo svuota).
-      O_APPEND: ogni operazione di scrittura (write) sposta automaticamente l'offset alla fine del file (EOF) prima di scrivere.
+      O_CREAT(valore decimale 64,hex 0x40): se il file non esiste sul filesystem, lo crea. Richiede l'invocazione del 3° argomento (mode`).
+      O_TRUNC(valore decimale 512,hex 0x200): se il file esiste già ed è aperto in scrittura (O_WRONLY o O_RDWR), ne azzera la lunghezza a 0 byte (lo svuota).
+      O_APPEND(valore decimale 1024,hex 0x400): ogni operazione di scrittura (write) sposta automaticamente l'offset alla fine del file (EOF) prima di scrivere.
       O_EXCL: usato esclusivamente insieme a O_CREAT. Se il file esiste già, open() fallisce e restituisce -1 settando errno a EEXIST. Garantisce la creazione atomica del file senza race conditions.
 
    MODE / Permessi (3° argomento): chi può fare cosa sul filesystem
