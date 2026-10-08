@@ -1,5 +1,6 @@
 /*
 ---------EQUAZIONI E FUNZIONI-----------------------------------------------------------------------------------
+
 Un' equazione descrive una condizione,cioe' una regola, di uguaglianza tra due espressioni algebriche, per la quale possono esistere specifiche soluzioni(gli zeri) che realizzano quella eguaglianza.E' quindi una condizione statica che non fa letteralmente nulla.
 Una funzione è un operatore meccanico,una procedura algoritmica reale, un pezzo di codice o una trasformazione matematica che prende un input(dominio) e ,obbedendo a quella regola, restituisce un output(codominio) che corrisponde alle soluzioni di quella equazione.
 Una funzione parziale calcolabile e' una funzione matematica f che può essere fisicamente calcolata da una Macchina di Turing in un tempo finito. Si dice "parziale" perché non è garantito che sia definita per ogni input possibile nel suo dominio.
@@ -7,6 +8,7 @@ Se per un dato input la Macchina di Turing entra in un loop infinito,quindi non 
 Se invece la macchina termina sempre e restituisce sempre un risultato per ogni input del suo dominio, la funzione diventa totale. 
 
 ---------TEOREMA DELLA FERMATA------------------------------------------------------------------------------------
+
 Il teorema della fermata e' un limite insuperabile della logica dimostrato nel 1936: afferma che è matematicamente impossibile scrivere un programma che prenda in input il codice sorgente di un altro programma e decida, nel 100% dei casi,
 se quel codice eseguito terminera' o meno,quindi se quel codice sia assimilabile ad una funzione parziale o totale calcolabile. Posso scriverlo per casi specifici, ma l'analizzatore statico universale che funziona per ogni programma possibile è matematicamente 
 impossibile da creare. Non e' possibile per esempio scrivere un parser in C che garantisca a priori l'assenza di loop. Se fosse possibile, si creerebbero paradossi logici distruttivi (un programma che entra in loop solo se l'analizzatore dice che terminerà). 
@@ -15,6 +17,7 @@ di fare cose come un ciclo while true infinito senza uscita o andare in segfault
 Ogni funzione totale in un linguaggio Turing completo è matematicamente solo un caso specifico (un sottoinsieme) di una funzione parziale che per puro caso "è definita ovunque".
 
 ---------MACCHINA E LINGUAGGIO DI TURING-----------------------------------------------------------------------------------------
+
 Una macchina di Turing e' sostanzialmente il modello matematico assoluto di un computer,cioe' la definizione matematica di una macchina capace di computare. E' composta da almeno tre componenti fisici (teorici):
 1) un nastro di memoria infinito diviso in celle (l'equivalente della ram di un odierno pc).
 2) una testina di lettura/scrittura che può scorrere a destra o sinistra sul nastro di memoria.
@@ -29,6 +32,7 @@ di fare salti condizionali (if/branching) e di manipolare la memoria iterativame
 Qualsiasi programma in un linguaggio Turing completo compie nient'altro che il calcolo di una funzione parziale calcolabile.
 
 ---------PUNTO FISSO DI UNA FUNZIONE E QUINE------------------------------------------------------------------------------
+
 Nel lambda calcolo e nella teoria della computazione, un punto fisso di una funzione è un valore che viene mappato su se stesso dalla funzione ,ovvero (f(x) = x). In sostanza un punto fisso x di una funzione f è semplicemente un valore tale per cui l'esecuzione 
 della funzione su quel valore restituisce il valore stesso. Esempio : se f(x) = x^2, i punti fissi sono 0 (0^2 = 0) e 1 (1^2 = 1). Se F è l'operazione di invertire una stringa, le stringhe palindrome (es. "radar") sono i punti fissi. 
 Un Quine è letteralmente il punto fisso di un ambiente di compilazione ed esecuzione,cioe' un costrutto informatico il cui output coincide esattamente con il proprio codice sorgente . Esempio : una funzione E(s) che prende una stringa s (il file .c), la compila, 
@@ -37,9 +41,13 @@ ed esecuzione, ritornando se stessa.
 Se prendiamo un compilatore o un interprete, possiamo vederlo come una funzione E (Execution environment) che prende in input un codice sorgente S e produce in output un risultato R: E(S) = R.
 Un Quine non è altro che un codice sorgente Q il cui output è esattamente sé stesso. Quindi E(Q) = Q.
 Un Quine è letteralmente il punto fisso dell' interprete o compilatore. E il fatto che i quine esistano per qualunque linguaggio di programmazione Turing-completo è garantito al 100% proprio dal Secondo Teorema di Ricorsione.
-il primo quine documentato è stato scritto nel 1953 (su schede perforate!) da Paul Bratley e Jean Millot su un computer EDSAC, ben prima che venisse coniato il termine "quine" (in onore del filosofo Willard Van Orman Quine, famoso per i suoi studi sull'autoreferenza logica).
+Il primo quine documentato è stato scritto nel 1953 (su schede perforate!) da Paul Bratley e Jean Millot su un computer EDSAC, ben prima che venisse coniato il termine "quine" (in onore del filosofo Willard Van Orman Quine, famoso per i suoi studi sull'autoreferenza logica).
+
+- Approccio Funzionale (Puro): il Quine è una pura trasformazione di punto fisso f(x) = x. Il sorgente è trattato come un dato immutabile che viene passato a una funzione pura di formattazione. Non esiste stato mutabile né side-effect concettuale oltre alla proiezione del dominio dell'informazione su se stessa.
+- Approccio Imperativo (e le sue deviazioni "Self-Reading") l'approccio imperativo tenta spesso di risolvere il problema accedendo a uno stato di sistema globale o all'I/O su disco (es. fopen(__FILE__) e lettura del file). Questo non è un vero Quine, ma un programma di I/O su file. Un vero Quine costruisce la propria informazione internamente senza mai consultare l'ambiente esterno.
 
 ---------TEOREMI DI RICORSIONE DI KLEEN E NUMERAZIONE DI GODEL----------------------------------------------------------------------------
+
 I due teoremi di ricorsione di Kleen poggiano su un assioma fondamentale: la numerazione di Godel. Qualsiasi macchina di Turing puo' essere codificata nella forma di un intero o di una singola stringa univoca. Questo annulla la distinzione del codice sorgente di un 
 programma in codice e dati: un programma puo' manipolare altri programmi trattandoli come numeri. La numerazione di Godel non e' un hash: le funzioni di hash hanno dimensione fissa,generano collisioni e non sono revertibili;non posso ricostruire il file originale 
 dall'hash. La numerazione di Gödel è una codifica biunivoca (isomorfismo) senza alcuna perdita di informazione. Per esempio un sorgente .c e' un file di testo, quindi una sequenza di byte ASCII. Se prendo i byte in hex e li concateno, otterro' un singolo,
@@ -48,6 +56,7 @@ che la macchina di Turing interpreta come istruzioni. Quindi basicamente la nume
 semplicemente contiene tutta l'informazione codificata in forma binaria.
 
 --------PRIMO TEOREMA DI RICORSIONE----------------------------------------------------------
+
 Il primo Teorema (Teorema del Minimo Punto Fisso) riguarda la semantica del codice,quindi la logica matematica a fondamento della informatica teorica che legittima la programmazione ricorsiva: stabilisce che ogni equazione che definisce una funzione in termini di se stessa(ricorsiva) possiede solo un minimo punto fisso,e quest'ultimo e' calcolabile. 
 È ciò che garantisce che quando scrivo una funzione ricorsiva in C, matematicamente abbia un senso e calcoli qualcosa di specifico. 
 In realta',per essere piu' precisi,il primo teorema,quando parla di punto fisso non si riferisce ad input o output numerici(quelli sono solo una semplificazione per rendere comprensibili teoremi cosi' complessi),ma alle funzioni stesse. Possiamo quindi immaginare un punto fisso 
@@ -98,7 +107,24 @@ Questo limite di saturazione, dove l'input (la funzione vecchia) equivale all'ou
 Il Primo Teorema è una colossale pezza teorica: serve "solo" a garantire ai matematici e ai creatori di compilatori che permettere a una funzione di chiamare se stessa non innesca una fallacia circolare che invalida la logica matematica e quindi la computabilita', ma produce sempre un 
 comportamento deterministico (che sia un calcolo corretto o un crash inevitabile).
 
+In teoria della computabilità, un Quine è la dimostrazione pratica del Teorema di Ricorsione di Kleene (o Teorema del Punto Fisso). Sia f una funzione computabile che trasforma codice in codice; esiste un punto fisso e tale che la funzione computata da e produce il codice di e stesso:
+Q = S + D(S)
+dove S rappresenta la struttura dati (la rappresentazione passiva del codice) e D la funzione decisore/decompiler (la parte attiva che esegue la formattazione e l'emissione).
+
+```
+   ┌────────────────────────────────────────────────────────┐
+   │                       QUINE (Q)                        │
+   │                                                        │
+   │  ┌────────────────────────┐  ┌──────────────────────┐  │
+   │  │   Dati Passivi (S)     │  │   Logica Attiva (D)  │  │
+   │  │  (Stringa/Payload)     │─>│  (Codice Esecutore)  │─>  OUTPUT (Q)
+   │  └────────────────────────┘  └──────────────────────┘  │
+   └────────────────────────────────────────────────────────┘
+
+
+
 --------SECONDO TEOREMA DI RICORSIONE------------------------------------------------------------------------------------------
+
 Per comprendere formalmente il teorema bisogna separare rigidamente due livelli:
 1. Il piano sintattico (x): il codice sorgente statico, ovvero il numero di Godel x che rappresenta i byte del programma fermi sul disco.
 2. Il piano semantico (phi_x): il processo dinamico, ovvero la funzione calcolata quando l'interprete o la macchina (phi) esegue effettivamente quel codice (x).
@@ -125,6 +151,7 @@ Il Secondo Teorema di ricorsione entra in gioco qui: dimostra matematicamente ch
 che è il principio esatto su cui si basa l'architettura di un Quine. Esiste sempre un modo per un programma di calcolare il proprio numero di Gödel (il proprio codice sorgente) e passarlo come argomento a sé stesso.
 
 ----------STRUTTURA DI UN QUINE------------------------------------------------------------------------------------------------
+
 Per costruire un Quine valido, la teoria di base (spesso associata al costruttore universale di von Neumann) richiede la scomposizione del sorgente in due entità ontologicamente distinte ma interdipendenti:
 1) la componente attiva (codice o fenotipo): le istruzioni operative incaricate di formattare e stampare.
 2) la componente passiva (dati o genotipo): una rappresentazione in memoria (generalmente una stringa o un buffer) che mappa esattamente le istruzioni della componente attiva.
@@ -147,6 +174,15 @@ Se provo a scriverlo, cadro' in questo ciclo di regressione infinita:
 -questo genera una ricorsione logica infinita in fase di scrittura del codice: non posso definire la stringa passiva includendo letteralmente le virgolette o i ritorni a capo (newline) necessari per formattarla, perché per farlo sarei costretto ad aggiungere altri caratteri di escape,
  alterando la stringa che stavo cercando di rappresentare.
 
+L'escape è la tecnica con cui si rappresentano caratteri che hanno un significato sintattico per il lexer/parser del linguaggio, trasformandoli in dati letterali.
+Le tecniche di escape in C sono essenzialmente due:
+
+1) Escape Sequence a compile-time:\" (doppio apice), \n (newline), \\ (backslash), \0 (null-byte).
+2) Escape via ASCII intero a runtime (tecnica Quine): se la presenza del carattere " o \n dentro una stringa sorgente romperebbe la sintassi del literal, si omette il carattere letterale e si passa il suo codice ASCII a una funzione di formattazione.
+   10 = LF (Line Feed / \n)
+   34 = " (Double Quote)
+   92 = \ (Backslash)
+
 Il legame matematico tra il punto fisso e il codice sorgente si riduce a questa identità: Compiler(Source) = Binary,e poi Execution(Binary) = Output. Nel momento in cui scrivo un Quine, cerco un codice sorgente S tale che Execution(Compiler(S)) = S. L'output dell'esecuzione deve essere bit a bit identico al 
 sorgente S che è entrato nel compilatore. Questo è il punto fisso: lo spazio dei dati in cui l'operazione di stampa/compilazione non sposta né altera di un byte la struttura sintattica dell'oggetto di partenza.
 Il punto centrale del secondo teorema di ricorsione di Kleene applicato al problema del Quine è la dimostrazione che un sistema formale puo' possedere la specifica strutturale di se stesso attraverso una relazione di ricorsione incrociata tra l'operatore e il suo operando.
@@ -162,13 +198,14 @@ La struttura teorica si regge su tre pilastri concettuali puri:
 ===================================================================================================================
 
 --------SEQUENZE DI ESCAPE----------------------------------------------------
+   
    In C, le sequenze di escape numeriche si esprimono in due modi:
    - Notazione Ottale (\ooo): usa cifre da 0 a 7 (fino a un massimo di 3 cifre). Il carattere delle virgolette doppie (") ha codice ASCII 34 in decimale. Convertito in base ottale, 34 diventa 42. Di conseguenza, la sequenza ottale corretta per le virgolette è \42 (o \042).
    - Notazione Esadecimale (\xhh): usa il prefisso \x seguito da cifre esadecimali. Il valore esadecimale del codice ASCII 34 è 22. La sequenza esadecimale corretta per le virgolette è quindi \x22.
    In Assembly non esiste un insieme universale di caratteri di escape a livello di ISA/linguaggio, poiché l'Assembly tratta la memoria come byte puri. Tuttavia, il modo in cui vengono interpretati i caratteri di escape dipende interamente dall' assembler utilizzato (nel mio caso NASM).
    In NASM esistono due modalità principali per gestire i caratteri speciali e i ritorni a capo nelle stringhe:
    1) La sintassi con i Backtick (``...``) — C-Style Escapes
-      Se racchiudo una stringa tra backtick (l'accento grave `), NASM abilita l'interpretazione dei caratteri di escape in stile C.
+      Se racchiudo una stringa tra backtick (l'accento grave `), NASM abilita l'interpretazione dei caratteri di escape in stile C/POSIX.
       Principali caratteri di escape supportati nei backticks:
       | Sequenza | Significato | Valore ASCII (Dec / Hex) |
       | --- | --- | --- |
@@ -184,9 +221,12 @@ La struttura teorica si regge su tre pilastri concettuali puri:
       | `\xHH` | Byte esadecimale arbitrario (es. `\x0A`) | Specificato da `HH` |
       | `\000` | Byte ottale arbitrario (es. `\012`) | Specificato dal valore ottale |
 
+      b `Hello\n\0` ; Inserisce il byte 0x0A seguito dal null-byte 0x00
+
    2) Le virgolette classiche ("..." o '...') — Nessun Escape
-      Se uso le virgolette doppi o i singoli apici NASM NON interpreta alcun carattere di escape. Se scrivi '\n', l'assembler scriverà in memoria letteralmente un backslash (0x5C) seguito dal carattere n (0x6E).
-      Per inserire caratteri speciali con la sintassi classica, si separano le stringhe con i valori numerici ASCII trascritti in decimale o esadecimale tramite virgola nella direttiva db.
+      Se uso le virgolette doppi o i singoli apici NASM NON interpreta alcun carattere di escape,ovvero tratta il contenuto in modo puramente letterale. . Se scrivi '\n', l'assembler scriverà in memoria letteralmente un backslash (0x5C) seguito dal carattere n (0x6E).
+      db 'Hello\n', 0 ; scrive letteralmente: H, e, l, l, o, \, n, \0
+      Per inserire caratteri speciali con la sintassi classica, si separano le stringhe con i valori numerici ASCII trascritti in decimale o esadecimale tramite virgola nella direttiva db/dw/dd.
       Esempio:
 
       s_classica: db "Linea 1", 10, "Linea 2 con ", 34, "virgolette", 34, 0
@@ -201,22 +241,42 @@ La struttura teorica si regge su tre pilastri concettuali puri:
       ; Metodo 2: Separazione per virgola (Classic NASM)
       str2: db "Hello", 10, "World", 0
 
-
 ---------ARGOMENTI POSIZIONALI IN FUNZIONI DELLA FAMIGLIA PRINTF---------------------------------
-   %1 e' ad esempio una specifica di argomento posizionale supportata dall'estensione POSIX della printf (presente nella libreria standard di sistemi come Linux/glibc). In una printf standard, gli argomenti vengono consumati in ordine sequenziale: il primo % prende il primo argomento dopo la stringa, il secondo % prende il secondo,
-   e così via. Inserendo un numero seguito da un dollaro prima del modificatore (%1$c, %2$s), sto dicendo esplicitamente alla printf quale specifico argomento della va list prendere, scavalcando l'ordine sequenziale:
-   - %1$c significa: prendi il primo argomento extra passato alla funzione e formattalo come carattere.
-   - %2$s significa: prendi il secondo argomento extra e formattalo come stringa.
-   Nei Quine questo è vitale perché permette di riutilizzare lo stesso identico valore (come il codice ASCII 34 o la stringa s stessa) decine di volte in punti diversi del testo senza dover impazzire a rispettare un ordine rigido di parametri nella chiamata. Variadicita' posizionale alla ennesima potenza.
+
+   La sintassi POSIX(presente nella libreria standard di sistemi come Linux/glibc) estende lo standard ANSI C per la famiglia printf introducendo gli indicatori posizionali: %N$specifier.
+   In un'invocazione standard (printf("%d %s", a, b)), il formattatore consuma i parametri passati nei registri ABI (o sullo stack) in ordine strettamente sequenziale. Con l'indicatore posizionale %N$, si specifica al parser 
+   della stringa di formato di accedere direttamente all' $N$-esimo argomento ($1$-based) presente nella va_list.
+   ESEMPIO:
+
+   printf("%1$d %2$s %1$d\n", 42, "code");
+   // Output: 42 code 42
+
+   %1$d: accede al 1° argomento (42) e lo stampa come intero.
+   %2$s: accede al 2° argomento ("code") e lo stampa come stringa.
+   %1$c: accede nuovamente al 1° argomento riutilizzando la va_list senza dover ripassare il parametro.
+
+   Nei Quine C, %1$c e %2$c permettono di iniettare caratteri problematici (come il newline ASCII 10 o il doppio apice ASCII 34) passando un unico valore intero alla funzione di stampa e facendovi riferimento N volte nella stringa di formattazione, 
+   evitando di dover duplicare i parametri nella va_list.
+   Regola POSIX: e' undefined behavior mischiare all'interno della stessa stringa di formato identificatori posizionali (%1$d) e identificatori sequenziali classici (%d).
    
 ----------DIFFERENZA TRA DEFINIZIONE MANUALE DELL'ENTRYPOINT _START(binario bare metal) E USO DELLA C RUNTIME------------------------
+   
    Per capire perché esiste questa distinzione, bisogna guardare a come il kernel Linux e il linker (ld) gestiscono l'esecuzione di un binario ELF.
-   1) L'approccio _start (Naked ELF / nasm + ld) :
-      - Meccanismo del Kernel: quando il kernel esegue la syscall execve, carica l'eseguibile ELF in memoria, prepara lo stack (inserendovi argc, argv, envp) e passa il controllo direttamente all'indirizzo di memoria specificato nell'header ELF sotto il simbolo _start.
+   1) L'approccio _start (Bare Assembly / Naked ELF / nasm + ld) :
+      - Meccanismo del Kernel: quando il kernel esegue la syscall execve, carica l'eseguibile ELF in memoria, prepara lo stack (inserendovi argc, argv, envp) e passa il controllo direttamente all'indirizzo di memoria specificato nell'header ELF nel campo e_entry (di default la label _start).
+      - Stato dello Stack: il kernel prepara lo stack posizionando in cima RSP:
+            [rsp]: argc (8 byte)
+            [rsp + 8]: argv[0]
+            [rsp + 16]`: argv[1] ... \NULL
+            [rsp + N]: envp[0] ... NULL
+            Auxiliary Vector (auxv)
+      - Ambiente: non c'è alcuna libreria standard pre-inzializzata. Non esiste I/O bufferizzato, non c'è malloc, non ci sono costruttori/distruttori.
       - Assenza di Paracadute: non esiste alcun codice di inizializzazione prima della prima istruzione di _start. Lo stack non contiene un indirizzo di ritorno valido. Di conseguenza, terminare la routine con un'istruzione ret causa inevitabilmente un SegFault, perché lo stack pointer rsp punta a argc e non a un frame di chiamata.
-        Per terminare un programma con _start è teoricamente obbligatorio invocare esplicitamente la syscall sys_exit.
+        Per terminare un programma con _start è teoricamente obbligatorio invocare esplicitamente la syscall sys_exit(eax = 60 su x86-64).
    2) L'approccio main (C Runtime / gcc + nasm) :
-      - Inizializzazione CRT (crt1.o): quando compili o linki tramite gcc, il compilatore inserisce automaticamente il proprio entry point _start fornito dalla libreria C standard.
+      - Inizializzazione CRT (crt1.o): quando compili o linki tramite gcc o clang,il linker inserisce automaticamente i file oggetto della C Runtime (crt1.o, crti.o, crtbegin.o, crtend.o, crtn.o) e il proprio entry point _start(contenuto in crt1.o) fornito dalla libreria C standard nell'eseguibile.
+        Il vero _start si trova dentro crt1.o. _start estrae argc, argv ed envp dallo stack e chiama __libc_start_main. __libc_start_main inizializza la gestione dei thread (TLS), i buffer I/O di stdin/stdout/stderr, ed esegue le funzioni contenute nelle sezioni .init e .init_array (costruttori).
+        Poi invoca main(argc, argv, envp) e infine intercetta il valore di ritorno del main e lo passa a exit(), che esegue le funzioni atexit(), svuota i buffer I/O, chiama i distruttori (.fini_array) e infine esegue la syscall sys_exit.
       - Flusso di esecuzione: il kernel salta a _start della CRT. Questo codice di bootstrap inizializza i costruttori globali, allinea lo stack, estrae argc/argv dallo stack e invoca la funzione main come una normale chiamata call. All'ingresso di main, i registri contengono già i parametri della firma C classica(rdi == argc, rsi == argv, rdx == envp).
       - Ritorno Pulito: poiché main viene invocata via call, puoi terminare la funzione semplicemente con ret (restituendo il codice di uscita in rax), lasciando che la CRT gestisca la pulizia e la syscall di uscita. La C Runtime riprenderà il controllo dall'indirizzo di ritorno presente nello stack ed eseguirà la exit(rax) per mio conto. 
         Non serve alcuna syscall manuale di uscita (sys_exit).
@@ -243,12 +303,14 @@ La struttura teorica si regge su tre pilastri concettuali puri:
       Sui sistemi Linux recenti, gcc compila di default in modalità PIE (Position Independent Executable). Se nel codice NASM faccio riferimenti ad indirizzi di memoria usando nomi di etichette senza indirizzamento relativo, il linker potrebbe generare un errore di rilocazione (relocation R_X86_64_32S against .data...).
       Due modi per gestire la cosa: 
       - Aggiungere la direttiva default rel in cima al file .s per istruire NASM a calcolare sempre offset relativi al registro RIP. Di default, su architettura a 64 bit, NASM tratta i riferimenti a etichette in memoria come indirizzi assoluti (abs).
-        Nei sistemi moderni GCC compila di default come PIE (Position Independent Executable). Se cerco di caricare un indirizzo assoluto, il linker fallisce con un errore di rilocalizzazione (relocation R_X86_64_32S against .rodata cannot be used when making a PIE object).
-        Per fare codice position-independent, x86-64 usa l'indirizzamento relativo all'Instruction Pointer (RIP-relative addressing). Senza direttiva, sarei costretto a specificare rel a mano a ogni singola istruzione.
-        Inserendo la direttiva default rel in cima, dico a NASM che tutti gli accessi a label di memoria devono essere RIP-relative di default. In questo modo posso scrivere semplicemente lea rdi, [msg] e NASM genererà automaticamente il codice macchina relativo a RIP.
+        Nei sistemi moderni GCC compila di default come PIE (Position Independent Executable) e l'assembler NASM in modalità 64-bit assume di default un addressing di tipo assoluto per le label non specificate. Se cerco di caricare un indirizzo assoluto, il linker fallisce con un errore di rilocalizzazione (relocation R_X86_64_32S 
+        against .rodata cannot be used when making a PIE object). Per fare codice position-independent, x86-64 usa l'indirizzamento relativo all'Instruction Pointer (RIP-relative addressing). Quando DEFAULT REL è attivo all'inizio del sorgente Assembly tutte le istruzioni che fanno riferimento a simboli in memoria (es. mov rax, [label] o lea rdi, [label]) 
+        vengono assemblate di default come [rel label],e questo elimina la necessità di dover esplicitare la keyword rel in ogni singola riga di codice, garantendo che l'output oggetto sia nativamente Position Independent Code (PIC) per il linking dinamico.
+        In questo modo posso scrivere semplicemente lea rdi, [msg] e NASM genererà automaticamente il codice macchina relativo a RIP.
       - Disabilitare il PIE in fase di linking passando la flag -no-pie a GCC:                 
 
------------LE TRAPPOLA MORTALI DELLE FUNZIONI VARIADICHE IN ASSEMBLY----------------------------------
+-----------LA TRAPPOLA MORTALI DELLE FUNZIONI VARIADICHE IN ASSEMBLY----------------------------------
+   
    Le funzioni C che utilizzano le istruzioni SIMD/SSE (come printf, che impiega registri XMM per argomenti variadici) effettuano operazioni di memoria vettoriale che generano un General Protection Fault se lo stack non è perfettamente allineato a 16 byte al momento della chiamata.
    Inoltre per la System V AMD64 ABI (il sistema standard su Linux x86-64), i primi 6 argomenti interi o puntatori non si spingono nello stack, ma vanno caricati nei registri dedicati secondo questo ordine tassativo:
 
@@ -260,7 +322,7 @@ La struttura teorica si regge su tre pilastri concettuali puri:
    6° parametro | r9 | Quinto valore da sostituire |
 
    Per passare l'indirizzo della stringa al primo parametro (in rdi) o a un parametro successivo, l'istruzione corretta è l'uso di lea (Load Effective Address) combinato con l'indirizzamento RIP-relative:
-   lea rdi, [rel s]    ; Carica l'indirizzo effettivo della label s in rdi (PIE-compliant)
+   lea rdi, [rel s]    ; carica l'indirizzo effettivo della label s in rdi (PIE-compliant)
    Perché lea e non mov? mov rdi, s tenta di inserire un indirizzo assoluto a 32/64 bit hardcodato. Se compili in modalità PIE (Position Independent Executable, il default di gcc), il linker fallirà o genererà errori di rilocazione. lea rdi, [rel s] calcola l'indirizzo calcolando l'offset relativo al registro RIP corrente a runtime.
    Non c'è alcuna dereferenziazione in quell'istruzione: lea NON legge né tocca mai la memoria. La confusione nasce dalla sintassi di NASM, dove le parentesi quadre [...] hanno due significati diversi a seconda dell'istruzione che le usa.
    1) Con mov (Dereferenziazione vera): mov rax, [rel s]
@@ -271,79 +333,132 @@ La struttura teorica si regge su tre pilastri concettuali puri:
 
    In sintassi x86/x86-64 (e in NASM in particolare), lea richiede SEMPRE le parentesi quadre. Senza le quadre l'assembler rifiuta proprio di compilare, generando un errore di sintassi.
    Il motivo è strutturale a livello di CPU: l'istruzione lea  nasce per calcolare un indirizzo di memoria, e in NASM l'espressione di un indirizzo di memoria è rappresentata tassativamente dalla notazione con le quadre.
-   mov rax, [rbx] | Calcola l'indirizzo rbx e legge il valore in RAM | rax = *rbx; |
-   lea rax, [rbx]`| Calcola l'indirizzo rbx e salva l'indirizzo stesso | rax = rbx; (oppure &(*rbx)) |
+   mov dst, [src] | Calcola l'indirizzo src,cioe' dereferenzia src, ne legge il valore in RAM e lo copia in dst| dst = *src; |
+   lea dst, [src] | Non dereferenzia la memoria all'indirizzo di src,ma calcola puramente l'algebra dell'indirizzo src all'interno della ALU e salva l'indirizzo risultante in dst | dst = src; (oppure &(*src)) |
 
    In C o in Assembly a 32-bit ero abituato a scrivere semplicemente s per indicare l'indirizzo. In x86-64 con PIE (Position Independent Executable)  abilitato da gcc, questo non funziona più per due motivi:
    1) ASLR (Address Space Layout Randomization): il sistema operativo carica l' eseguibile a un indirizzo di memoria casuale ogni volta che lo avvii. L'indirizzo assoluto di s non è noto a tempo di compilazione.
    2) Limitazione delle istruzioni x86-64: non esiste un'istruzione mov rdi, <imm64> che accetti un offset relativo a 64-bit in modo efficiente per i registri dati senza generare rilocazioni complesse per il linker.
-   Aggiungendo rel all'interno delle quadre [rel s] dico a NASM di calcolare la distanza in byte (offset) tra l'istruzione corrente RIP e la label s. A runtime, la CPU eseguirà RIP + offset: siccome la distanza tra il codice e la sezione dati è fissa nel binario, l'indirizzo calcolato sarà sempre corretto, indipendentemente da dove il kernel 
-   ha caricato il programma in RAM.
+      Aggiungendo rel all'interno delle quadre [rel s] dico a NASM di calcolare la distanza in byte (offset) tra l'istruzione corrente RIP e la label s. A runtime, la CPU eseguirà RIP + offset: siccome la distanza tra il codice e la sezione dati è fissa nel binario, l'indirizzo calcolato sarà sempre corretto, indipendentemente da dove il kernel 
+      ha caricato il programma in RAM.
 
-   In C, printf è una funzione variadica. L'ABI x86-64 impone una regola precisa quando si invoca una funzione variadica: il registro rax (o meglio la sua porzione al) deve contenere il numero di registri vettoriali (XMM0–XMM7),da 1 ad 8, utilizzati per passare argomenti floating-point(float o double).
+   In architettura x86-64, per produrre codice esecutivo PIC (Position-Independent Code)/ PIE (Position-Independent Executable), non si usano indirizzi di memoria assoluti a 64-bit, ma offset a 32-bit con segno relativi all'Instruction Pointer (RIP).
+   mov rax, [rel label]: legge il valore** memorizzato all'indirizzo RIP + offset_label.
+   lea rax, [rel label]: calcola l'indirizzo RIP + offset_label e inserisce il puntatore in RAX.
+   
+   Confronto diretto:
+      lea rsi, [rel msg] ; RSI = indirizzo di memoria del primo byte di msg
+      mov rsi, [rel msg] ; RSI = primo valore a 64 bit contenuto dentro msg (dereferenziato!)
+
+
+   Secondo le specifiche dell'ABI System V x86-64, per qualsiasi chiamata a una funzione variadica C (come printf, dprintf, sprintf, scanf) il registro AL (gli 8 bit meno significativi di RAX) deve contenere il numero totale(da 0 ad 8) di registri 
+   vettoriali/SSE (xmm0–xmm7) usati per passare argomenti a virgola mobile (float/double).
+
+      ESEMPIO: chiamata a printf senza argomenti float
+      mov rdi, fmt_string ; 1° argomento: stringa di formato
+      mov rsi, arg1       ; 2° argomento: intero
+      xor eax, eax        ; CRUCIALE: AL = 0 (zero argomenti float nei registri XMM)
+      call printf
+
+   Se si omette xor eax, eax (o xor rax, rax), AL conterrà la spazzatura lasciata da operazioni precedenti. Internamente, printf controlla AL per sapere quanti registri XMM deve salvare nello stack per accedere alla va_list.
+   Se AL > 8 o contiene spazzatura, printf prova ad accedere a locazioni di memoria non valide per salvare i registri XMM, causando SegFault, corruzione dello stack o comportamenti indeterminati invisibili a compile-time.
    Poiché per il Quine passo solo numeri interi o puntatori (e zero numeri in virgola mobile) e' necessario resettare rax a 0 prima di chiamare printf
-   xor rax, rax
+   xor eax, eax
    call printf
-   Se dimentico xor rax, rax, printf andrà a leggere un valore casuale rimasto in rax. Se quel valore è diverso da 0, printf proverà a salvare i registri XMM nello stack, generando un Segmentation Fault immediato.
 
 --------MASCHERA DEI PERMESSI PER LE FUNZIONI DI IO-----------------------------------------------------
-   La maschera dei permessi per le chiamate di creazione file  si esprime in ottale e segue lo schema standard POSIX diviso su 3 cifre: Proprietario (User), Gruppo (Group), Altri (Others).
-   Ogni cifra è la somma di tre bit fondamentali: 4 = Lettura (r - read),2 = Scrittura (w - write),1 = Esecuzione (x - execute). Il valore standard 0644(rw-r--r--) e' la combinazione ideale per file creati da un programma (il proprietario legge e scrive, gli altri possono solo leggere):
+   
+La maschera dei permessi per le chiamate di creazione file segue lo schema standard POSIX diviso su 3 cifre: Proprietario (User), Gruppo (Group), Altri (Others).
+   I permessi sono rappresentati da una maschera bitfield di 12 bit solitamente espressa in notazione ottale .
+   Ogni cifra a 4 bit del bitfield a 12 bit è la somma di tre bit fondamentali: 4 = Lettura (r - read),2 = Scrittura (w - write),1 = Esecuzione (x - execute). Il valore standard 0644(rw-r--r--) e' la combinazione ideale per file creati da un programma (il proprietario legge e scrive, gli altri possono solo leggere):
    Altre maschere comuni: 0600(rw-------, File privato/sensibile (lettura e scrittura solo per l'user), 0755 (rwxr-xr-x ,Eseguibile o cartella standard (esecuzione/accesso per tutti).
    In C scrivo semplicemente 0644 (il prefisso 0 indica l'ottale al compilatore). In **NASM**, se scrivo 644 o 0644 viene interpretato come decimale, corrompendo la maschera dei permessi inviata al kernel!
    In NASM e' necessario specificare l'ottale o l'esadecimale in modo esplicito: 0o644 oppure 644q per l'ottale, 0x1A4 per l'hex. NASM adotta lo stesso standard di linguaggi moderni (come Python o Rust) per i prefissi numerici:
    0x per l'esadecimale ,0b per il binario e 0o per l'ottale.In alternativa al prefisso 0o, NASM accetta anche il suffisso q (da quaternary/octal): 644q.
 
+   S_IRUSR (0400): Lettura proprietario.
+   S_IWUSR (0200): Scrittura proprietario.
+   S_IXUSR (0100): Esecuzione proprietario.
+   0777 = rwxrwxrwx (Tutti i permessi concessi).
+
 --------DIFFERENZA TRA FLAG E PERMESSI NELLA SYSCALL OPEN-----------------------------------------------
-   La differenza fondamentale tra flags e permessi (mode) nella system call open() è la distinzione tra comportamento a runtime del descrittore e metadati di sistema del file.
+   
+La differenza fondamentale tra flags e permessi (mode) nella system call open() è la distinzione tra comportamento a runtime del descrittore e metadati di sistema del file.
+   
    FLAGS (2° argomento): come il processo usa il file
-   I flags dicono al kernel in che modo il tuo processo intende interagire con il file descriptor durante questa specifica apertura. È una bitmask creata combinando costanti `O_*` tramite l'operatore bitwise OR .
+   I flags dicono al kernel in che modo il tuo processo intende interagire con il file descriptor durante questa specifica apertura. È una bitmask creata combinando costanti O_* tramite l'operatore bitwise OR .
    I flags si dividono in due categorie principali:
-   1) Modalità di Accesso (Mutuamente esclusive) : bisogna specificarne obbligatoriamente una e una sola (i primi 2 bit del valore).
+   1) Modalità di Accesso (mutuamente esclusive) : bisogna specificarne obbligatoriamente una e una sola (i primi 2 bit del valore).
       O_RDONLY (valore decimale 0, hex 0x0): apertura in sola lettura.
       O_WRONLY (valore decimale 1,hex 0x1): apertura in sola scrittura.
       O_RDWR (valore decimale 2, hex 0x2): apertura in lettura e scrittura.
-   2) Modificatori di Controllo e Creazione (Combinabili via OR)
+   2) Modificatori di Controllo e Creazione (combinabili via bitwise OR)
       O_CREAT(valore decimale 64,hex 0x40): se il file non esiste sul filesystem, lo crea. Richiede l'invocazione del 3° argomento (mode`).
       O_TRUNC(valore decimale 512,hex 0x200): se il file esiste già ed è aperto in scrittura (O_WRONLY o O_RDWR), ne azzera la lunghezza a 0 byte (lo svuota).
       O_APPEND(valore decimale 1024,hex 0x400): ogni operazione di scrittura (write) sposta automaticamente l'offset alla fine del file (EOF) prima di scrivere.
       O_EXCL: usato esclusivamente insieme a O_CREAT. Se il file esiste già, open() fallisce e restituisce -1 settando errno a EEXIST. Garantisce la creazione atomica del file senza race conditions.
 
    MODE / Permessi (3° argomento): chi può fare cosa sul filesystem,espressi in ottale(04 read,02 write,01 exec; in Assembly l'ottale si esprime con 0o)
-   I permessi definiscono i diritti di accesso POSIX (rwx) scritti nell'inode del file sul filesystem. Vengono presi in considerazione dal kernel esclusivamente se flags contiene O_CREAT (o O_TMPFILE). Se il file esiste già, il 3° argomento viene totalmente ignorato dal kernel.
-   È una rappresentazione ottale a 3 cifre che definisce i bit di accesso per Proprietario (User), Gruppo (Group) e Altri (Others).
+   I permessi definiscono i diritti di accesso POSIX (rwx) scritti nell'inode del file sul filesystem. Il terzo argomento della syscall open(path, flags, mode) viene applicato solo ed esclusivamente quando si crea un nuovo file (ovvero quando nei flags è presente O_CREAT o O_TMPFILE).
+   Se il file esiste già, il 3° argomento viene totalmente ignorato dal kernel. È una rappresentazione ottale a 3 cifre che definisce i bit di accesso per Proprietario (User), Gruppo (Group) e Altri (Others).
 
-   L'effetto della umask:i permessi reali scritti sull'inode non sono mai identici al parametro mode passato a open(), ma vengono filtrati tramite la umask del processo: Permessi Effettivi = mode & ~ umask
+   | Proprietà | Flags (2° Argomento) | Permessi / Mode (3° Argomento) |
+   | Ambito | Stato della Sessione I/O (File Table) | Attributi dell'Inode su Disco (File System) |
+   | Quando agisce | Ad ogni chiamata di open(). | Esclusivamente all'atto della creazione con O_CREAT. |
+   | Scopo | Determina come il kernel deve aprire e gestire le operazioni I/O sul file descriptor. | Determina chi potrà accedere al file nel file system dopo la sua creazione. |
+
+   L'effetto della umask:i permessi reali scritti sull'inode del file nel fyle system non sono mai identici al parametro mode passato a open(), ma vengono calcolati dal kernel applicando il complemento bitwise della umask del processo corrente: Permessi Effettivi = mode & ~ umask
    Esempio: se chiedi 0666 e la umask di sistema è 0022, il file verrà creato con permessi 0644).
 
    Nel rispetto della System V AMD64 ABI, il secondo argomento di qualsiasi funzione intera/puntatore si passa nel registro RSI.
    In Assembly, però, non ci sono a disposizione le costanti simboliche del C (O_WRONLY, O_CREAT, O_TRUNC dell'header <fcntl.h>): si deve passare direttamente il valore numerico della maschera bitwise: O_WRONLY = 0x01 (decimale 1), O_CREAT = 0x40 (decimale 64, ottale 0100), O_TRUNC = 0x200 (decimale 512, ottale 01000).
    Eseguendo il bitwise OR tra i tre valori: 0x01 | 0x40 | 0x200 = 0x241 (decimale 577)
 
-
 ---------MACRO IN C E ASSEMBLY---------------------------------------------------------------------
+
    Nello standard C, le direttive del preprocessore (come #define) terminano tassativamente alla fine della riga fisica (al primo carattere \n). Il carattere backslash \ posto immediatamente prima di un a capo attiva la cosiddetta splicing phase (fase 2 della compilazione C):
    dice al preprocessore di ignorare la newline e considerare la riga successiva come la continuazione logica della stessa direttiva. Permette di scrivere una macro su più righe leggibili anziché condensare tutto su un'unica riga orizzontale illeggibile di 200 caratteri.
+   Questo meccanismo e' chiamato Line Splicing: il carattere backslash \ posizionato come ultimo carattere di una riga unisce la riga corrente alla successiva prima della tokenizzazione.
+      ESEMPIO:
+      #define PRINT_VAL(x) \
+         printf("Valore: %d\n", x)
 
-   NASM ha due tipi di macro nel suo preprocessore:
+   Un'alternativa in C e' la Stringification (#): converte un argomento di macro in un literal string.
+      #define TO_STR(x) #x
+      TO_STR(123) // Espande in "123"
+   
+   Un ulteriore meccanismo e' la Token Concatenation (##): unisce due token distinti in un unico token a compile-time.
+      #define MAKE_VAR(n) int var_##n = n
+      MAKE_VAR(5); // Espande in: int var_5 = 5;
+   
+   
+      NASM ha 3 tipi di macro nel suo preprocessore:
    1) Macro a riga singola: %define .È l'equivalente diretto del #define del C. Sostituisce testualmente identificatori o costanti:
 
-   Snippet di codice
-   %define FILENAME "Grace_kid.s"
-   %define FLAGS    0x241            ; O_WRONLY (0x1) | O_CREAT (0x40) | O_TRUNC (0x200)
-   %define MODE     0o644            ; 0644 ottale (oppure 0x1A4)
+      ESEMPIO
+      %define FILENAME "Grace_kid.s"
+      %define FLAGS    0x241            ; O_WRONLY (0x1) | O_CREAT (0x40) | O_TRUNC (0x200)
+      %define MODE     0o644            ; 0644 ottale (oppure 0x1A4)
 
    2) Macro multi-linea: %macro / %endmacro . Permette di definire blocchi interi di istruzioni Assembly. La sintassi richiede il nome della macro e il numero di parametri attesi (se non accetta parametri, si mette 0):
 
-   Snippet di codice
-   %macro NOME_MACRO numero_argomenti
-      ; istruzioni assembly
-   %endmacro
+      ESEMPIO:
+      %macro NOME_MACRO numero_argomenti
+         ; istruzioni assembly
+      %endmacro
+   
+   3) Etichette Locali nelle Macro (%%): per evitare errori di etichette duplicate quando una macro viene espansa più volte:
+      ESEMPIO:
+      %macro LOOP_COUNT 1
+         mov rcx, %1
+      %%loop_start:
+         dec rcx
+         jnz %%loop_start
+      %endmacro        
    Per invocarla nel codice, scrivo semplicemente il suo nome (senza prefisso % e senza parentesi):
 
-   A livello di sistema operativo, la trasformazione di un file di testo appena scritto su disco in un nuovo processo attivo nello scheduler della CPU richiede la cooperazione di tre sottosistemi del kernel Linux: il **Virtual Memory Manager**, il sottosistema dei **Processi (task management)** e l'**ELF Loader**.
-
 --------STRINGIFICAZIONE-----------------------------------------------------------------------
+
 La stringificazione (stringification) è un trucco del preprocessore C che usa l'operatore # per trasformare automaticamente un blocco di codice in una stringa letterale racchiusa tra doppie virgolette, senza dover impazzire con i codici ASCII per i ritorni a capo o le virgolette stesse. 
 Se scrivo #define QUINE(code) char *s = #code, tutto quello che passo a QUINE diventa una stringa s formattata. Un Quine puo' quindi essere scritto banalmente senza usare le formattazioni complesse richieste da printf. 
 Esempio concettuale: 
@@ -355,9 +470,10 @@ QUINE(
     printf("#include <stdio.h>\n\n#define QUINE(code) int main() { char *s = #code; %s\nQUINE(%s)\n", code, s);
 )
 
---------LA MACRO __FILE__ ---------------------------------------------------------------------
-È una macro standard predefinita del preprocessore C ANSI (come __LINE__, __DATE__ o __TIME__).Non è una variabile a runtime, ma un costrutto a tempo di compilazione. Quando lanciO gcc, durante la fase di preprocessing, il compilatore cerca ogni occorrenza di __FILE__ nel  codice e la sostituisce brutalmente con una stringa letterale 
-contenente il nome del file che sta elaborando in quel momento Quando usO __FILE__, il compilatore si limita ad allocare la stringa "Sully_X.c" nella sezione .rodata (Read-Only Data) del binario ELF e piazza un puntatore a quell'indirizzo di memoria nel punto in cui ho usato la macro.
+--------LA MACRO __FILE__---------------------------------------------------------------------
+
+È una macro standard predefinita del preprocessore C/C++ ANSI (come __LINE__, __DATE__ o __TIME__).Non è una variabile a runtime, ma un costrutto a tempo di compilazione. Quando lancio gcc, durante la fase di preprocessing, il compilatore cerca ogni occorrenza di __FILE__ nel  codice e la sostituisce brutalmente con una stringa letterale 
+contenente il nome del file che sta elaborando in quel momento.  Quando uso __FILE__, il compilatore si limita ad allocare la stringa "Sully_X.c" nella sezione .rodata (Read-Only Data) del binario ELF e piazza un puntatore a quell'indirizzo di memoria nel punto in cui ho usato la macro.
 Questo significa che l'identità del programma è scolpita nel binario stesso nel momento esatto in cui faccio la execve di gcc. Il programma diventa autoconsapevole del proprio "DNA sorgente".
 Nel file originario, __FILE__ viene espanso in "Sully.c". Quando il programma genera e compila Sully_5.c, dentro il nuovo binario __FILE__ diventerà "Sully_5.c".
 In questo progetto, questa macro viene spesso usata da chi sceglie di lanciare effettivamente i binari generati tramite execve al posto della ricorsione del main. Siccome un nuovo processo lanciato da execve non condivide la memoria col padre, perde il valore della variabile static. 
@@ -366,9 +482,22 @@ NASM ha una macro equivalente che si chiama %__FILE__ che espande al nome del fi
 
 section .rodata
     file_name: db %__FILE__, 0
+In python la stessa funzione e' svolta dalla variabile __file__. Dal momento che quest'ultima restituisce il percorso del file in esecuzione, che spesso include la cartella (es. /home/tobia/project/Sully.py oppure ./Sully.py).
+si usa il metodo basename. basename:os.path.basename(__file__) fa la stessa identica cosa del comando POSIX basename o di una strrchr(path, '/') + 1 in C: pialla tutta la struttura delle directory e restituisce esclusivamente il nome del file ("Sully.py").
+Serve solo a evitare che il confronto fallisca se lanciO lo script con ./Sully.py anziché Sully.py.
+
+-------IL VANTAGGIO DI USARE DPRINTF IN SULLY-----------------------------------------------------
+
+La funzione dprintf (POSIX.1-2008) scrive l'output formattato direttamente su un File Descriptor anziché su uno stream FILE come fprintf.
+
+Vantaggi Operativi:
+- Zero Stream Buffering Overhead: bypassa le strutture dati della libreria C standard (FILE e i relativi buffer interni gestiti da fprintf).
+- Scrittura Atomica e Diretta: effettua direttamente le syscall write() al file descriptor specificato.
+- Resilienza nei Quine: evita bug di flushing dei buffer durante la creazione ed esecuzione sequenziale di processi cloni.
 
 --------PIPELINE DI SULLY : FORK, EXECVE, WAIT----------------------------------------------------
-   Per orchestrare la compilazione e l'esecuzione del figlio dall'interno del programma, esistono due paradigmi teorici: la pipeline a basso livello basata su chiamate di sistema native (fork + execve\ + waitpid) e l'astrazione ad alto livello fornita dalla funzione di libreria system().
+   
+Per orchestrare la compilazione e l'esecuzione del figlio dall'interno del programma, esistono due paradigmi teorici: la pipeline a basso livello basata su chiamate di sistema native (fork + execve\ + waitpid) e l'astrazione ad alto livello fornita dalla funzione di libreria system().
 
    1) La Pipeline Nativa: fork, execve e waitpid
       Nel modello UNIX puro, la creazione di un programma non avviene in un unico passaggio, ma scindendo la duplicazione del contesto d'esecuzione dalla sostituzione dell'immagine binaria.
@@ -382,10 +511,11 @@ section .rodata
       Il genitore deve sospendere la propria esecuzione tramite waitpid, cedendo la CPU fino a quando il processo del compilatore non transita nello stato di terminazione (zombie) restituendo il proprio codice di stato (exit status). Solo se il compilatore è uscito con stato 0, il genitore è autorizzato a generare un secondo processo per eseguire il binario appena prodotto.
 
    2) L'Astrazione di Libreria: system()
-      La funzione di libreria system(const char *cmd) incapsula internamente l'intera sequenza fork --> execve --> waitpid, ma introduce un intermediario fondamentale: la shell di sistema (/bin/sh).
-      Quando si invoca system: la C runtime esegue una fork(),poi il processo figlio esegue execve puntando a /bin/sh passando come argomenti i flag -c e la stringa del comando,infine il processo genitore si blocca in una chiamata waitpid() mascherando temporaneamente i segnali SIGINT e SIGQUIT e bloccando SIGCHLD.
+      La funzione di libreria system(const char *cmd) e' un astrazione di alto livello che incapsula internamente l'intera sequenza fork --> execve --> waitpid, ma introduce un intermediario fondamentale: la shell di sistema (/bin/sh).
+      Quando si invoca system: la C runtime esegue una fork(),poi il processo figlio esegue execve puntando a /bin/sh passando come argomenti i flag -c e la stringa del comando (execve("/bin/sh", ["sh", "-c", command, NULL], envp)),infine il processo genitore si blocca in una chiamata waitpid() mascherando temporaneamente i segnali SIGINT e SIGQUIT e bloccando SIGCHLD.
       L'utilizzo di un interprete di comando permette di sfruttare l'operatore booleano di sequenziamento && : Compilazione && Esecuzione.
       La shell garantisce a livello sintattico e temporale la serializzazione deterministica: il secondo comando viene invocato soltanto se il primo si conclude con exit code 0. La sincronizzazione è implicita: la shell attende la chiusura dei descrittori del compilatore prima di passare il controllo al loader per il nuovo processo.
+      System() genera un overhead enorme perche' nstanzia un interprete di shell completo, espone a noti problemi di sicurezza (vulnerabilità a Shell Injection) e garantisce scarso controllo sui file descriptor o segnali.
 
    Un processo in ambiente UNIX non è semplicemente un file binario in esecuzione, ma un'istanza viva gestita dal kernel, composta da due elementi fondamentali: uno spazio d'indirizzamento virtuale isolato (gestito dalla MMU tramite tabelle delle pagine) e un contesto di esecuzione nel kernel (rappresentato in Linux dalla struttura task_struct).
    Il task_struct contiene tutte le informazioni di stato: identificativo del processo (PID), identificativo del genitore (PPID), registri CPU correnti, credenziali utente, maschera dei segnali e la File Descriptor Table (la tabella dei descrittori di file aperti).
@@ -496,8 +626,8 @@ section .rodata
    Il kernel intercetta quella chiamata di uscita del binario caricato, distrugge il processo figlio e trasforma il suo stato in Zombie, svegliando il padre bloccato sulla waitpid().
    Di conseguenza, il codice di Sully non deve preoccuparsi di come uscirà il figlio in caso di successo, perché il controllo passa interamente nelle mani del programma esterno, il cui exit code verrà catturato dal padre tramite WEXITSTATUS(status) nella waitpid().
 
-
 ----L'ANATOMIA ESATTA DELLA ESECUZIONE A CASCATA DI SULLY------------------------------------:
+
 1) LanciO ./Sully dal terminale.
 2) ./Sully crea Sully_5.c, lo compila in Sully_5, fa una fork e lancia ./Sully_5. Poi si mette in wait.
 3) ./Sully_5 crea Sully_4.c, lo compila in Sully_4, fa una fork e lancia ./Sully_4. Poi si mette in wait.
@@ -512,6 +642,7 @@ section .rodata
 e poi collassano tutti insieme quando l'ultimo anello decide di fermarsi. Questo è il comportamento autentico di un software autoreplicante (worm) su architetture POSIX.
 
 -------COME PRENDO LE VARIABILI D'AMBIENTE DEL PADRE E LE PASSO AL FIGLIO?-------------------------------
+
 In C hai due modi standard e immediati per recuperare le variabili d'ambiente del processo corrente e passarle direttamente a execve tramite il suo terzo parametro (envp).
 
 Metodo 1: La variabile globale environ
@@ -535,7 +666,7 @@ Restituisce un singolo valore (char *), non un array.
 Esiste un solo set di registri architetturali (RAX, RBX, ecc.) per singolo core logico, ma padre e figlio non condividono mai quel registro fisico nello stesso istante.
 La coesistenza di due valori diversi è resa possibile da due meccanismi: la multiplexazione temporale (schedulazione e context switch) su singolo core, e la separazione spaziale su architetture multi-core.
 
-1. Il caso Single-Core: Multiplexazione Temporale (Time-Sharing)
+1) Il caso Single-Core: Multiplexazione Temporale (Time-Sharing)
    Se il computer avesse una CPU con un solo core fisico e un solo thread hardware, esisterebbe letteralmente un unico registro RAX di silicio. Padre e figlio non girano in parallelo nello stesso identico ciclo di clock, ma in sequenza temporale.
    Il trucco risiede nel modo in cui il kernel gestisce l'uscita dalla system call tramite lo stack kernel del processo:
 
@@ -563,13 +694,14 @@ La coesistenza di due valori diversi è resa possibile da due meccanismi: la mul
 
     Il registro fisico RAX è uno solo, ma in un istante temporale t_0 contiene il PID del figlio, e in un istante t_1 contiene 0.
 
-2. Il caso Multi-Core e SMT (Hyper-Threading)
+2) Il caso Multi-Core e SMT (Hyper-Threading)
 Sui processori moderni (multi-core o con Simultaneous Multithreading), la separazione è anche fisica:
 Ogni singolo Core logico ha il proprio set dedicato di registri architetturali. Una CPU a 8 core ha fisicamente almeno 8 registri architetturali RAX indipendenti operativi in parallelo sul die di silicio.
 Se lo scheduler assegna il padre al Core 0 e il figlio al Core 3, i due processi avanzano nel medesimo istante di tempo: il registro RAX del Core 0 conterrà il PID, mentre il registro RAX del Core 3 conterrà contemporaneamente 0.
 
-3. La realtà microarchitetturale: Register Renaming
-Se scendiamo all'estremo dettaglio hardware dei processori moderni (Out-of-Order Execution) anche all'interno di un singolo core fisico, un registro non è un singolo cassetto di memoria hardware, ma un'etichetta logica dell'Architectural Register File (ARF).
+3) La realtà microarchitetturale: Register Renaming
+Il Register Renaming è una tecnica adottata dalle CPU moderne con esecuzione Fuori Ordine (Out-of-Order  OoO, es. AMD Zen, Intel Core) per eliminare i falsi vincoli di dipendenza tra istruzioni.
+Se scendiamo all'estremo dettaglio hardware dei processori moderni  anche all'interno di un singolo core fisico, un registro non è un singolo cassetto di memoria hardware, ma un'etichetta logica dell'Architectural Register File (ARF).
 La CPU fisica contiene al suo interno un pool molto più ampio di registri fisici reali, il Physical Register File (PRF) (spesso 160–224 registri fisici o più).
 Un blocco logico chiamato RAT (Register Alias Table) esegue il register renaming, mappando dinamicamente il nome architetturale (ad es. RAX) a uno specifico registro fisico temporaneo del chip.
 Quando il processo cambia contesto, il kernel aggiorna i puntatori di stato e la CPU punta semplicemente a mapping di registri fisici differenti.
@@ -587,7 +719,7 @@ dello stesso registro logico .Questo serve a eliminare i falsi conflitti sui dat
 Dipendenza                 Tipo                                Causa                                                                                                            Risoluzione Hardware
 RAW (Read After Write)  Vera dipendenza                        L'istruzione B legge il dato prodotto dall'istruzione A.                                                        Impossibile da eliminare: B deve attendere A.
 WAR (Write After Read)  Falsa dipendenza (Anti-dipendenza)     L'istruzione B sovrascrive un registro prima che un'istruzione precedente A lo abbia finito di leggere.         Risolta dal Register Renaming.
-WAW (Write After Write) Falsa dipendenza (Output dipendenza)   Due istruzioni scrivono nello stesso registro architetturale.                                                   Risolta dal Register Renaming.
+WAW (Write After Write) Falsa dipendenza (Dipendenza da output)   Due istruzioni scrivono nello stesso registro architetturale in tempi diversi.                                                   Risolta dal Register Renaming.
 
 Esempio pratico nella pipeline di esecuzione, istruzioni eseguite in sequenza stretta.Snippet di codice
 mov rax, [mem1]       ; Istruzione 1
@@ -645,6 +777,17 @@ mov rax, 20    ; Istruzione B
    leggerà direttamente da P45, mentre istruzioni precedenti ancora in volo leggono in sicurezza da P12.Solo quando l'istruzione B viene dichiarata completata e irreversibile (retired), l'hardware capisce che il contenuto di P12 non servirà mai più a 
    nessuno e rimette P12 nella lista dei registri fisici riutilizzabili.
 
+Quindi in sisntesi:
+- Registri Architetturali (Logical Registers): il set di registri esposti dall'ISA (es. i 16 registri x86-64).
+- Registri Fisici (Physical Register File - PRF): un pool di registri hardware molto più ampio (es. 180+ registri fisici interni al core).
+- RAT (Register Alias Table): il decoder della CPU mappa dinamicamente i registri architetturali sui registri fisici liberi.
+
+Istruzioni Architetturali:            Mappatura RAT:           Physical Register File (PRF):
+1. MOV RAX, 5                  ──>    RAX ──> P41       ──>    P41 = 5
+2. ADD RAX, RBX                ──>    RAX ──> P42       ──>    P42 = P41 + RBX
+3. MOV RAX, 10  (Falsa dip)    ──>    RAX ──> P43       ──>    P43 = 10 (Eseguibile subito in parallelo!)
+
+Grazie al Register Renaming, la riga 3 non deve attendere il completamento della riga 2: la CPU esegue la scrittura su un registro fisico completamente differente (`P43`), risolvendo le dipendenze WAR e WAW e mantenendo l'ordine dei risultati solo al momento del **Commit/Retirement** nel Reorder Buffer (ROB).
 
 -----------DISTINZIONE TRA TRANSIZIONE DI PRIVILEGIO(USER -> KERNEL) E CONTEXT SWITCH(TASK A -> TASK B)---------------------------
 
@@ -711,22 +854,69 @@ execve entra in kernel mode salvando i vecchi registri come qualsiasi altra chia
 la CPU non torna al vecchio codice, ma si ritrova proiettata all'inizio del nuovo programma.
 
 --------VARIABILI STATICHE IN ASSEMBLY-------------------------------------------------------
+
 In Assembly esistono solo bytes,non tipi primitivi. Una variabile statica equivale a riservare una locazione di memoria fissa che non risiede nello stack (quindi preserva il suo valore tra le chiamate di funzione) e non viene esportata tramite
 la direttiva global (quindi rimane privata per quel file sorgente). Usare la direttiva global equivarrebbe infatti a renderla una variabile globale di C.
 In base all'inizializzazione, si dichiara nella sezione .data(se inizializzata ad un valore diverso da 0) oppure .bss(non inizializzata o inizializzata a 0).
 A differenza delle variabili locali sullo stack ([rsp + offset]), le variabili statiche si leggono e scrivono usando l'indirizzamento RIP-relative ([rel nome_variabile]
 
-----------DIFF----------------------------------------------------------------------------------
+--------GESTIONE DELLO STACK DRIFT IN ASSEMBLY----------------------------------------------------------
+
+L'ABI System V x86-64 impone che prima di eseguire un'istruzione call, lo stack pointer RSP debba essere allineato a un multiplo di 16 byte (RSP % 16 == 0).
+Poiché la chiamata call spinge l'indirizzo di ritorno a 64-bit (8 byte) sullo stack, all'ingresso di una nuova funzione RSP si trova disallineato di 8 byte .
+L'uso continuativo di istruzioni push e pop all'interno del corpo di una funzione modifica dinamicamente il valore di RSP:
+   ESEMPIO:
+   push rax ; RSP = RSP - 8 (Allineamento modificato)
+   push rbx ; RSP = RSP - 8
+   ; ...
+   call printf ; SE RSP NON È ALLINEATO A 16 BYTE -> CRASH DENTRO GLIBC (Istruzioni SIMD movaps)
+La soluzione allo stack drift e' un frame Statico con allocazione Preventiva e mov [rsp]
+Invece di alterare continuamente RSP tramite push, si alloca l'intero Stack Frame all'inizio della funzione (prologo) e si posizionano i dati mediante mov ad offset fissi:
+   ESEMPIO:
+   sub rsp, 32         ; Pre-alloca 32 byte di stack frame e mantiene RSP allineato a 16 byte
+   mov [rsp], rax      ; Salva dati allo slot 0 (senza alterare RSP)
+   mov [rsp + 8], rbx  ; Salva dati allo slot 8
+
+   call function_c     ; RSP rimane statico e perfettamente allineato!
+
+   add rsp, 32         ; Ripristina lo stack nel epilogo
+   ret
+
+----------COMANDO DIFF----------------------------------------------------------------------------------
+
+Il comando diff confronta file riga per riga basandosi sull'algoritmo di Longest Common Subsequence (LCS) di Myers.
+ 
+ Flag | Nome Esteso | Descrizione Tecnica |
+| --- | --- | --- |
+| -u / -U N | --unified[=N] | Formato Unified Output. Mostra il contesto (default 3 righe, o N righe) con prefissi - (rimosso) e + (aggiunto). È lo standard per le patch Git. |
+| -c / -C N | --context[=N] | Formato Context Output. Mostra blocchi di contesto separati da asterischi ***. |
+| -q | --brief | Quiet mode. Omette l'output delle righe modificate; stampa solo se i file differiscono o no (Files A and B differ). Utilizzato negli script di testing. |
+| -s | --report-identical-files | Forza la stampa del messaggio anche quando i file sono identici. |
+| -w | --ignore-all-space | Ignora completamente tutti gli spazi bianchi e tabulazioni durante il confronto. |
+| -b | --ignore-space-change | Ignora le variazioni nella quantità di spazi bianchi (tratta N spazi consecutivi come uno solo). |
+| -i | --ignore-case | Ignora la distinzione tra maiuscole e minuscole. |
+| -r | --recursive | Confronta ricorsivamente le sottodirectory trovate. |
+| -y | --side-by-side | Stampa l'output su due colonne affiancate. |
+| -N | --new-file | Tratta i file inesistenti come file vuoti (utile quando si generano patch per file creati ex-novo). |
+| --suppress-common-lines | - | Se usata con -y, omette la stampa delle righe identiche filtrando solo le differenze. |
+
 Il flag -U sta per Unified Format (formato unificato), lo standard de facto utilizzato per la lettura dei delta e per generare le patch (è lo stesso motore di output usato sotto il cofano da git diff). Rispetto al diff classico che usa < e >, il 
 formato unificato mostra le righe rimosse precedute da - e quelle aggiunte precedute da +. Il numero affianco alla flag indica le righe di contesto (context lines).
 Normalmente, il formato unificato (spesso invocato con la flag breve -u, che equivale a -U 3) stampa 3 righe di codice intatto prima e dopo la modifica. Questo serve a orientare l'occhio umano fornendo le coordinate logiche del blocco alterato.
 Forzando il parametro a 0, impongo a diff di comportarsi in modo chirurgico: sopprime totalmente il codice circostante. L'output si riduce al puro delta.
 
+Codici di Uscita (Exit Status):
+- 0 : nessuna differenza trovata (file identici).
+- 1 : differenze trovate.
+- 2 : errore (file inesistente, permessi negati, sintassi errata).
+
 ------QUINE IN PYTHON-----------------------------------------------------------------------------
+
 Il passaggio da C/Assembly a Python sposta l'asse della difficoltà: scompare la gestione manuale della memoria e dei file descriptors, ma emergono nuove insidie legate a come l'interprete parsa i dati.
 Per non violare la regola del no cheat (niente open(__file__), niente sys.modules), bisogna rimanere conformi al il Teorema di Kleene (P = A + D). In Python, per implementare questa struttura in modo chirurgico,servono tre nozioni architetturali.
 
 1) %r (repr())
+   A livello di interprete, repr(obj) è una built-in che invoca il dunder method __repr__() dell'oggetto passato.
    Python possiede nativamente il concetto di Rappresentazione Ufficiale dell'Oggetto, accessibile tramite la funzione builtin repr() o lo specificatore di formato %r che la richiama.
    Se passo una stringa a %r, Python non si limita a incollare i caratteri (come farebbe %s), ma la avvolge automaticamente nelle virgolette (singole o doppie) e fa l'escape automatico di tutti i ritorni a capo (\n diventa il testo letterale \ e n).
    Questo disintegra la complessità dello stringone in un attimo. Il quine minimo assoluto in Python si scrive così:
@@ -734,18 +924,181 @@ Per non violare la regola del no cheat (niente open(__file__), niente sys.module
    s = 's = %r\nprint(s %% s)'
    print(s % s)
 
-   Invece di printf(s, 10, 34, s), uso la string interpolation vecchio stile col %. %r prende la variabile passata e le inietta virgolette e escape. %% fa l'escape del carattere percentuale (esattamente come in printf), ed e' l'unico escape necessario per l'uso 
+   Invece di printf(s, 10, 34, s), uso la string interpolation vecchio stile col %. %r prende la variabile passata e le inietta virgolette e escape. %% fa l'escape del carattere percentuale (esattamente come in printf) per stampare un singolo percentuale, ed e' l'unico escape necessario per l'uso 
    dell'interprete.
+   In Python l'operatore % fa due cose totalmente diverse a seconda di cosa ha a destra e a sinistra. Sui numeri è il Modulo (resto della divisione),sulle STRINGHE: è l'operatore di Formattazione (String Interpolation).
+   Se c'è una stringa a sinistra di %, Python usa la stringa a sinistra come template e ci inietta dentro i dati che trova a destra.
+
+   Sintassi:
+
+   stringa_modello % dato_da_iniettare
+
+      ESEMPIO 1: un segnaposto semplice
+
+      modello = "Ciao %s"
+      nome = "Tobia"
+
+      risultato = modello % nome
+      print(risultato)  # Stampa: Ciao Tobia
+
+      ESEMPIO 2: perché serve %%?
+
+      Se nella stringa finale vuoi vedere un simbolo % vero (letterale),esegui l'escape raddoppiando il simbolo %.
+
+      modello = "Sconto del %d%%"
+      percentuale = 20
+
+      print(modello % percentuale)  # Stampa: Sconto del 20%
+   In Python l'operatore % è associativo da sinistra a destra,quindi per passare più di un argomento alla formattazione %, devo racchiuderli in una tupla tra parentesi tonde:
+
+   print(data % (data, 34, 34))
+   
    L'uso delle f-string e' sconsigliato,mi costringerebbe a raddoppiare ogni singola parentesi graffa in tutto il blocco di codice per farne l'escape, trasformando il file in spaghetti code illeggibile.
+
+   La differenza architettonica fondamentale in Python è tra str() e repr():
+   - str() (o %s) chiama __str__(): il suo scopo è produrre una formattazione human-readable. Nasconde i dettagli crudi (es. esegue gli "a capo", non stampa le virgolette esterne).
+   - repr() (o %r) chiama __repr__(): il suo scopo è produrre una rappresentazione unambiguous (non ambigua),cioe' una stringa, interpretabile dal parser Python. La regola d'oro di Python prescrive che repr() debba restituire, ove possibile, 
+     una stringa di codice Python valido che, se passata alla funzione eval(), ricrea l'oggetto esatto in memoria.
+
+   Se ho una stringa s = "ciao\nmondo"
+   print(str(s)) stampa:
+
+      ciao
+      mondo
+
+   print(repr(s)) stampa letteralmente (inclusi gli apici e i backslash):
+
+      ciao\nmondo
+
+
+   A livello di Abstract Syntax Tree (AST) e di bytecode generato,  in Python la differenza tra singole e doppie virgolette e' sostanzialmente nulla.
+   In C o C++, 'a' è una costante intera (il byte ASCII 97), mentre "a" è un array null-terminated in memoria di due byte ([97, 0]).
+   In Python, il tipo carattere non esiste. Esiste solo il tipo stringa (str),che essa sia allocata con ' o con ", l'interprete CPython costruisce lo stesso identico oggetto in memoria.
+   Perché allora esistono entrambi?Si tratta di pura e geniale ergonomia lessicale per evitare l'escape dei caratteri (\):poss cioe' racchiudere una citazione in una stringa,ad esempio
+   s = 'Disse: "Vai!"',e questo fa tutta la differenza del mondo nella generazione dei quines perche' consente di non dover eseguire l'escape delle virgolette.
+   Dato che a livello logico sono uguali, come decide repr() quale usare quando avvolge la stringa per stamparla?
+   L'implementazione in CPython segue un algoritmo deterministico, hardcodato nel sorgente C dell'interprete: di default repr() usa sempre l'apice singolo,e impiega quello doppio  solo e soltanto se
+   la stringa contiene già un apice singolo e non contiene apici doppi (per evitare di farmi vedere i backslash).
+   Esempi di come il motore interno ricostruisce le stringhe:
+   repr("ciao")  --> 'ciao' (ritorna al default singolo).
+   repr('l"albero') ---> 'l"albero' (default singolo).
+   repr("l'albero") ---> "l'albero" (usa il doppio per evitare l'escape del singolo interno).
+   repr("l'albero \"grande\"") ---> 'l\'albero "grande"' (ci sono entrambi, quindi torna al default singolo e si rassegna a mettere il backslash di escape).
+   
+   eval() è una funzione built-in di Python che prende una stringa, la interpreta come un'espressione Python, la compila a runtime e ne restituisce il risultato.
+
+      ESEMPIO:
+
+      x = 10
+      risultato = eval("x * 2 + 5")
+
+   Quando si invoca eval(stringa), CPython esegue tre fasi distinte in sequenza:
+   - Parsing (AST): converte la stringa in un Abstract Syntax Tree per verificare che la sintassi sia valida.
+   - Compilazione in Bytecode: compila l'AST generato in un oggetto codice (code object), lo stesso tipo di oggetto che genera compile(stringa, '<string>', 'eval').
+   - Esecuzione: esegue il bytecode risultante all'interno del frame corrente, risolvendo i simboli tramite le tabelle dei namespace delle variabili globali (globals()) e locali (locals()), e 
+     restituisce il valore finale accumulato nello stack dell'interprete.
+
+   Qual e' dunque la relazione tra eval e repr? Una pura relazione di inversione:
+
+   eval({repr}(x)) == x
+
+   repr(x) fa la serializzazione: prende l'oggetto x in RAM e lo trasforma in codice sorgente sotto forma di stringa.
+   eval(...) fa la deserializzazione: prende quel codice sorgente e rialloca l'oggetto x identico in RAM.
+      
+   ESEMPIO:
+      lista_orig = [1, 2, "hello"]
+      stringa_repr = repr(lista_orig) # "'[1, 2, \'hello\']'"
+      lista_nuova = eval(stringa_repr) # Allocata una nuova lista [1, 2, 'hello']
+
+      print(lista_orig == lista_nuova) # True (stesso valore)
+      print(lista_orig is lista_nuova) # False (oggetti distinti in memoria)
+
+   In Python l'I/O dinamico di codice si divide in due strumenti:
+   - eval(expr): valuta solo espressioni (ovvero qualsiasi porzione di codice che restituisce un valore, es. 1 + 1, len("abc"), [x for x in range(3)]). Non accetta statement (assegnazioni =, cicli for, import, if o else).
+   - exec(code): esegue statement/blocchi di codice interi (assegnazioni, definizioni di funzioni, cicli, moduli interi) e restituisce sempre None.
+      ESEMPIO:
+      # Valido per eval()
+      eval("3 + 4") 
+
+      # Errore di sintassi per eval() -> richiede exec()
+      eval("x = 3 + 4") # SyntaxError: invalid syntax
+      exec("x = 3 + 4") # Corretto, crea la variabile x nell'ambiente locale
+
+   Perché eval e' considerata una builtin critica in sicurezza e performance?
+   1) Arbitrary Code Execution (RCE): se eval() riceve una stringa costruita a partire da un input utente non igienizzato, un attaccante può eseguire qualsiasi operazione sul sistema con i privilegi dell'interprete:
+      ESEMPIO: 
+      # Se userInput arriva da una richiesta HTTP:
+      userInput = "__import__('os').system('rm -rf /')"
+      eval(userInput) # Esegue la syscall ed elimina il filesystem
+   2) Overhead di compilazione: ogni chiamata a eval() costringe l'interprete a invocare il parser e il compilatore a runtime, azzerando qualsiasi ottimizzazione sul bytecode.
+
+   In estrema sintesi, quindi basicamente str,richiamata implicitamente da print(),e' pensata per l'umano, formatta l'oggetto in formato human readable eliminando le virgolette e andando a capo,repr restituisce la versione disambiguata dello stesso oggetto serializzandolo per la macchina,
+   cioe' rappresentandolo esattamente come e' e restituendo una stringa che rappresenta l'oggeto in modo non ambiguo(trasforma l' a capo nel testo \n e mantiene le virgolette), eval esegue la deserializzazione ,cioe' prende il codice disambiguato generato da repr e lo restituisce come
+   era all'origine,riallocandolo in memoria come oggetto vero e proprio.
 
 2) Adattamento della Macro
    Il subject recita: "In case of a language without define/macro, you will naturally have to adapt the program accordingly."  Python è interpretato a runtime e non ha una fase di preprocessing. Per tradurre l'architettura di una macro rispettando l'intento del subject, 
    esistono due pattern Pythonici equivalenti:
    
-   - Global Lambda: una funzione anonima dichiarata a livello di modulo (fuori da qualsiasi scope interno) che viene invocata alla fine. Equivalente funzionale del richiamare la macro alla fine del file.
-   ESEMPIO:
-   # Al posto di #define WRITE(...)
-   MACRO_WRITE = lambda fd, payload: fd.write(payload)
+   - Global Lambda: una funzione anonima compressa in una singola espressione. Equivalente funzionale del richiamare la macro alla fine del file. A livello logico e di memoria, è zucchero sintattico puro. Sotto il cofano non ha nulla di magico rispetto a una funzione normale definita con def: entrambe generano lo stesso 
+     identico oggetto di tipo function allocato sull'heap.La sintassi è essenziale:
+
+     nome_variabile = lambda argomenti: espressione
+
+      # Definizione classica (statement)
+      def somma(a, b):
+         return a + b
+
+      # Definizione tramite lambda (espressione)
+      somma_lambda = lambda a, b: a + b
+
+      Le lambda functions non hanno alcun return: il risultato dell'espressione viene valutato e ritornato implicitamente. L'istruzione di ritorno è hardcodata dall'interprete.
+      E non hanno un nome,sono anonime: mentre def somma lega automaticamente il nome "somma" all'oggetto funzione, lambda crea la funzione e basta. Per usarla più volte, devo assegnarla esplicitamente a una variabile (come somma_lambda).
+      Dentro una lambda non si possono usare statement,e' consentito inserire solo logica che si risolve in un valore calcolabile sulla stessa riga (chiamate ad altre funzioni, operatori matematici, operatori ternari).
+      Se passiamo le due funzioni di prima al disassemblatore di CPython (il modulo dis), il bytecode generato è identico al 100%:
+
+      # Bytecode generato sia per def che per lambda:
+      LOAD_FAST                0 (a)
+      LOAD_FAST                1 (b)
+      BINARY_ADD
+      RETURN_VALUE
+      L'unica singola differenza a livello di interprete CPython si trova nella tabella dei metadati dell'oggetto (l'attributo __name__):
+      la funzione normale ha __name__ == 'somma', la lambda ha __name__ == '<lambda>'
+
+      In Python il preprocessore non esiste. Per emulare lo stesso concetto concettuale di una macro (un blocco di codice "inline" e compatto che astrae un'operazione), creiamo funzioni anonime e le assegniamo a variabili globali in maiuscolo:
+
+         Python
+         WRITE = lambda f, s: open(f, "w").write(s)
+         MACRO = lambda s: WRITE(FILE, s % s)
+      Invece di espandere il testo a compile-time (come in C), Python risolve il puntatore alla funzione a runtime. Quando chiamo MACRO(DATA), l'interprete esegue semplicemente il bytecode della lambda, risolvendo la catena di chiamate fino alla scrittura su file, 
+      il tutto in un'architettura estremamente pulita e compatta, rispettando i vincoli del progetto (niente def main(), uso di macro-equivalenti).
+      Perché le variabili in MAIUSCOLO? In Python non esiste la keyword const: tutte le variabili, anche quelle dichiarate a livello di modulo (globali), sono per natura mutabili.
+      Per risolvere questo problema, la guida di stile ufficiale di Python (PEP 8) stabilisce la convenzione delle Costanti: tutte le variabili globali pensate per non essere modificate a runtime (o che rappresentano costanti/macro) devono essere scritte in maiuscolo.
+      Nel contesto di Grace.py, usare il maiuscolo serve a segnalare a chi legge che quelle tre entità (FILE, WRITE, MACRO) vanno trattate come costanti immutabili e in parte anche a mantenere l'equivalenza visiva con le #define di C, che per convenzione si scrivono sempre in maiuscolo.
+
+      Perché si fa open(f, "w").write(s)? Questa è una concatenazione di due operazioni in un'unica riga:
+      - open(f, "w"): invocata la syscall di apertura file, Python alloca nell'heap un oggetto di tipo file-stream in modalità scrittura ("w").
+      - write(s): invece di salvare l'oggetto file in una variabile (fd = open(...)), chiamiamo immediatamente il metodo .write(s) direttamente sull'oggetto appena restituito da open().
+      Siamo costretti a farlo così dentro la Lambda perche' in Python per scrivere un file si usa il Context Manager with:
+
+      # Sintassi standard (Sbagliata dentro una lambda!)
+      with open(f, "w") as fd:
+         fd.write(s)
+
+
+      Oppure un'assegnazione classica:
+
+      # Sintassi multi-statement (Sbagliata dentro una lambda!)
+      fd = open(f, "w")
+      fd.write(s)
+      fd.close()
+
+      Ma dentro una lambda non posso inserire statement,da qui la necessita' di concatenare l'open con il write riducendo l'intero processo di apertura e scruttura ad una singola espressione valutabile,che e' proprio l'unica cosa che la lambda accetta.
+
+      WRITE = lambda f, s: open(f, "w").write(s)
+
+      Quando scrivo open(f, "w").write(s) senza salvare il file pointer in una variabile ,CPython alloca l'oggetto file e ne incrementa il Reference Count a 1, poi esegue .write(s),quindi terminato l'operatore punto, l'oggetto file rimane con 0 riferimenti in memoria.
+      Il Garbage Collector di CPython (basato su Reference Counting immediato) intercetta lo zero e distrugge istantaneamente l'oggetto file, invocando la close() implicita sul File Descriptor e liberando la risorsa di sistema.
 
    - stringa costante globale + execution block: definisco tutto nello scope globale in uppercase (convenzione Python per le costanti), e lo passo a una funzione che esegue l'I/O.
 
@@ -754,15 +1107,49 @@ Per non violare la regola del no cheat (niente open(__file__), niente sys.module
    In Python la fase di compilazione non esiste, ma il processo di clonazione deve essere riprodotto fedelmente.
 
    - I/O pulito: uso sempre i context manager (with open(...) as f:). Oltre a chiudere automaticamente il file (evitando resource leak dei descrittori file in un processo ricorsivo), mi risparmia righe di codice che andrebbero a ingrassare il payload D.
-   - esecuzione del child: al posto di chiamare un binario ./Sully_X, devo invocare l'interprete passando il nuovo script.
-   In Python, usare brutalmente os.system("python3 Sully_X.py") è sconsigliato (potrebbero esserci alias o virtual environment che deviano l'eseguibile).Il miglior approccio usa sys.executable, che contiene il path assoluto esatto del binario Python che sta eseguendo il padre in quel momento:
-   ESEMPIO: 
-   import os
-   import sys
+   - esecuzione del child: al posto di chiamare un binario ./Sully_X, devo invocare l'interprete passando il nuovo script. Come trovo il path dell'inteprete? Con l'attributo sys.executable del modulo sys,che restituisce una stringa contenente il path assoluto dell'eseguibile python
+     che sta attualmente eseguendo lo script (tipicamente /usr/bin/python3 o e sei in un virtualenv /home/user/env/bin/python)
+     In Python, usare brutalmente os.system("python3 Sully_X.py") è sconsigliato (potrebbero esserci alias o virtual environment che deviano l'eseguibile).Il miglior approccio usa sys.executable, che contiene il path assoluto esatto del binario Python che sta eseguendo il padre in quel momento:
+         ESEMPIO: 
+         import os
+         import sys
 
-   # ... generazione file ...
-   os.system(f"{sys.executable} {new_file_name}")
+         # ... generazione file ...
+         os.system(f"{sys.executable} {new_file_name}")
 
+     Tecnicamente os.system non è deprecato nella libreria standard di Python (esiste e funziona ancora),ma i linter su VSCode e altri editori (probabilmente Pylance o Ruff) segnalano l'uso di os.system come bad practice (o deprecato a livello di standard di sicurezza) perché delega l'esecuzione alla shell di sistema, 
+     esponendo il codice a shell injection e offrendo una gestione degli errori inesistente. La documentazione ufficiale impone di sostituirlo con il modulo subprocess. Invece di passare una singola stringa, subprocess.run prende una lista di argomenti, bypassando del tutto la shell, esegue un processo figlio, attende 
+     la terminazione e restituisce un oggetto CompletedProcess. È più sicuro e molto più elegante:
+         import subprocess
+         import sys
+
+         # Invece di fare questa porcata da anni '90:
+         # os.system("%s %s" % (sys.executable, filename))
+
+         # Uso l'API moderna:
+         subprocess.run([sys.executable, filename])
+   
    - interpolazione multipla: dato che Sully richiede la mutazione del contatore X, la stringa di formato non avrà solo %r, ma anche %d per iniettare l'intero, seguendo la stessa logica che ho applicato con dprintf in Assembly e C.
+
+------COMPOUND LITERALS(C99)-----------------------------------------------------------------------
+
+Un Compound Literal consente di creare oggetti anonimi (strutture, array, unioni) al volo all'interno di un'espressione.
+Sintassi: (type){ initializer-list }
+
+   ESEMPIO con execve:
+   Invece di allocare un array temporaneo di stringhe su più righe:
+
+   // Senza Compound Literal:
+   char *args[3];
+   args[0] = "ls";
+   args[1] = "-l";
+   args[2] = NULL;
+   execve("/bin/ls", args, envp);
+
+   // Con Compound Literal C99:
+   execve("/bin/ls", (char *[]){"ls", "-l", NULL}, envp);
+
+Se definito dentro il blocco di una funzione, l'oggetto anonimo ha Automatic Storage Duration (allocato sullo stack frame corrente e valido fino all'uscita dal blocco {}).
+Se definito fuori dalle funzioni (file scope), ha Static Storage Duration.
 
 */
