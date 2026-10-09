@@ -41,14 +41,15 @@ ed esecuzione, ritornando se stessa.
 Se prendiamo un compilatore o un interprete, possiamo vederlo come una funzione E (Execution environment) che prende in input un codice sorgente S e produce in output un risultato R: E(S) = R.
 Un Quine non è altro che un codice sorgente Q il cui output è esattamente sé stesso. Quindi E(Q) = Q.
 Un Quine è letteralmente il punto fisso dell' interprete o compilatore. E il fatto che i quine esistano per qualunque linguaggio di programmazione Turing-completo è garantito al 100% proprio dal Secondo Teorema di Ricorsione.
-Il primo quine documentato è stato scritto nel 1953 (su schede perforate!) da Paul Bratley e Jean Millot su un computer EDSAC, ben prima che venisse coniato il termine "quine" (in onore del filosofo Willard Van Orman Quine, famoso per i suoi studi sull'autoreferenza logica).
+Il primo quine noto fu scritto negli anni '60 in Atlas Autocode da Hamish Dewar all'Università di Edimburgo. Nel 1972, Paul Bratley e Jean Millo pubblicarono l'articolo Computer Recreations: Self-Reproducing Automata, formalizzando l'analisi teorica di questi programmi, ben prima che venisse coniato il termine "quine" 
+(in onore del filosofo Willard Van Orman Quine, famoso per i suoi studi sull'autoreferenza logica).
 
 - Approccio Funzionale (Puro): il Quine è una pura trasformazione di punto fisso f(x) = x. Il sorgente è trattato come un dato immutabile che viene passato a una funzione pura di formattazione. Non esiste stato mutabile né side-effect concettuale oltre alla proiezione del dominio dell'informazione su se stessa.
 - Approccio Imperativo (e le sue deviazioni "Self-Reading") l'approccio imperativo tenta spesso di risolvere il problema accedendo a uno stato di sistema globale o all'I/O su disco (es. fopen(__FILE__) e lettura del file). Questo non è un vero Quine, ma un programma di I/O su file. Un vero Quine costruisce la propria informazione internamente senza mai consultare l'ambiente esterno.
 
----------TEOREMI DI RICORSIONE DI KLEEN E NUMERAZIONE DI GODEL----------------------------------------------------------------------------
+---------TEOREMI DI RICORSIONE DI KLEENE E NUMERAZIONE DI GODEL----------------------------------------------------------------------------
 
-I due teoremi di ricorsione di Kleen poggiano su un assioma fondamentale: la numerazione di Godel. Qualsiasi macchina di Turing puo' essere codificata nella forma di un intero o di una singola stringa univoca. Questo annulla la distinzione del codice sorgente di un 
+I due teoremi di ricorsione di Kleene poggiano su un assioma fondamentale: la numerazione di Godel. Qualsiasi macchina di Turing puo' essere codificata nella forma di un intero o di una singola stringa univoca. Questo annulla la distinzione del codice sorgente di un 
 programma in codice e dati: un programma puo' manipolare altri programmi trattandoli come numeri. La numerazione di Godel non e' un hash: le funzioni di hash hanno dimensione fissa,generano collisioni e non sono revertibili;non posso ricostruire il file originale 
 dall'hash. La numerazione di Gödel è una codifica biunivoca (isomorfismo) senza alcuna perdita di informazione. Per esempio un sorgente .c e' un file di testo, quindi una sequenza di byte ASCII. Se prendo i byte in hex e li concateno, otterro' un singolo,
 gigantesco numero intero. Da quel numero posso riottenere l'esatto codice sorgente applicando l'operazione inversa (decodifica). Questo concetto dimostra una cosa fondamentale in informatica teorica: codice e dati sono la stessa identica cosa. Un programma è solo un grosso intero 
@@ -81,7 +82,7 @@ Come si costruisce questo minimo? Il teorema non si limita a dire che esiste, ma
 -Passo 0 : si parte da una funzione teorica  che fallisce (diverge o va in loop) per qualsiasi input le venga passato. Questa è la funzione più piccola possibile nello spazio matematico(funzione vuota).
 -Passo 1: la funzione vuota viene passata all'operatore F,che calcola il primo livello di logica e restituisce una funzione rudimentale che sa gestire solo il caso base (es. calcola correttamente solo quando l'input è 0).
 -Passo 2: la funzione parziale viene passata ad F,che ne espande la logica, ottenendo una funzione che gestisce il caso base e il primo step di ricorsione (es. input 0 e 1).
--Il Limite: ripetendo questo processo all'infinito (o per un numero transfinito di volte), la sequenza di funzioni converge a un limite convergente che è il minimo punto fisso. È la funzione matematica completa e perfetta (ad esempio, la funzione fattoriale esatta) che soddisfa l'equazione ricorsiva senza inventarsi alcun comportamento spurio per gli input non previsti.
+-Il limite: ripetendo questo processo all'infinito (o per un numero transfinito di volte), la sequenza di funzioni converge a un limite convergente che è il minimo punto fisso. È la funzione matematica completa e perfetta (ad esempio, la funzione fattoriale esatta) che soddisfa l'equazione ricorsiva senza inventarsi alcun comportamento spurio per gli input non previsti.
 
 Quando scrivo la logica di una ricorsione, sto in realta' scrivendo un'equazione.
 Esempio: se scrivo int f(int x) { return f(x); }, qual è la funzione matematica che esce fuori? È la funzione "vuota", cioè una funzione parziale che diverge (va in loop) su qualunque input. Quella funzione vuota è il minimo punto fisso di quell'equazione ricorsiva.
@@ -102,7 +103,9 @@ Per dare un senso logico (e matematico) a quella call verso se stessa, i teorici
 2) F_Builder prende in input una funzione fittizia qualsiasi e la "potenzia", iniettandoci dentro la logica operativa di un algoritmo (ad esempio, le regole di un fattoriale).
 3) All'inizio, gli passo un input spazzatura: una funzione "vuota" che genera solo undefined behavior. F_Builder elabora questa spazzatura e restituisce una funzione che sa calcolare solo il caso base (es. x = 0).
 4) Se prendo questa nuova funzione e la ripasso a F_Builder, ne restituisce una leggermente migliorata, che sa calcolare il caso base e lo step successivo (x = 1).
-5) Iterando questo ciclo, la funzione si "costruisce" un passo alla volta. Arriva un punto in cui la funzione che esce è identica, byte per byte, logica per logica, a quella che è entrata.
+5) Iterando questo ciclo, la funzione si "costruisce" un passo alla volta. Arriva un punto in cui la funzione che esce è identica, byte per byte, logica per logica, a quella che è entrata. In realta' non dobbiamo immaginare questo come uno step finito: la costruzione del minimo punto fisso 
+avviene tramite la catena delle approssimazioni successive sull'insieme ordinato dei numeri naturali (omega-catena), non tramite induzione transfinita. In sostanza la funzione completa si ottiene solo al limite per n che tende ad omega, non ad uno stadio finito N.In estrema sintesi la funzione si costruisce mediante 
+una catena  di omega approssimazioni successive. Per funzioni a dominio infinito, la convergenza completa al minimo punto fisso si ottiene al limite dell'omega-catena :il fattoriale e' il limite ,non uno stadio.
 Questo limite di saturazione, dove l'input (la funzione vecchia) equivale all'output (la funzione nuova) senza subire alterazioni, è il punto fisso. Ed è matematicamente l'esatta funzione ricorsiva completa, deterministica e funzionante.
 Il Primo Teorema è una colossale pezza teorica: serve "solo" a garantire ai matematici e ai creatori di compilatori che permettere a una funzione di chiamare se stessa non innesca una fallacia circolare che invalida la logica matematica e quindi la computabilita', ma produce sempre un 
 comportamento deterministico (che sia un calcolo corretto o un crash inevitabile).
@@ -336,11 +339,11 @@ La struttura teorica si regge su tre pilastri concettuali puri:
    mov dst, [src] | Calcola l'indirizzo src,cioe' dereferenzia src, ne legge il valore in RAM e lo copia in dst| dst = *src; |
    lea dst, [src] | Non dereferenzia la memoria all'indirizzo di src,ma calcola puramente l'algebra dell'indirizzo src all'interno della ALU e salva l'indirizzo risultante in dst | dst = src; (oppure &(*src)) |
 
-   In C o in Assembly a 32-bit ero abituato a scrivere semplicemente s per indicare l'indirizzo. In x86-64 con PIE (Position Independent Executable)  abilitato da gcc, questo non funziona più per due motivi:
+   In C o in Assembly a 32-bit ero abituato a scrivere semplicemente s per indicare l'indirizzo. In x86-64 con PIE (Position Independent Executable) abilitato da gcc, questo non funziona più per due motivi:
    1) ASLR (Address Space Layout Randomization): il sistema operativo carica l' eseguibile a un indirizzo di memoria casuale ogni volta che lo avvii. L'indirizzo assoluto di s non è noto a tempo di compilazione.
-   2) Limitazione delle istruzioni x86-64: non esiste un'istruzione mov rdi, <imm64> che accetti un offset relativo a 64-bit in modo efficiente per i registri dati senza generare rilocazioni complesse per il linker.
-      Aggiungendo rel all'interno delle quadre [rel s] dico a NASM di calcolare la distanza in byte (offset) tra l'istruzione corrente RIP e la label s. A runtime, la CPU eseguirà RIP + offset: siccome la distanza tra il codice e la sezione dati è fissa nel binario, l'indirizzo calcolato sarà sempre corretto, indipendentemente da dove il kernel 
-      ha caricato il programma in RAM.
+   2) Limitazione delle istruzioni x86-64: l'istruzione mov rdi, imm64 esiste ed è valida in x86-64, ma richiede una rilocazione assoluta a 64 bit (R_X86_64_64) nel segmento .text. Poiché i binari PIE abilitano l'ASLR randomizzando l'indirizzo base a runtime, le rilocazioni assolute nel segmento di codice sono rifiutate dai linker moderni
+      (richiederebbero DT_TEXTREL),rendendo obbligatorio l'uso dell'indirizzamento relativo all'Instruction Pointer via lea rdi, [rel label]. Aggiungendo rel all'interno delle quadre [rel s] dico a NASM di calcolare la distanza in byte (offset) tra l'istruzione corrente RIP e la label s. A runtime, la CPU eseguirà RIP + offset: siccome la distanza 
+      tra il codice e la sezione dati è fissa nel binario, l'indirizzo calcolato sarà sempre corretto, indipendentemente da dove il kernel ha caricato il programma in RAM.
 
    In architettura x86-64, per produrre codice esecutivo PIC (Position-Independent Code)/ PIE (Position-Independent Executable), non si usano indirizzi di memoria assoluti a 64-bit, ma offset a 32-bit con segno relativi all'Instruction Pointer (RIP).
    mov rax, [rel label]: legge il valore** memorizzato all'indirizzo RIP + offset_label.

@@ -45,30 +45,29 @@
 
 */
 
-#include <unistd.h>
-#include <stdio.h>
+// #include <unistd.h>
 
-int main() {
-    char *s = "#include <unistd.h>^int main(){char*s=$@$;char*p=s;while(*p){if(*p==64){int i=0;while(s[i])i++;write(1,s,i);}else if(*p==36){char q=34;write(1,&q,1);}else if(*p==94){char n=10;write(1,&n,1);}else write(1,p,1);p++;}return 0;}^";
-    char *p = s;
-    while (*p) {
-        if (*p == 64) {
-            int i = 0;
-            while (s[i]) i++;
-            write(1, s, i);
-        } else if (*p == 36) {
-            char q = 34;
-            write(1, &q, 1);
-        } else if (*p == 94) {
-            char n = 10;
-            write(1, &n, 1);
-        } else {
-            write(1, p, 1);
-        }
-        p++;
-    }
-    return 0;
-}
+// int main() {
+//     char *s = "#include <unistd.h>^int main(){char*s=$@$;char*p=s;while(*p){if(*p==64){int i=0;while(s[i])i++;write(1,s,i);}else if(*p==36){char q=34;write(1,&q,1);}else if(*p==94){char n=10;write(1,&n,1);}else write(1,p,1);p++;}return 0;}^";
+//     char *p = s;
+//     while (*p) {
+//         if (*p == 64) {
+//             int i = 0;
+//             while (s[i]) i++;
+//             write(1, s, i);
+//         } else if (*p == 36) {
+//             char q = 34;
+//             write(1, &q, 1);
+//         } else if (*p == 94) {
+//             char n = 10;
+//             write(1, &n, 1);
+//         } else {
+//             write(1, p, 1);
+//         }
+//         p++;
+//     }
+//     return 0;
+// }
 
 
 /* 
@@ -93,30 +92,33 @@ int main() {
      partendo dall'indice 3, emettendo il corpo del main() e la chiusura dell'array.
 */
 
+#include <stdio.h>
 
-char *codice[] = {
+char *s[] = {
     "#include <stdio.h>",
     "",
-    "char *codice[] = {",
+    "char *s[] = {",
     "    NULL",
     "};",
     "",
     "int main() {",
-    "    for (int i = 0; i < 3; i++) puts(codice[i]);",
-    "    for (int i = 0; codice[i]; i++) printf(\"    \\\"%s\\\",\\n\", codice[i]);",
-    "    for (int i = 3; codice[i]; i++) puts(codice[i]);",
+    "    int i;",
+    "    for (i = 0; i < 3; i++) puts(s[i]);",
+    "    for (i = 0; s[i]; i++) printf(s[13], 34, s[i], 34, 10);",
+    "    for (i = 3; i < 13; i++) puts(s[i]);",
     "    return 0;",
     "}",
+    "    %c%s%c,%c",
     NULL
 };
 
 int main() {
-    for (int i = 0; i < 3; i++) puts(codice[i]);
-    for (int i = 0; codice[i]; i++) printf("    \"%s\",\n", codice[i]);
-    for (int i = 3; codice[i]; i++) puts(codice[i]);
+    int i;
+    for (i = 0; i < 3; i++) puts(s[i]);
+    for (i = 0; s[i]; i++) printf(s[13], 34, s[i], 34, 10);
+    for (i = 3; i < 13; i++) puts(s[i]);
     return 0;
 }
-
 
 /* 
    VARIANTE 3: Preprocessor Stringification (#) Macro
@@ -140,9 +142,9 @@ int main() {
  */
 
 
-#define Q(a) int main(){printf("#include <stdio.h>\n#define Q(a) %s\nQ(%s)\n", #a, #a);}
+// #define Q(a) int main(){printf("#include <stdio.h>\n#define Q(a) %s\nQ(%s)\n", #a, #a);}
 
-Q(int main(){printf("#include <stdio.h>\n#define Q(a) %s\nQ(%s)\n", #a, #a);})
+// Q(int main(){printf("#include <stdio.h>\n#define Q(a) %s\nQ(%s)\n", #a, #a);})
 
 
 /*

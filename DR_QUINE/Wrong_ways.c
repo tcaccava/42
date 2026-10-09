@@ -22,8 +22,9 @@ void monolithic_limit() {
  Per far sì che il codice stampi la propria stringa, la stringa S dovrebbe 
  contenere se stessa. Se provassimo ad aggiungerla, S conterrebbe S, che a sua 
  volta contiene S, generando una stringa di lunghezza infinita. 
- Questo è il limite invalicabile dimostrato dal Teorema di Ricorsione di Kleene.
- L'unico modo per risolverlo è scindere il programma:
+ Il regresso all'infinito è il fallimento dell'approccio monolitico ingenuo. 
+ Il Secondo Teorema di Ricorsione di Kleene dimostra matematicamente che tale ostacolo 
+ si supera scindendo il programma in componente attiva e componente passiva (Teorema del Punto Fisso):
  - Dati Passivi (Data): una stringa formattabile.
  - Codice Attivo (Code): istruzioni che usano i dati passivi DUE VOLTE 
    (una volta interpretandoli come codice eseguibile, una volta come dati grezzi).
