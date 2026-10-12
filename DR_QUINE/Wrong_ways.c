@@ -59,6 +59,7 @@ void pseudo_quine_argv_file(int argc, char **argv) {
 
 // oppure
 #include <fcntl.h>
+#include <unistd.h>
 
 int main() {
     char buf[1024];

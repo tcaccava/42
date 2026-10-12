@@ -25,26 +25,20 @@ int main(int argc, char **argv, char **envp)
     static short runs = 5;
     if (runs < 0)
         return 0;
-
     char filename[] = "Sully_ .c";
     filename[6] = (unsigned char)(runs + '0');
-    
     int file = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
     if (file < 0)
     {
         perror("Error opening the file");
         return 1;
     }
-
-    char *src_code = "#include <stdio.h>%1$c#include <unistd.h>%1$c#include <fcntl.h>%1$c#include <stdlib.h>%1$c#include <sys/wait.h>%1$c#include <sys/types.h>%1$c%1$cint main(int argc, char **argv, char **envp)%1$c{%1$c    (void)argc;%1$c    (void)argv;%1$c    static short runs = %4$d;%1$c    if (runs < 0)%1$c        return 0;%1$c    char filename[] = %2$cSully_ .c%2$c;%1$c    filename[6] = (unsigned char)(runs + '0');%1$c    int file = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);%1$c    if (file < 0)%1$c    {%1$c        perror(%2$cError opening the file%2$c);%1$c        return 1;%1$c    }%1$c    char *src_code = %2$c%3$s%2$c;%1$c    dprintf(file, src_code, 10, 34, src_code, runs);%1$c    close(file);%1$c    pid_t pid = fork();%1$c    if (pid < 0)%1$c        return 1;%1$c    char output[8] = %2$cSully%2$c;%1$c    if (runs > 0)%1$c    {%1$c        output[5] = '_';%1$c        output[6] = (unsigned char)(runs + '0');%1$c        output[7] = 0;%1$c    }%1$c    int exit_status = 0;%1$c    if (pid == 0)%1$c    {%1$c        execve(%2$c/usr/bin/gcc%2$c, (char *[]){%2$cgcc%2$c, filename, %2$c-o%2$c, output, NULL}, envp);%1$c        exit(1);%1$c    }%1$c    else%1$c    {%1$c        waitpid(pid, &exit_status, 0);%1$c        if (WIFEXITED(exit_status) && WEXITSTATUS(exit_status) == 0)%1$c        {%1$c            runs--;%1$c            main(argc, argv, envp);%1$c        }%1$c    }%1$c    return 0;%1$c}%1$c";
-
+    char *src_code = "#include <stdio.h>%1$c#include <unistd.h>%1$c#include <fcntl.h>%1$c#include <stdlib.h>%1$c#include <sys/wait.h>%1$c#include <sys/types.h>%1$c%1$cint main(int argc, char **argv, char **envp)%1$c{%1$c    (void)argc;%1$c    (void)argv;%1$c    static short runs = %4$d;%1$c    if (runs < 0)%1$c        return 0;%1$c    char filename[] = %2$cSully_ .c%2$c;%1$c    filename[6] = (unsigned char)(runs + '0');%1$c    int file = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);%1$c    if (file < 0)%1$c    {%1$c        perror(%2$cError opening the file%2$c);%1$c        return 1;%1$c    }%1$c    char *src_code = %2$c%3$s%2$c;%1$c    dprintf(file, src_code, 10, 34, src_code, runs);%1$c    close(file);%1$c    pid_t pid = fork();%1$c    if (pid < 0)%1$c        return 1;%1$c    char output[8] = %2$cSully%2$c;%1$c    if (runs > 0)%1$c    {%1$c        output[5] = '_';%1$c        output[6] = (unsigned char)(runs + '0');%1$c        output[7] = 0;%1$c    }%1$c    int exit_status = -1;%1$c    if (pid == 0)%1$c    {%1$c        execve(%2$c/usr/bin/gcc%2$c, (char *[]){%2$cgcc%2$c, filename, %2$c-o%2$c, output, NULL}, envp);%1$c        exit(1);%1$c    }%1$c    else%1$c    {%1$c        waitpid(pid, &exit_status, 0);%1$c        if (WIFEXITED(exit_status) && WEXITSTATUS(exit_status) == 0)%1$c        {%1$c            runs--;%1$c            main(argc, argv, envp);%1$c        }%1$c    }%1$c    return 0;%1$c}%1$c";
     dprintf(file, src_code, 10, 34, src_code, runs);
     close(file);
-
     pid_t pid = fork();
     if (pid < 0)
         return 1;
-
     char output[8] = "Sully";
     if (runs > 0)
     {
@@ -52,8 +46,7 @@ int main(int argc, char **argv, char **envp)
         output[6] = (unsigned char)(runs + '0');
         output[7] = 0;
     }
-
-    int exit_status = 0;
+    int exit_status = -1;
     if (pid == 0)
     {
         execve("/usr/bin/gcc", (char *[]){"gcc", filename, "-o", output, NULL}, envp);

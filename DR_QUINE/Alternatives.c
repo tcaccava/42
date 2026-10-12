@@ -43,6 +43,11 @@
    stampa puntuale e invoca write(1, s, len) stampando l'intera stringa D
    tra le virgolette aperte e chiuse dal marker $.
 
+
+   NOTA DI CORREZIONE:
+   Il main() commentato qui sotto non e' esso stesso un quine: stampa la versione compatta contenuta in s
+   (senza #include <stdio.h> e con formattazione diversa), quindi il suo output NON coincide con questo sorgente.
+   Quella versione compatta, invece, e' un quine: compilandola ed eseguendola si ottiene di nuovo se stessa.
 */
 
 // #include <unistd.h>
@@ -74,20 +79,20 @@
    VARIANTE 2: Array di Stringhe + puts() / printf() (Esecuzione a 3 Fasi)
    --------------------------------------------------------------------------
    MECCANICA:
-   Elimina la complessita' visiva dello stringone monolitico e le sequenze
-   di escape esplicite per i new-line (\n) o i codici ASCII posizionali (%1$c).
+   Elimina la complessita' visiva dello stringone monolitico: ogni riga di codice e' un elemento a se' dell'array, quindi non servono
+   sequenze di escape nel testo. Le virgolette (34) e il new-line (10) vengono iniettati come argomenti %c da printf(s[13], 34, s[i], 34, 10).
 
-   Il codice sorgente e' memorizzato in una matrice di stringhe codice[]
+   Il codice sorgente e' memorizzato in una matrice di stringhe s[]
    terminata da un puntatore NULL.
 
    ALGORITMO (3 Fasi Sequenziali):
    - Fase 1 : puts() emette l'intestazione (#include e apertura array).
      Poiche puts(s) equivale a printf("%s\n", s), ogni nuova linea viene generata
      dall'I/O senza doverla inserire nella costante stringa.
-   - Fase 2 (Auto-Replicazione dati): Un ciclo 'for' scansiona codice[]
+   - Fase 2 (Auto-Replicazione dati): Un ciclo 'for' scansiona s[]
      dall'indice 0 alla sentinella NULL. Per ogni elemento, printf() inietta
      gli spazi di indentazione, le virgolette aperte/chiuse e la virgola:
-     printf("    \"%s\",\n", codice[i]).
+     printf(s[13], 34, s[i], 34, 10), dove s[13] (l'ultimo elemento dell'array) e' il formato "    %c%s%c,%c".
    - Fase 3 : puts() riprende la stampa delle righe rimanenti
      partendo dall'indice 3, emettendo il corpo del main() e la chiusura dell'array.
 */

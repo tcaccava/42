@@ -1,0 +1,28 @@
+# Compiled objects and binaries
+*.o
+*.a
+*.so
+*.out
+
+# Executables (no extension, common on Linux/Mac)
+lemipc
+objs/
+
+# Dependency files
+*.d
+
+# Debug files
+*.dSYM/
+*.su
+
+# Editor and IDE
+.vscode/
+.idea/
+.vi/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
