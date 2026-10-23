@@ -7,37 +7,44 @@ Allo stato dell'arte, un packer agisce come un incapsulatore (o protector) che a
 1. Fase Statica (Packing Time)
 Il packer disseziona il file originale e ne altera gli header (ELF o PE) per eseguire tre operazioni fondamentali:
 
-Cifratura e Compressione: Le sezioni originali (codice, dati e risorse) vengono sottoposte ad algoritmi crittografici e di compressione, trasformando opcode e dati in un blocco ad altissima entropia.
+- Cifratura e compressione: le sezioni originali (codice, dati e risorse) vengono sottoposte ad algoritmi crittografici e di compressione, trasformando opcode e dati in un blocco ad altissima entropia.
 
-Iniezione dello Stub: Un frammento di codice assembly indipendente (lo stub o loader) viene iniettato nel file. Questo può avvenire creando una nuova sezione dedicata o sfruttando le cave di allineamento (spazi vuoti) tra i segmenti esistenti.
+- Iniezione dello Stub: un frammento di codice assembly indipendente (lo stub o loader) viene iniettato nel file. Questo può avvenire creando una nuova sezione dedicata o sfruttando le cave di allineamento (spazi vuoti) tra i segmenti esistenti.
 
-Dirottamento dell'Entry Point: L'indirizzo di ingresso originale del binario (OEP - Original Entry Point) viene sovrascritto. Il nuovo Entry Point punterà direttamente allo stub, garantendo che al momento del lancio l'OS ceda il controllo a quest'ultimo.
+- Dirottamento dell'Entry Point: l'indirizzo di ingresso originale del binario (OEP - Original Entry Point) viene sovrascritto. Il nuovo Entry Point punterà direttamente allo stub, garantendo che al momento del lancio l'OS ceda il controllo a quest'ultimo.
 
 2. Fase Dinamica (Runtime & Unpacking)
-Quando il nuovo programma generato viene eseguito, questo viene caricato in memoria, compresso e cifrato, per poi essere decompresso e decifrato. Lo stub prende il controllo della CPU e orchestra il ripristino dell'eseguibile in RAM:   Elevazione dei Privilegi di Memoria: Lo stub invoca le system call di gestione della memoria (es. mprotect su Linux o VirtualProtect su Windows) per alterare i flag di protezione delle pagine, passando da permessi di sola Lettura/Esecuzione (RX) a permessi di Scrittura (RWX).Ricostruzione del Payload: Lo stub itera sulle sezioni cifrate mappate in memoria, applicando l'algoritmo inverso per decrittografarle e decomprimerle in-place.Risoluzione Dinamica delle Dipendenze: Se l'eseguibile utilizza librerie dinamiche, lo stub deve occuparsi di ricostruire le tabelle di reindirizzamento (IAT in ambiente PE, GOT/PLT in ambiente ELF). Poiché il file su disco era cifrato, il loader del kernel non ha potuto effettuare il linking dinamico delle funzioni esterne.Salto all'OEP e Consegna: Terminata la ricostruzione, lo stub ripristina i permessi di memoria originali per rispettare i vincoli di sicurezza (W^X), cancella le proprie tracce e le chiavi dai registri, per poi eseguire un salto incondizionato (JMP/CALL) all'OEP. Il programma originale viene infine eseguito in maniera del tutto identica a come avrebbe fatto prima di passare attraverso il packer. 
+Quando il nuovo programma generato viene eseguito, questo viene caricato in memoria, compresso e cifrato, per poi essere decompresso e decifrato. Lo stub prende il controllo della CPU e orchestra il ripristino dell'eseguibile in RAM:   
 
-Evoluzione SOTA (State of the Art)
-I packer moderni superano la semplice compressione o i cifrari lineari, implementando meccanismi di software protection concepiti per distruggere le euristiche degli analisti e dei debugger:
+- Elevazione dei privilegi di memoria: lo stub invoca le system call di gestione della memoria (es. mprotect su Linux o VirtualProtect su Windows) per alterare i flag di protezione delle pagine, passando da permessi di sola Lettura/Esecuzione (RX) a permessi di Scrittura (RWX).
 
-Code Virtualization: Lo stub non contiene istruzioni hardware native, ma implementa una Virtual Machine integrata con un set di istruzioni (ISA) proprietario e randomizzato per ogni processo di packing. Parti critiche del codice originale vengono tradotte in questo bytecode incomprensibile ai classici disassemblatori.
+- Ricostruzione del Payload: lo stub itera sulle sezioni cifrate mappate in memoria, applicando l'algoritmo inverso per decrittografarle e decomprimerle in-place.
 
-Metamorfismo dello Stub: Il codice dello stub muta strutturalmente ad ogni esecuzione del packer. Utilizza l'alterazione del Control-Flow Graph (CFG), la dead-code insertion e la sostituzione polimorfica delle istruzioni (es. xor rax, rax sostituito da sub rax, rax) per impedire la creazione di firme crittografiche (signature) statiche.
+- Risoluzione Dinamica delle Dipendenze: se l'eseguibile utilizza librerie dinamiche, lo stub deve occuparsi di ricostruire le tabelle di reindirizzamento (IAT in ambiente PE, GOT/PLT in ambiente ELF). Poiché il file su disco era cifrato, il loader del kernel non ha potuto effettuare il linking dinamico delle funzioni esterne.
 
-Anti-Tampering & Anti-Debugging Avanzato: Lo stub integra controlli ostili continui: interroga i registri hardware di debug (es. DR0-DR7), utilizza misurazioni temporali precise (es. istruzione rdtsc) per rilevare scostamenti di latenza tipici delle virtual machine o degli hypervisor, e verifica l'integrità del proprio codice in RAM per impedire il dumping della memoria decifrata.
+- Salto all'OEP e consegna: terminata la ricostruzione, lo stub ripristina i permessi di memoria originali per rispettare i vincoli di sicurezza (W^X), cancella le proprie tracce e le chiavi dai registri, per poi eseguire un salto incondizionato (JMP/CALL) all'OEP. Il programma originale viene infine eseguito in maniera del tutto identica a come avrebbe fatto prima di passare attraverso il packer. 
+
+# Evoluzione SOTA (State of the Art)
+I packer moderni superano la semplice compressione o i cifrari lineari, implementando meccanismi di software protection concepiti per confondere le euristiche degli analisti e dei debugger:
+
+- Code virtualization: lo stub non contiene istruzioni hardware native, ma implementa una Virtual Machine integrata con un set di istruzioni (ISA) proprietario e randomizzato per ogni processo di packing. Parti critiche del codice originale vengono tradotte in questo bytecode incomprensibile ai classici disassemblatori.
+
+- Metamorfismo dello stub: il codice dello stub muta strutturalmente ad ogni esecuzione del packer. Utilizza l'alterazione del Control-Flow Graph (CFG), la dead-code insertion e la sostituzione polimorfica delle istruzioni (es. xor rax, rax sostituito da sub rax, rax) per impedire la creazione di firme crittografiche (signature) statiche.
+
+- Anti-Tampering & Anti-Debugging avanzato: lo stub integra controlli ostili continu; interroga i registri hardware di debug (es. DR0-DR7), utilizza misurazioni temporali precise (es. istruzione rdtsc) per rilevare scostamenti di latenza tipici delle virtual machine o degli hypervisor, e verifica l'integrità del proprio codice in RAM per impedire il dumping della memoria decifrata.
 
 
 ## DEFINIZIONE E STRUTTURA DI UN ESEGUIBILE ELF
-Fisicamente in che linguaggio è scritto l'ELF? L'ELF non è scritto in alcun linguaggio: è una specifica di formato file binario (uno standard architetturale di disposizione dei dati). I programmi che lo leggono o lo generano (compilatori, linker, kernel) sono scritti in C o C++, ma il file ELF in sé è solo una sequenza strutturata di byte grezzi su disco.
-Il formato ELF (Executable and Linkable Format) è lo standard architetturale de facto per i file binari nei sistemi operativi UNIX-like (Linux, *BSD, Solaris). È definito nelle specifiche System V Application Binary Interface (ABI). Si pronuncia "System Five" (fa riferimento alla System V Release 4 - SVR4, lo standard industriale definito da AT&T UNIX su cui si basano le moderne specifiche ELF e le ABI dei sistemi UNIX-like).
+
+Il formato ELF (Executable and Linkable Format) è una specifica di formato dei files binari,lo standard architetturale de facto di disposizione dei dati del binario nei sistemi operativi UNIX-like (Linux, *BSD, Solaris). È definito nelle specifiche System V Application Binary Interface (si pronuncia "System Five" in riferimento alla System V Release 4 - SVR4, lo standard industriale definito da AT&T UNIX su cui si basano le moderne specifiche ELF e le ABI dei sistemi UNIX-like).I programmi che lo leggono o lo generano (compilatori, linker, kernel) sono scritti in C o C++, ma il file ELF in sé è solo una sequenza strutturata di byte grezzi su disco.
 
 Non si tratta di un semplice contenitore di codice macchina, ma di un database relazionale strutturato che fornisce al sistema operativo e al linker dinamico tutte le topografie di memoria e i metadati necessari per caricare ed eseguire un processo, oppure per collegare moduli oggetto multipli.
 
-Il concetto cardine per padroneggiare l'architettura ELF è il Dual View Paradigm.Dual View Paradigm (Strutture fisiche vs logiche): Non si tratta di strutture fisiche separate o duplicate sul disco, ma di una duplice proiezione logica dei medesimi byte. Le stesse identiche sezioni binarie vengono lette attraverso due chiavi di accesso differenti: il linker le analizza come sezioni distinte tramite la Section Header Table, mentre il kernel del sistema operativo le ignora completamente e legge i medesimi byte aggregandoli in segmenti di memoria tramite la Program Header Table. Un file ELF possiede due strutture sovrapposte, lette da attori diversi in momenti diversi:
+Il concetto cardine per padroneggiare l'architettura ELF è il Dual View Paradigm: non si tratta di strutture fisiche separate o duplicate sul disco, ma di una duplice proiezione logica dei medesimi byte. Le stesse identiche sezioni binarie vengono lette attraverso due chiavi di accesso differenti: il linker le analizza come sezioni distinte tramite la Section Header Table (vista ad intestazioni di sezione), mentre il kernel del sistema operativo le ignora completamente e legge i medesimi byte aggregandoli in segmenti di memoria tramite la Program Header Table (vista ad intestazioni di programma).
 
-Linking View (Vista per Sezioni): Utilizzata da linker (ld), assembler e tool di analisi (es. objdump, readelf). Divide il file in Sezioni logiche (codice, dati inizializzati, tabelle di stringhe).
+- Linking View (vista per Sezioni): utilizzata da linker (ld), assembler e tool di analisi (es. objdump, readelf). Divide il file in Sezioni logiche (codice, dati inizializzati, tabelle di stringhe).
 
-Execution View (Vista per Segmenti): Utilizzata esclusivamente dal loader del kernel Linux (fs/binfmt_elf.c) al momento dell'esecuzione. Ignora del tutto le sezioni e divide il file in Segmenti di memoria mappabili (Program Headers).
-Occorre comprendere la differenza tra la vista ad intestazioni di sezione (Section Headers, usate da linker e debugger) e la vista ad intestazioni di programma (Program Headers, usata dall'loader del kernel Linux).
+- Execution View (vista per Segmenti): utilizzata esclusivamente dal loader del kernel Linux (fs/binfmt_elf.c) al momento dell'esecuzione. Ignora del tutto le sezioni e divide il file in segmenti di memoria mappabili (Program Headers).
 
 +---------------------------------------------------+
 |                  ELF Header64                     |
@@ -53,86 +60,78 @@ Occorre comprendere la differenza tra la vista ad intestazioni di sezione (Secti
 |               Section Header Table                |
 +---------------------------------------------------+
 
-Fisicamente cosa sono le tabelle e in che linguaggio sono scritte? Fisicamente sono array contigui di byte memorizzati nel file binario, disposti rigidamente secondo i layout geometrici delle strutture dati in C. Non sono "scritte in un linguaggio", ma rappresentano blocchi di dati binari interpretati dal software in base a offset fissi.
-1. Le tabelle e i byte: cosa significa "tramite"?
-Le tabelle (Elf64_Shdr e Elf64_Phdr) non sono i dati stessi, ma gli indici descrittivi (i metadati) che dicono al software come interpretare i byte grezzi del file.
 
-I byte sul disco sono una sequenza continua di bit. Iniziano con l'ELF Header, poi ci sono le tabelle delle intestazioni, e infine i blocchi di dati grezzi (le istruzioni macchina del codice, le stringhe, le variabili).
+I byte dell'eseguibile binario sul disco sono una sequenza continua di bit. Iniziano con l'ELF Header, poi ci sono le tabelle delle intestazioni, e infine i blocchi di dati grezzi (le istruzioni macchina del codice, le stringhe, le variabili).
 
-La Section Header Table è un array di strutture (Elf64_Shdr) che funge da mappa logica: dice "I byte che vanno dall'offset 0x1000 all'offset 0x2000 formano la sezione .text". Il linker usa questa mappa per sapere cosa sta manipolando.
+Fisicamente le due Table sono array contigui di byte memorizzati nel file binario, disposti rigidamente secondo i layout geometrici delle strutture dati in C. Rappresentano blocchi di dati binari interpretati dal software in base a offset fissi.
 
-La Program Header Table è un array separato di strutture (Elf64_Phdr) che funge da mappa per il kernel: dice "Prendi i byte dall'offset 0x1000 al 0x3000 del file e copiali in RAM all'indirizzo virtuale 0x400000 con permessi di sola esecuzione".
+Le tabelle (Elf64_Shdr e Elf64_Phdr) dunque non sono i dati stessi, ma gli indici descrittivi (i metadati) che dicono al software come interpretare i byte grezzi del file.
 
-Quindi dire "tramite" significa che il parser (il linker o il kernel) legge i metadati della rispettiva tabella per capire dove andare a pescare, interpretare o mappare i byte del file. I byte del codice sono sempre gli stessi, ma la Section Table li seziona per nome e funzione logica (per il debug/linking), mentre la Program Table li accorpa in macro-blocchi continui (per la MMU del kernel).
-
-Segmenti della Execution View vs Codice Sorgente Assembly (.s): Non coincidono. Nel codice assembly scrivi direttive come .section .text o .section .data per suddividere logicamente il codice. Il compilatore e l'assembler traducono queste direttive in sezioni all'interno del file oggetto. Il linker, successivamente, prende queste sezioni e le raggruppa in macro-blocchi chiamati segmenti (PT_LOAD), definiti in base ai permessi della MMU (es. un segmento PT_LOAD con permessi di sola lettura/esecuzione accorpa insieme .text, .rodata e altre sezioni affini).
-Corrispondenza dei PT_LOAD nel sorgente C o Assembly: Non esiste una corrispondenza 1:1 con singole righe o sezioni del codice sorgente. Un segmento PT_LOAD è un macro-blocco di caricamento creato dal linker che unisce intere famiglie di sezioni in base ai permessi di accesso richiesti (es. un segmento PT_LOAD con permessi di sola lettura raggruppa .text e .rodata; un segmento con permessi di lettura/scrittura raggruppa .data e .bss).
-
-
-2. La corrispondenza delle sezioni del .s nelle due viste
-Le sezioni in cui dividi un file sorgente .s (tramite direttive come .section .text, .section .data) hanno una corrispondenza diretta nella Linking View, ma vengono completamente appiattite e perse nella Execution View.
-
-Nella Linking View (Sezioni): Le tue sezioni .text scritte nel .s vengono conservate dall'assembler nel file oggetto .o e poi fuse dal linker nella Section Header Table dell'eseguibile finale. Se apri il binario con readelf -S, vedi esattamente ogni singola sezione.
-
-Nella Execution View (Segmenti): Al kernel non importa nulla delle sezioni. Il kernel vede solo i PT_LOAD (i segmenti). Il linker prende la sezione .text, la sezione .rodata, ecc., e le fonde brutalmente dentro un unico segmento PT_LOAD con permessi RX (Read-Execute). Di conseguenza, a livello di Program Headers (Execution View), le singole sezioni del tuo sorgente scompaiono come entità distinte: esistono solo blocchi continui di memoria gestiti dalla MMU.
-
-
-
-clang vs gcc vs cc:
-
-gcc (GNU Compiler Collection): È lo storico compilatore di riferimento del mondo GNU/Linux. Supporta molteplici linguaggi (C, C++, Fortran) e utilizza un backend basato su rappresentazioni intermedie (RTL e GIMPLE).
-
-clang: È il frontend nativo per l'infrastruttura di compilazione LLVM, scritto in C++, celebre per la modularità, la pulizia dei messaggi d'errore e la velocità di elaborazione.
-
-cc (C Compiler): È tradizionalmente un symlink o un wrapper POSIX standard che punta al compilatore di sistema predefinito (storicamente gcc, mentre nei sistemi moderni o su macOS viene spesso rimappato direttamente su clang).
-
-Cosa sono le GNU Binutils: Un pacchetto software fondamentale di utility di basso livello per la manipolazione di binari e file oggetto. Include strumenti chiave come as (l'assembler), ld (il linker), objdump (disassemblatore), readelf (analizzatore di strutture ELF), nm (analizzatore di simboli), strip (rimozione dei metadati di debug) e ar (gestore di archivi statici .a).
-
-Tutto in un file ELF a 64-bit fa riferimento ai tipi di base definiti in <elf.h>, come Elf64_Addr (8 byte), Elf64_Off (8 byte), Elf64_Word (4 byte), Elf64_Half (2 byte).
-Tipi base nella libreria <elf.h>: Non sono concetti astratti, ma tipi interi primitivi definiti in C tramite typedef per garantire la rigorosa portabilità cross-platform delle dimensioni (es. typedef uint64_t Elf64_Addr;, typedef uint16_t Elf64_Half;, typedef uint64_t Elf64_Off;).
-
-ELF Header (Elf64_Ehdr): e' situato situato sempre all'offset 0x0 del file. È la "stele di Rosetta" che descrive dove trovare il resto delle tabelle. Occupa 64 byte.
-ELF Header (Elf64_Ehdr): rappresenta il punto di partenza per l'analisi statica della struttura del file. Campi chiave da gestire:
-- e_entry: Indirizzo virtuale del punto di ingresso iniziale (OEP - Original Entry Point).   
-- e_phoff: Offset nel file in cui inizia la Program Header Table.
-- e_phnum: Numero di entry presenti nella Program Header Table.
-- e_shoff e e_shnum: Offset e conteggio delle Section Headers.
-
-
-e_ident[16]: I primi 4 byte sono il Magic Number (\x7F E L F). I successivi indicano la classe (32 o 64 bit), l'endianness (LSB/MSB) e la versione dell'ABI.
-Esempio di e_ident per un sistema a 64-bit, Little Endian (LSB) e ultima versione ABI:
-
-I primi 16 byte (e_ident) assumono questa configurazione esadecimale esatta:
-\x7f \x45 \x4c \x46 \x02 \x01 \x01 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00
-
-\x7f\x45\x4c\x46: Magic Number (\x7FELF).
-
-\x02: Classe (ELFCLASS64 = 64-bit).
-
-\x01: Endianness (ELFDATA2LSB = Little Endian).
-
-\x01: Versione ELF (EV_CURRENT).
-
-\x00: OS/ABI (ELFOSABI_SYSV).
-
-\x00 - \x00: Byte di padding ed estensione ABI non utilizzati.
+- ELF Header (Elf64_Ehdr): e' situato situato sempre all'offset 0x0 del file. È la "stele di Rosetta" che rappresenta il punto di partenza per l'analisi statica della struttura del file ,descrivendo dove trovare il resto delle tabelle. Occupa 64 byte.
+  Componenti chiave dell'header:
+  - e_ident[16]: i primi 4 byte sono il Magic Number (\x7F E L F). I successivi indicano la classe (32 o 64 bit), l'endianness (LSB/MSB) e la versione dell'ABI. Per esempio l'e_ident
+  di un elf per un architettura little endian a 64 bit con ultima versione ABI assume questa configurazione hex esatta: \x7f \x45 \x4c \x46 \x02 \x01 \x01 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00.
+        \x7f\x45\x4c\x46: Magic Number (\x7FELF).
+        \x02: Classe (ELFCLASS64 = 64-bit).
+        \x01: Endianness (ELFDATA2LSB = Little Endian).
+        \x01: Versione ELF (EV_CURRENT).
+        \x00: OS/ABI (ELFOSABI_SYSV).
+        \x00 - \x00: Byte di padding ed estensione ABI non utilizzati.
+  - e_type : definisce il ruolo del file (ET_REL = 1, ET_EXEC = 2, ET_DYN = 3, ET_CORE = 4).
+  ET_CORE indica un file di dump della memoria generato dal kernel Linux quando un processo va in crash irreversibile (es. Segmentation Fault, SIGABRT). Contiene l'istantanea esatta dello stato dei registri della CPU, dello stack, dell'heap e delle aree di memoria del processo al momento della morte, impiegato dai debugger (come GDB) per l'analisi post-mortem.
+  - e_machine: l'architettura target (per x86-64 è EM_X86_64 = 0x3E).Esistono decine di varianti standardizzate nelle specifiche ELF per identificare l'architettura hardware di destinazione (es. EM_386 = 3 per x86 a 32-bit, EM_X86_64 = 62 per AMD64/Intel 64, EM_ARM = 40, EM_AARCH64 = 183, EM_RISCV = 243).
+  - e_entry: indirizzo virtuale del punto di ingresso iniziale (OEP - Original Entry Point).   e_entry: L'indirizzo virtuale (o l'offset nel caso di PIE) della prima istruzione da cui la CPU deve iniziare l'esecuzione (spesso _start, non main).
+    e_entry nel caso di compilazione standard con GCC senza definire _start manualmente: Esatto. Se compili un programma C affidandoti alla toolchain standard senza definire un entrypoint custom, il linker include automaticamente i moduli oggetto di avvio della libreria standard (crt1.o, crti.o, ecc.). Il simbolo _start (contenuto in crt1.o) è il vero punto d'ingresso fisico del processo: si occupa di inizializzare l'ambiente di runtime del C, invoca __libc_start_main, la quale esegue i costruttori globali e infine chiama la tua funzione main(). Di conseguenza, e_entry punta direttamente all'indirizzo del simbolo _start fornito dalla libc.
+  - e_phoff: offset nel file in cui inizia la Program Header Table.
+  - e_phnum: numero di entry presenti nella Program Header Table.
+  - e_shoff e e_shnum: offset e conteggio delle Section Headers.
 
 
 
-e_type: Definisce il ruolo del file (ET_REL = 1, ET_EXEC = 2, ET_DYN = 3, ET_CORE = 4).
-Cos'è ET_CORE? È un file di dump della memoria generato dal kernel Linux quando un processo va in crash irreversibile (es. Segmentation Fault, SIGABRT). Contiene l'istantanea esatta dello stato dei registri della CPU, dello stack, dell'heap e delle aree di memoria del processo al momento della morte, impiegato dai debugger (come GDB) per l'analisi post-mortem.
-
-e_machine: L'architettura target (per x86-64 è EM_X86_64 = 0x3E).
-Quanti tipi di e_machine esistono? Decine di varianti standardizzate nelle specifiche ELF per identificare l'architettura hardware di destinazione (es. EM_386 = 3 per x86 a 32-bit, EM_X86_64 = 62 per AMD64/Intel 64, EM_ARM = 40, EM_AARCH64 = 183, EM_RISCV = 243).
 
 
 
-e_entry: L'indirizzo virtuale (o l'offset nel caso di PIE) della prima istruzione da cui la CPU deve iniziare l'esecuzione (spesso _start, non main).
-e_entry nel caso di compilazione standard con GCC senza definire _start manualmente: Esatto. Se compili un programma C affidandoti alla toolchain standard senza definire un entrypoint custom, il linker include automaticamente i moduli oggetto di avvio della libreria standard (crt1.o, crti.o, ecc.). Il simbolo _start (contenuto in crt1.o) è il vero punto d'ingresso fisico del processo: si occupa di inizializzare l'ambiente di runtime del C, invoca __libc_start_main, la quale esegue i costruttori globali e infine chiama la tua funzione main(). Di conseguenza, e_entry punta direttamente all'indirizzo del simbolo _start fornito dalla libc.
+
+
+
+
+
+
+
 
 e_phoff / e_shoff: Offset fisici assoluti dal byte zero in cui iniziano rispettivamente la Program Header Table e la Section Header Table.
 
 e_phnum / e_shnum: Il numero di entry contenute nelle suddette tabelle.
+
+
+La Section Header Table è un array di strutture (Elf64_Shdr) che funge da mappa logica:  linker usa questa mappa per sapere cosa sta manipolando.
+
+La Program Header Table è un array separato di strutture (Elf64_Phdr) che funge da mappa per il kernel: il kernel usa questa mappa per sapere cosa mappare nella memoria ram e con quali permessi di esecuzione.
+
+I Segmenti della Execution View non trovano corrispondenza nelle diverse componenti in cui e' diviso il sorgente Assembly. Nel codice assembly direttive come .data o.text servono a suddividere logicamente il codice. Il compilatore e l'assembler traducono queste direttive in sezioni all'interno del file oggetto. Il linker, successivamente, prende queste sezioni e le raggruppa in macro-blocchi chiamati segmenti (PT_LOAD), definiti in base ai permessi della MMU (es. un segmento PT_LOAD con permessi di sola lettura/esecuzione accorpa insieme .text, .rodata e altre sezioni affini).
+Allo stesso modo non esiste una corrispondenza 1:1 tra i segmenti PT_LOAD della Execution View e le singole righe o sezioni del codice sorgente C o Assembly. Un segmento PT_LOAD è un macro-blocco di caricamento creato dal linker che unisce intere famiglie di sezioni in base ai permessi di accesso richiesti (es. un segmento PT_LOAD con permessi di sola lettura raggruppa .text e .rodata; un segmento con permessi di lettura/scrittura raggruppa .data e .bss).
+
+Le sezioni in cui e' diviso un file sorgente .s (tramite direttive come .text o .data) hanno una corrispondenza diretta solo nella Linking View, ma vengono completamente appiattite e perse nella Execution View. Nella Linking View le sezioni .text scritte nel .s vengono conservate dall'assembler nel file oggetto .o e poi fuse dal linker nella Section Header Table dell'eseguibile finale. Se apro il binario con readelf -S, vedro' esattamente ogni singola sezione.
+Al kernel invece non importa nulla delle sezioni. Il kernel vede solo i PT_LOAD (i segmenti). Il linker prende la sezione .text, la sezione .rodata, ecc., e le fonde brutalmente dentro un unico segmento PT_LOAD con permessi RX (Read-Execute). Di conseguenza, a livello di Program Headers (Execution View), le singole sezioni del sorgente scompaiono come entità distinte: esistono solo blocchi continui di memoria gestiti dalla MMU.
+
+Tutto in un file ELF a 64-bit fa riferimento ai tipi di base definiti in <elf.h>, come Elf64_Addr (8 byte), Elf64_Off (8 byte), Elf64_Word (4 byte), Elf64_Half (2 byte).
+I tipi base della libreria <elf.h> non sono concetti astratti, ma tipi interi primitivi definiti in C tramite typedef per garantire la rigorosa portabilità cross-platform delle dimensioni (es. typedef uint64_t Elf64_Addr;, typedef uint16_t Elf64_Half;, typedef uint64_t Elf64_Off;).
+
+# GCC VS CC VS CLANG
+- gcc (GNU Compiler Collection): e' lo storico compilatore di riferimento del mondo GNU/Linux. Supporta molteplici linguaggi (C, C++, Fortran) e utilizza un backend basato su rappresentazioni intermedie (RTL e GIMPLE).
+
+- clang: e' il frontend nativo per l'infrastruttura di compilazione LLVM, scritto in C++, celebre per la modularità, la pulizia dei messaggi d'errore e la velocità di elaborazione.
+
+- cc (C Compiler): e' tradizionalmente un symlink o un wrapper POSIX standard che punta al compilatore di sistema predefinito (storicamente gcc, mentre nei sistemi moderni o su macOS viene spesso rimappato direttamente su clang).
+
+- GNU Binutils: un pacchetto software fondamentale di utility di basso livello per la manipolazione di binari e file oggetto. Include strumenti chiave come as (l'assembler), ld (il linker), objdump (disassemblatore), readelf (analizzatore di strutture ELF), nm (analizzatore di simboli), strip (rimozione dei metadati di debug) e ar (gestore di archivi statici .a).
+
+
+
+
+
+
+
 
 
 

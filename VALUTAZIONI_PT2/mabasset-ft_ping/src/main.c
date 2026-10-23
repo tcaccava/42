@@ -1,0 +1,70 @@
+#include "ft_ping.h"
+
+t_ping g_ping = {.sockfd = -1,
+                 .payload_size = PING_DEFAULT_PAYLOAD_SIZE,
+                 .linger = PING_DEFAULT_LINGER_SEC,
+                 .interval = PING_DEFAULT_INTERVAL_SEC};
+
+static void cleanup(void) {
+  if (g_ping.sockfd >= 0)
+    close(g_ping.sockfd);
+}
+
+static void handle_sigint(int sig) {
+  (void)sig;
+  g_ping.sigint = 1;
+}
+
+static void create_socket() {
+  g_ping.sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+  if (g_ping.sockfd == -1) {
+    if (errno == 1)
+      fprintf(stderr, "ping: Lacking privilege for icmp socket.\n");
+    else
+      perror("ping: socket");
+    exit(1);
+  }
+  if (g_ping.ttl > 0) {
+    int ttl = (int)g_ping.ttl;
+    if (setsockopt(g_ping.sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
+      perror("ping: setsockopt");
+      exit(1);
+    }
+  }
+}
+
+static void drop_sudo() {
+  if (setuid(getuid()) != 0) {
+    perror("ping: setuid");
+    exit(1);
+  }
+}
+
+static void set_siganction() {
+  struct sigaction sa = {0};
+  sa.sa_handler = handle_sigint;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGINT, &sa, NULL);
+}
+
+int main(int argc, char* argv[]) {
+  char** hosts;
+  int host_count;
+
+  setvbuf(stdout, NULL, _IOLBF, 0);  // override stdout mode to make it
+                                     // line buffered to fix the shell pipe
+  parse_flags(argc, argv);
+  host_count = argc - optind;
+  if (host_count <= 0)
+    print_missing_host_exit();
+  hosts = argv + optind;
+  create_socket();
+  atexit(cleanup);
+  drop_sudo();
+  set_siganction();
+  g_ping.pid = (uint16_t)getpid();
+  run_ping(hosts, host_count);
+
+  return g_ping.exit_status;
+}
