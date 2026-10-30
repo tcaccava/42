@@ -19,7 +19,7 @@ main:
 	leaq	.LC0(%rip), %rax
 	movq	%rax, %rsi
 	movl	$1, %edi
-	call	write@PLT
+	call	write@PLT 
 	movl	$0, %eax
 	popq	%rbp
 	.cfi_def_cfa 7, 8
