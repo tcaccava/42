@@ -183,139 +183,118 @@ Prende i file oggetto .o generati dall'assembler, risolve i simboli interni, cal
 Che differenza c'e' allora tra funzione extern e funzione condivisa (dynamic)? extern è una keyword di dichiarazione logica a livello di linguaggio C e Assembly che dice al compilatore di non generare un indirizzo definitivo per quel simbolo, lasciando un segnaposto per il linker. La funzione condivisa è l'entità binaria reale che risiede all'interno di una libreria esterna (.so). Quando dichiaro una funzione extern e questa appartiene a una libreria esterna (es. printf della libc), il linker inserisce una voce nella PLT/GOT, demandando al linker dinamico (ld-linux.so) il compito di risolverla a runtime agganciando l'indirizzo reale.
 
 
+## READELD E OBJDUMP
 
+Readelf e objdump sono due analizzatori binari appartenenti alla suite GNU Binutils, ma differiscono radicalmente nel motore di parsing e nell'obiettivo d'uso. La differenza architetturale chiave risiede nella dipendenza dalla libreria BFD (Binary File Descriptor).
 
+* Readelf è un parser nativo e indipendente. Non utilizza la libreria BFD, il che significa che legge crittograficamente e unicamente le strutture dati grezze definite in <elf.h>. È lo strumento di elezione per l'analisi chirurgica dei metadati (header, segmenti, sezioni, rilocazioni) perché mostra esattamente ciò che è scritto sul disco, senza astrazioni o correzioni silenziose. Supporta esclusivamente file in formato ELF.
+* Objdump è un'interfaccia costruita sopra la libreria BFD. Poiché BFD funge da strato di astrazione universale, objdump è in grado di leggere molteplici formati binari (ELF, PE/COFF per Windows, Mach-O per macOS, a.out, b.out). Il suo scopo primario non è l'analisi dei metadati ELF (dove risulta meno preciso di readelf a causa del layer BFD), ma il disassemblaggio del codice macchina in istruzioni leggibili e l'ispezione mista (sorgente/assembly).
 
-
-`readelf` e `objdump` sono due analizzatori binari appartenenti alla suite GNU Binutils, ma differiscono radicalmente nel motore di parsing e nell'obiettivo d'uso. La differenza architetturale chiave risiede nella dipendenza dalla libreria **BFD (Binary File Descriptor)**.
-
-* **`readelf`** è un parser nativo e indipendente. Non utilizza la libreria BFD, il che significa che legge crittograficamente e unicamente le strutture dati grezze definite in `<elf.h>`. È lo strumento di elezione per l'analisi chirurgica dei metadati (header, segmenti, sezioni, rilocazioni) perché mostra esattamente ciò che è scritto sul disco, senza astrazioni o correzioni silenziose. Supporta **esclusivamente** file in formato ELF.
-* **`objdump`** è un'interfaccia costruita sopra la libreria BFD. Poiché BFD funge da strato di astrazione universale, `objdump` è in grado di leggere molteplici formati binari (ELF, PE/COFF per Windows, Mach-O per macOS, a.out, b.out). Il suo scopo primario non è l'analisi dei metadati ELF (dove risulta meno preciso di `readelf` a causa del layer BFD), ma il **disassemblaggio** del codice macchina in istruzioni leggibili e l'ispezione mista (sorgente/assembly).
-
-## Tipi di File Analizzabili
+# Tipi di File Analizzabili
 
 Entrambi i tool operano sulla stessa famiglia di artefatti generati dalla toolchain C/C++, ma con focus differenti:
 
-* **File Oggetto Rilocabili (`.o` / `ET_REL`)**: Per ispezionare sezioni `.text` non ancora linkate e tabelle di rilocazione `.rela`.
-* **Eseguibili (`ET_EXEC` e `ET_DYN`/PIE)**: I binari finali generati dal linker.
-* **Librerie Condivise (`.so` / `ET_DYN`)**: Per mappare i simboli esportati e la PLT/GOT.
-* **Archivi Statici (`.a`)**: Archivi `ar` contenenti multipli file `.o`.
-* **Core Dumps (`ET_CORE`)**: Generati dal kernel al crash del processo, analizzati principalmente con `readelf` per mappare lo stato dei registri e i segmenti di memoria (`PT_NOTE`) salvati al momento del segfault.
+- File oggetto rilocabili (.o / ET_REL): per ispezionare sezioni .text non ancora linkate e tabelle di rilocazione .rela .
+- Eseguibili (ET_EXEC e ET_DYN`/PIE): i binari finali generati dal linker.
+- Librerie condivise (.so / ET_DYN): per mappare i simboli esportati e la PLT/GOT.
+- Archivi statici (.a): archivi ar contenenti multipli file .o.
+- Core dumps (ET_CORE): generati dal kernel al crash del processo, analizzati principalmente con readel per mappare lo stato dei registri e i segmenti di memoria (PT_NOTE) salvati al momento del segfault.
 
----
+# Analisi delle flag di readelf
 
-## Analisi delle Flag di `readelf`
+Le flag di readelf sono progettate per dissezionare le tabelle logiche e fisiche dell'eseguibile. L'aggiunta della flag -W (--wide) è sempre mandatoria nei sistemi a 64-bit per impedire che il terminale tronchi gli indirizzi a 8 byte mandando a capo l'output.
 
-Le flag di `readelf` sono progettate per dissezionare le tabelle logiche e fisiche dell'eseguibile. L'aggiunta della flag `-W` (`--wide`) è sempre mandatoria nei sistemi a 64-bit per impedire che il terminale tronchi gli indirizzi a 8 byte mandando a capo l'output.
+### Ispezione degli Header principali
 
-### Ispezione degli Header Principali
-
-* `-h` (`--file-header`): Stampa l'ELF Header (`Elf64_Ehdr`). Rivela il magic number, l'endianness, l'entry point (`e_entry`) e l'offset delle due tabelle principali (Program e Section Header).
-* `-l` (`--program-headers` o `--segments`): Stampa la Program Header Table (`Elf64_Phdr`). Fondamentale per vedere la *Execution View* usata dal kernel, il mapping dei segmenti `PT_LOAD`, i loro permessi (R, W, E) e l'allineamento.
-* `-S` (`--section-headers` o `--sections`): Stampa la Section Header Table (`Elf64_Shdr`). Mostra la *Linking View*, l'indirizzo base, l'offset fisico e i flag (alloc, execute, write) di sezioni come `.text`, `.data`, `.bss`.
-* `-e` (`--headers`): Combina `-h`, `-l` e `-S` in un unico output.
+* -h (--file-header): stampa l'ELF Header (Elf64_Ehdr). Rivela il magic number, l'endianness, l'entry point (e_entry) e l'offset delle due tabelle principali (Program e Section Header).
+* -l (--program-headers o --segments): stampa la Program Header Table (Elf64_Phdr). Fondamentale per vedere la Execution View usata dal kernel, il mapping dei segmenti PT_LOAD, i loro permessi (R, W, E) e l'allineamento.
+* -S (--section-headers o --sections): stampa la Section Header Table (Elf64_Shdr). Mostra la Linking View, l'indirizzo base, l'offset fisico e i flag (alloc, execute, write) di sezioni come .text, .data, .bss.
+* -e (--headers): combina -h, -l e -S in un unico output.
 
 ### Analisi dei Simboli e Rilocazioni
 
-* `-s` (`--syms` o `--symbols`): Esegue il dump della tabella dei simboli statica (`.symtab`). Mostra funzioni e variabili, la loro dimensione e a quale sezione appartengono (o `UND` se esterne).
-* `--dyn-syms`: Mostra esclusivamente i simboli dinamici (`.dynsym`), ovvero quelli necessari al linker dinamico a runtime.
-* `-r` (`--relocs`): Stampa le tabelle di rilocazione (es. `.rela.text` in un `.o`, o le rilocazioni PLT/GOT in un eseguibile dinamico). Indica gli offset da patchare e le formule matematiche associate.
-* `-d` (`--dynamic`): Mostra il contenuto del segmento `PT_DYNAMIC`. Indica le librerie condivise richieste (`NEEDED`, es. `libc.so.6`) e l'array di inizializzazione.
+* -s (--syms o --symbols): esegue il dump della tabella dei simboli statica (.symtab). Mostra funzioni e variabili, la loro dimensione e a quale sezione appartengono (o UND se esterne).
+* --dyn-syms: mostra esclusivamente i simboli dinamici (.dynsym), ovvero quelli necessari al linker dinamico a runtime.
+* -r (--relocs): stampa le tabelle di rilocazione (es. .rela.text in un .o, o le rilocazioni PLT/GOT in un eseguibile dinamico). Indica gli offset da patchare e le formule matematiche associate.
+* -d (--dynamic): mostra il contenuto del segmento PT_DYNAMIC. Indica le librerie condivise richieste (NEEDED, es. libc.so.6) e l'array di inizializzazione.
 
-### Estrazione dei Dati Grezzi (Payload & Debug)
+### Estrazione dei dati grezzi (Payload & Debug)
 
-* `-x <numero_o_nome_sezione>` (`--hex-dump`): Stampa un dump esadecimale e ASCII del contenuto puro di una sezione (es. `readelf -x .rodata a.out`).
-* `-p <numero_o_nome_sezione>` (`--string-dump`): Stampa il contenuto di una sezione interpretando i byte come stringhe terminate da null (zero-terminated). Usato su `.strtab` o `.shstrtab`.
-* `-n` (`--notes`): Decodifica i segmenti o le sezioni di tipo `NOTE`. Fondamentale nell'analisi dei `core dump` o per leggere l'ABI-tag.
+* -x <numero_o_nome_sezione> (--hex-dump): stampa un dump esadecimale e ASCII del contenuto puro di una sezione (es. readelf -x .rodata a.out).
+* -p <numero_o_nome_sezione> (--string-dump): stampa il contenuto di una sezione interpretando i byte come stringhe terminate da null (zero-terminated). Usato su .strtab o .shstrtab.
+* -n (--notes): decodifica i segmenti o le sezioni di tipo NOTE. Fondamentale nell'analisi dei core dump o per leggere l'ABI-tag.
 
----
 
-## Analisi delle Flag di `objdump`
+## Analisi delle flag di objdump
 
-Le flag di `objdump` sono orientate al reverse engineering del codice eseguibile e all'analisi dell'opcode.
+Le flag di objdump sono orientate al reverse engineering del codice eseguibile e all'analisi dell'opcode.
 
 ### Controllo del Disassemblatore
 
-* `-d` (`--disassemble`): Smonta solo le sezioni che si suppone contengano codice eseguibile (tipicamente `.text`, `.init`, `.plt`). Converte l'opcode binario in assembly.
-* `-D` (`--disassemble-all`): Forza il disassemblaggio di **tutte** le sezioni, indipendentemente dai flag della sezione. Fondamentale nell'analisi di malware o packer, dove istruzioni valide potrebbero essere nascoste in sezioni non eseguibili (es. `.data`).
-* `-M <flavor>` (`--disassembler-options`): Modifica la sintassi. In x86-64, il default è `att` (AT&T, opcode sorgente, destinazione, prefissi `%` e `$`). Usare `-M intel` converte l'output in sintassi Intel (opcode destinazione, sorgente, memoria tra parentesi quadre).
-* `-S` (`--source`): Intercala il codice sorgente (es. in C) al codice assembly smontato. Richiede che il binario sia stato compilato con i simboli di debug (flag `-g` in GCC/Clang).
+* -d (--disassemble): smonta solo le sezioni che si suppone contengano codice eseguibile (tipicamente .text, .init, .plt). Converte l'opcode binario in assembly.
+* -D (--disassemble-all): forza il disassemblaggio di tutte le sezioni, indipendentemente dai flag della sezione. Fondamentale nell'analisi di malware o packer, dove istruzioni valide potrebbero essere nascoste in sezioni non eseguibili (es. .data).
+* -M <flavor> (--disassembler-options): modifica la sintassi. In x86-64, il default è att (AT&T, opcode sorgente, destinazione, prefissi % e $). Usare -M intel converte l'output in sintassi Intel (opcode destinazione, sorgente, memoria tra parentesi quadre).
+* -S (--source): intercala il codice sorgente (es. in C) al codice assembly smontato. Richiede che il binario sia stato compilato con i simboli di debug (flag -g in GCC/Clang).
 
 ### Estrazione Dati e Header (BFD-based)
 
-* `-f` (`--file-headers`): Mostra le informazioni generali dell'header in formato agnostico BFD (non ELF puro). Riporta l'architettura target e i flag di stato del file (es. `HAS_SYMS`, `D_PAGED`).
-* `-h` (`--section-headers`): Stampa la tabella delle sezioni. È l'equivalente BFD di `readelf -S`, ma formattato diversamente e limitato da ciò che la libreria BFD considera una "sezione".
-* `-s` (`--full-contents`): Genera un hexdump affiancato ad ASCII di tutte le sezioni che contengono dati fisici sul disco (ignora `.bss`). Simile a `readelf -x`, ma su tutto il file.
-* `-j <nome_sezione>` (`--section`): Filtra l'output di `-d` o `-s` per operare esclusivamente su una sezione target (es. `objdump -d -j .text -M intel a.out`).
+* -f (--file-headers): mostra le informazioni generali dell'header in formato agnostico BFD (non ELF puro). Riporta l'architettura target e i flag di stato del file (es. HAS_SYMS, D_PAGED).
+* -h (--section-headers): stampa la tabella delle sezioni. È l'equivalente BFD di readelf -S, ma formattato diversamente e limitato da ciò che la libreria BFD considera una "sezione".
+* -s (--full-contents): genera un hexdump affiancato ad ASCII di tutte le sezioni che contengono dati fisici sul disco (ignora .bss). Simile a readelf -x, ma su tutto il file.
+* -j <nome_sezione> (--section): filtra l'output di -d o -s per operare esclusivamente su una sezione target (es. objdump -d -j .text -M intel a.out).
 
 ### Simboli e Rilocazioni a Runtime
 
-* `-r` (`--reloc`): Stampa le rilocazioni inline al disassemblaggio. Utilissimo sui file oggetto (`.o`) per capire quale simbolo esterno sta rimpiazzando i placeholder `0x0` nel codice assembly.
-* `-R` (`--dynamic-reloc`): Mostra esclusivamente le rilocazioni dinamiche usate dal linker a runtime (la tabella delle entries della GOT che verranno popolate da `ld.so`).
-* `-t` (`--syms`): Stampa la tabella dei simboli in formato BFD, indicando flags logici che specificano se il simbolo è globale (g), locale (l), una funzione (F) o un dato (O).
-* `-T` (`--dynamic-syms`): Equivalente a `-t`, ma per i simboli esportati dinamicamente.
+* -r (--reloc): stampa le rilocazioni inline al disassemblaggio. Utilissimo sui file oggetto (.o) per capire quale simbolo esterno sta rimpiazzando i placeholder 0x0 nel codice assembly.
+* -R (--dynamic-reloc): mostra esclusivamente le rilocazioni dinamiche usate dal linker a runtime (la tabella delle entries della GOT che verranno popolate da ld.so).
+* -t (--syms): stampa la tabella dei simboli in formato BFD, indicando flags logici che specificano se il simbolo è globale (g), locale (l), una funzione (F) o un dato (O).
+* -T (--dynamic-syms): equivalente a -t, ma per i simboli esportati dinamicamente.
 
+## PERCHE' UN MAIN ANCHE BANALE GENERA DECINE DI SEZIONI E SEGMENTI DIVERSI?
 
-Il motivo per cui vedi 31 sezioni e 13 segmenti per un misero `write` è che **il tuo codice C non gira mai da solo nel vuoto**.
+Quando compilo anche il programma più banale, GCC/Clang avvolgono il main() all'interno di un'enorme infrastruttura di sistema precompilata: il C Runtime (CRT), il framework per il linking dinamico e le moderne mitigazioni di sicurezza del kernel Linux. Un main con un banale include della libreria stdio.h e un write di una stringa arriva a contenere fino a 31 sezioni nella linking view e 13 segmenti nella execution view.
+Le 31 sezioni derivano dal fatto che il linker fonde il file oggetto con una serie di librerie standard e moduli di avvio:
+* il Boilerplate del C Runtime (CRT): GCC compila il main, ma l'entry point reale punta a _start. Per gestire questo, il linker ha importato staticamente nel binario i file oggetto di sistema crt1.o, crti.o e crtn.o. Questi file aggiungono codice boilerplate e iniettano sezioni come .init, .fini, .init_array e .fini_array, che servono a eseguire i costruttori globali prima che il mio main parta, e i distruttori quando faccio un return o chiami exit().
+* l'infrastruttura dinamica (PIE): dal momento che il binario è compilato come ET_DYN (PIE) e utilizza una libreria condivisa ( write è in realtà un wrapper in C importato dalla libc.so.6), il compilatore deve costruire tutte le tabelle per permettere al linker dinamico (ld.so) di risolvere quell'indirizzo in RAM. Questo genera un mare di sezioni: .interp, .dynamic, .dynsym (simboli dinamici), .dynstr (stringhe dinamiche), le hash table per velocizzare la ricerca (.hash / .gnu.hash), le rilocazioni (.rela.dyn, .rela.plt) e ovviamente .plt (Procedure Linkage Table) e .got / .got.plt (Global Offset Table).
+* unwinding dello stack: anche in C puro, i moderni compilatori includono le tabelle DWARF per il frame-unwinding, necessarie per funzioni come backtrace(), per il debugging o per la cancellazione dei thread POSIX. Questo crea le sezioni .eh_frame e .eh_frame_hdr.
+* note e metadati: il linker inserisce firme digitali o hash per debuggare il binario. Genera .note.gnu.build-id (l'hash univoco della compilazione) e .note.ABI-tag (la versione minima del kernel Linux supportata).
+* gestione stringhe e costanti: .rodata per le costanti (come "stringa"), .shstrtab (i nomi testuali delle sezioni stesse) e .strtab.
 
-Quando compili anche il programma più banale, GCC/Clang avvolgono il tuo `main()` all'interno di un'enorme infrastruttura di sistema precompilata: il **C Runtime (CRT)**, il framework per il linking dinamico e le moderne mitigazioni di sicurezza del kernel Linux. Stai pagando il "costo fisso" dell'ecosistema ELF; la dimensione del payload (il tuo `write`) è del tutto ininfluente.
+In passato, un binario Linux aveva essenzialmente due o tre segmenti PT_LOAD (uno per il codice RX, uno per i dati RW). Oggi, le policy di sicurezza richiedono una separazione iper-granulare dei permessi di pagina (W^X rigoroso), spingendo il linker a segmentare la memoria in modo quasi ossessivo.
 
-Ecco l'autopsia esatta di cosa ha iniettato il compilatore nel tuo binario.
+* 1. I 4 Segmenti PT_LOAD moderni: per impedire esecuzioni di codice malevolo, la memoria viene divisa in 4 blocchi fisici distinti, ciascuno con permessi MMU restrittivi:
 
-### Le 31 Sezioni (Linking View)
+* PT_LOAD **R--**: contiene l'ELF header iniziale, i Program Headers e le note.
+* PT_LOAD **R-X**: contiene esplicitamente solo il codice eseguibile (.init, .text, .plt, .fini).
+* PT_LOAD **R--**: contiene i dati a sola lettura post-rilocazione (costanti, .rodata, .eh_frame).
+* PT_LOAD **RW-**: contiene i dati mutabili (.data, .bss, e le parti scrivibili della .got).
 
-Le 31 sezioni derivano dal fatto che il linker fonde il tuo file oggetto con una serie di librerie standard e moduli di avvio.
+* 2. I Segmenti di Protezione GNU:
 
-* **Il Boilerplate del C Runtime (CRT):** GCC compila il tuo `main`, ma l'entry point reale (`e_entry: 0x1060`) punta a `_start`. Per gestire questo, il linker ha importato staticamente nel tuo binario i file oggetto di sistema `crt1.o`, `crti.o` e `crtn.o`. Questi file aggiungono codice boilerplate e iniettano sezioni come `.init`, `.fini`, `.init_array` e `.fini_array`, che servono a eseguire i costruttori globali prima che il tuo `main` parta, e i distruttori quando fai un `return` o chiami `exit()`.
-* **L'Infrastruttura Dinamica (PIE):** Dal momento che il binario è compilato come `ET_DYN` (PIE) e utilizza una libreria condivisa (la tua `write` è in realtà un wrapper in C importato dalla `libc.so.6`), il compilatore deve costruire tutte le tabelle per permettere al linker dinamico (`ld.so`) di risolvere quell'indirizzo in RAM. Questo genera un mare di sezioni: `.interp`, `.dynamic`, `.dynsym` (simboli dinamici), `.dynstr` (stringhe dinamiche), le hash table per velocizzare la ricerca (`.hash` / `.gnu.hash`), le rilocazioni (`.rela.dyn`, `.rela.plt`) e ovviamente `.plt` (Procedure Linkage Table) e `.got` / `.got.plt` (Global Offset Table).
-* **Unwinding dello Stack:** Anche in C puro, i moderni compilatori includono le tabelle DWARF per il frame-unwinding, necessarie per funzioni come `backtrace()`, per il debugging o per la cancellazione dei thread POSIX. Questo crea le sezioni `.eh_frame` e `.eh_frame_hdr`.
-* **Note e Metadati:** Il linker inserisce firme digitali o hash per debuggare il binario. Genera `.note.gnu.build-id` (l'hash univoco della compilazione) e `.note.ABI-tag` (la versione minima del kernel Linux supportata).
-* **Gestione stringhe e costanti:** `.rodata` per le costanti (come `"a"`), `.shstrtab` (i nomi testuali delle sezioni stesse) e `.strtab`.
+* PT_GNU_STACK: un segmento con permessi **RW-**. Non contiene dati fisici sul disco (filesz = 0), ma serve a comunicare esplicitamente al kernel che lo stack del tuo processo non deve essere eseguibile (prevenendo attacchi buffer overflow). Senza questo header, per retrocompatibilità, il kernel Linux lascerebbe lo stack eseguibile.
+* PT_GNU_RELRO: (RELocation Read-Only). Indica a ld.so che, dopo aver risolto gli indirizzi a runtime (es. write), alcune pagine della GOT e di .dynamic devono essere immediatamente bloccate in modalità Read-Only per prevenire attacchi di GOT Overwrite.
+* PT_GNU_PROPERTY: configura mitigazioni hardware moderne a livello di CPU, come l'Intel CET (Control-flow Enforcement Technology) o gli shadow stacks.
+* PT_GNU_EH_FRAME: un segmento dedicato unicamente a far trovare rapidamente la tabella .eh_frame_hdr al sistema per l'unwinding.
 
-### I 13 Segmenti (Execution View)
+* 3. I Segmenti Strutturali:
 
-In passato, un binario Linux aveva essenzialmente due o tre segmenti `PT_LOAD` (uno per il codice RX, uno per i dati RW). Oggi, le policy di sicurezza richiedono una separazione iper-granulare dei permessi di pagina (W^X rigoroso), spingendo il linker a segmentare la memoria in modo quasi ossessivo.
+* PT_PHDR: dice al kernel dove caricare la tabella stessa dei Program Headers in memoria.
+* PT_INTERP: passa la stringa /lib64/ld-linux-x86-64.so.2 al kernel.
+* PT_DYNAMIC: punta alla tabella dinamica per ld.so.
+* 2 o più PT_NOTE: usati per mappare in RAM le note generate in fase di link (build-id, ABI-tag).
 
-Dei 13 segmenti che vedi, ecco come sono ripartiti:
+Se voglio vedere la differenza tra il mio codice e l'infrastruttura di sistema, posso riscrivere il file C invocando la syscall pura tramite inline assembly (syscall invece di chiamare write, per sbarazzarmi della libc) e compilando con il comando:
+gcc -nostdlib -static file.c
 
-**1. I 4 Segmenti `PT_LOAD` moderni:**
-Per impedire esecuzioni di codice malevolo, la memoria viene affettata in 4 blocchi fisici distinti, ciascuno con permessi MMU restrittivi:
+Nostdlib dice a GCC (e di riflesso al linker ld) di non linkare la libreria standard del C (libc) e non includere i file oggetto di startup del sistema (crt1.o, crti.o, crtn.o).
 
-* `PT_LOAD` **R--**: Contiene l'ELF header iniziale, i Program Headers e le note.
-* `PT_LOAD` **R-X**: Contiene esplicitamente solo il codice eseguibile (`.init`, `.text`, `.plt`, `.fini`).
-* `PT_LOAD` **R--**: Contiene i dati a sola lettura post-rilocazione (costanti, `.rodata`, `.eh_frame`).
-* `PT_LOAD` **RW-**: Contiene i dati mutabili (`.data`, `.bss`, e le parti scrivibili della `.got`).
+Questo escluderà il linking dinamico, il C runtime, la libc e tutti i boilerplate di GCC. Eseguendo di nuovo readelf -h, vedro' l'overhead crollare a pochissime sezioni e segmenti.
+Quando scrivo di usare syscall,non intendo la funzione fornita da unistd.h,perche' e' anch' essa un costrutto della libc, ma devi invocare l'istruzione hardware syscall sfruttando l'assembly inline di GCC, rispettando rigorosamente la System V ABI per x86-64.
 
-**2. I Segmenti di Protezione GNU:**
+Ecco un esempio di sorgente C definitivo, ridotto all'osso, in cui non abbiamo più a disposizione printf, malloc, strlen, né alcun wrapper. Poiché elimino crt1.o, elimino anche la funzione di inizializzazione di sistema che va a chiamare ilmain(). Ecco perché nel codice ho dovuto chiamare direttamente _start: è il simbolo che il linker cerca di default come e_entry dell'header ELF.
+Rimuovendo il C Runtime (CRT), spazzo via tutte le sezioni .init, .fini, .init_array, .eh_frame e i segmenti associati. Siamo in un ambiente freestanding puro:
 
-* `PT_GNU_STACK`: Un segmento con permessi **RW-**. Non contiene dati fisici sul disco (`filesz = 0`), ma serve a comunicare esplicitamente al kernel che lo stack del tuo processo *non* deve essere eseguibile (prevenendo attacchi buffer overflow). Senza questo header, per retrocompatibilità, il kernel Linux lascerebbe lo stack eseguibile.
-* `PT_GNU_RELRO`: (RELocation Read-Only). Indica a `ld.so` che, dopo aver risolto gli indirizzi a runtime (es. la tua `write`), alcune pagine della GOT e di `.dynamic` devono essere immediatamente bloccate in modalità Read-Only per prevenire attacchi di *GOT Overwrite*.
-* `PT_GNU_PROPERTY`: Configura mitigazioni hardware moderne a livello di CPU, come l'Intel CET (Control-flow Enforcement Technology) o gli shadow stacks.
-* `PT_GNU_EH_FRAME`: Un segmento dedicato unicamente a far trovare rapidamente la tabella `.eh_frame_hdr` al sistema per l'unwinding.
-
-**3. I Segmenti Strutturali:**
-
-* `PT_PHDR`: Dice al kernel dove caricare la tabella stessa dei Program Headers in memoria.
-* `PT_INTERP`: Passa la stringa `/lib64/ld-linux-x86-64.so.2` al kernel.
-* `PT_DYNAMIC`: Punta alla tabella dinamica per `ld.so`.
-* 2 o più `PT_NOTE`: Usati per mappare in RAM le note generate in fase di link (build-id, ABI-tag).
-
-Se vuoi vedere la differenza tra il "tuo" codice e l'infrastruttura di sistema, riscrivi il file C invocando la syscall pura tramite inline assembly (`syscall` invece di chiamare `write`, per sbarazzarti della libc) e compila con il comando:
-`gcc -nostdlib -static file.c`
-
-Questo escluderà il linking dinamico, il C runtime, la libc e tutti i boilerplate di GCC. Eseguendo di nuovo `readelf -h`, vedrai l'overhead crollare a pochissime sezioni e segmenti.
-
-
-
-Per sbarazzarti dell'intera infrastruttura di sistema e generare un binario "nudo e crudo" che parli direttamente col kernel, devi abbandonare la libreria standard (libc). Questo significa che non puoi usare il wrapper `write()`, né la funzione `syscall()` fornita da `<unistd.h>`, perché anch'essa è un costrutto della libc.
-
-Devi invocare l'istruzione hardware `syscall` sfruttando l'assembly inline di GCC, rispettando rigorosamente la System V ABI per x86-64.
-
-Ecco il sorgente C definitivo, ridotto all'osso:
-
-```c
 // Nessun #include. Non ci servono header della libc.
-
 // Sostituiamo main() con _start, il vero entry point richiesto dal linker
 void _start() {
     const char msg[] = "a\n";
@@ -332,7 +311,7 @@ void _start() {
     );
 
     // 2. Syscall: sys_exit (RAX = 60)
-    // Se non chiami sys_exit, la CPU continuerà a eseguire spazzatura oltre la fine
+    // Se non chiamo sys_exit, la CPU continuerà a eseguire spazzatura oltre la fine
     // della funzione _start, causando un Segmentation Fault.
     __asm__ volatile (
         "syscall"
@@ -343,22 +322,7 @@ void _start() {
     );
 }
 
-```
+Static dice al linker di risolvere tutte le dipendenze al momento della compilazione e incorporare il codice macchina di tutto ciò che serve direttamente dentro il file binario
+In questo esempio specifico (dove non usiamo funzioni esterne), dice semplicemente di non preparare il terreno per le librerie dinamiche.Static elimina completamente il linker dinamico. Spariscono il segmento PT_INTERP (addio ld-linux.so), il segmento PT_DYNAMIC, la PLT (.plt), la GOT (.got) e tutte le tabelle dei simboli dinamici (.dynsym, .dynstr, .hash). L'eseguibile passa dal tipo ET_DYN (PIE) al tipo ET_EXEC (eseguibile assoluto base fisso).
 
-**Cosa fa `-nostdlib**`
-Questa flag dice a GCC (e di riflesso al linker `ld`): *"Non linkare la libreria standard del C (`libc`) e non includere i file oggetto di startup del sistema (`crt1.o`, `crti.o`, `crtn.o`)."*
-
-* **Effetto sul codice:** Non hai più a disposizione `printf`, `malloc`, `strlen`, né alcun wrapper. Sei in un ambiente *freestanding*.
-* **Effetto sull'Entry Point:** Poiché elimini `crt1.o`, elimini anche la funzione di inizializzazione di sistema che va a chiamare il tuo `main()`. Ecco perché nel codice sopra abbiamo dovuto chiamare la funzione direttamente `_start`: è il simbolo che il linker cerca di default come `e_entry` dell'header ELF.
-* **Effetto sull'eseguibile (il taglio del grasso):** Rimuovendo il C Runtime (CRT), spazzi via tutte le sezioni `.init`, `.fini`, `.init_array`, `.eh_frame` e i segmenti associati.
-
-**Cosa fa `-static**`
-Questa flag dice al linker: *"Risolvi tutte le dipendenze al momento della compilazione e incorpora il codice macchina di tutto ciò che ti serve direttamente dentro il file binario."*
-
-* **Effetto sul codice:** In questo esempio specifico (dove non usiamo funzioni esterne), dice semplicemente di non preparare il terreno per le librerie dinamiche.
-* **Effetto sull'eseguibile (l'annientamento del dinamismo):** Elimina completamente il linker dinamico. Spariscono il segmento `PT_INTERP` (addio `ld-linux.so`), il segmento `PT_DYNAMIC`, la PLT (`.plt`), la GOT (`.got`) e tutte le tabelle dei simboli dinamici (`.dynsym`, `.dynstr`, `.hash`). L'eseguibile passa dal tipo `ET_DYN` (PIE) al tipo `ET_EXEC` (Eseguibile assoluto base fisso).
-
-Se compili il codice soprastante con:
-`gcc -nostdlib -static file.c`
-
-E poi lanci `readelf -l a.out`, i tuoi 13 segmenti originari saranno magicamente crollati a soli **2 o 3 segmenti `PT_LOAD**`, e le 31 sezioni a malapena **4 o 5** (`.text`, `.rodata`, `.symtab`, `.strtab`, `.shstrtab`). Hai appena generato un file ELF in purezza.
+Se compilo il codice soprastante con `gcc -nostdlib -static file.c` e poi lancio `readelf -l a.out`, i 13 segmenti originari saranno magicamente crollati a soli 2 o 3 segmenti PT_LOAD, e le 31 sezioni a malapena 4 o 5 (.text, .rodata, .symtab, .strtab, .shstrtab).
