@@ -69,7 +69,7 @@ Le tabelle (Elf64_Shdr e Elf64_Phdr) dunque non sono i dati stessi, ma gli indic
 
 * ELF Header (Elf64_Ehdr): e' situato situato sempre all'offset 0x0 del file. È la "stele di Rosetta" che rappresenta il punto di partenza per l'analisi statica della struttura del file ,descrivendo dove trovare il resto delle tabelle. Occupa 64 byte.
   Componenti chiave dell'header:
-  - e_ident[16]: i primi 4 byte sono il Magic Number (\x7F E L F).  127 (\x7f) e' il primo byte perché storicamente (nel design dei vecchi sistemi Unix e nei loader a.out/ELF) il valore 0x7F non è un carattere ASCII stampabile (corrisponde al carattere DEL,i printable vanno da 32 a 126 ascii), scelto appositamente per impedire che il sistema tentasse di interpretare ed eseguire file di testo ASCII o binari corrotti come script di shell, bloccando immediatamente l'esecuzione prima di analizzare i caratteri alfabetici successivi (E, L, F). I successivi bytes indicano la classe (32 o 64 bit), l'endianness (LSB/MSB) e la versione dell'ABI. Per esempio l'e_ident di un ELF per un architettura little endian a 64 bit con ultima versione ABI assume questa configurazione hex esatta: \x7f \x45 \x4c \x46 \x02 \x01 \x01 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00.
+  - e_ident[16]: i primi 4 byte sono il Magic Number (\x7F E L F), bytes 0-3.  127 (\x7f) e' il primo byte perché storicamente (nel design dei vecchi sistemi Unix e nei loader a.out/ELF) il valore 0x7F non è un carattere ASCII stampabile (corrisponde al carattere DEL,i printable vanno da 32 a 126 ascii), scelto appositamente per impedire che il sistema tentasse di interpretare ed eseguire file di testo ASCII o binari corrotti come script di shell, bloccando immediatamente l'esecuzione prima di analizzare i caratteri alfabetici successivi (E, L, F). I successivi bytes indicano la classe (32 (01) o (64) 02 bit, byte 4), l'endianness (LSB (01)/MSB(02), byte 5) e la versione dell'ABI. Per esempio l'e_ident di un ELF per un architettura little endian a 64 bit con ultima versione ABI assume questa configurazione hex esatta: \x7f \x45 \x4c \x46 \x02 \x01 \x01 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00 \x00.
         \x7f\x45\x4c\x46: Magic Number (\x7FELF).
         \x02: Classe (ELFCLASS64 = 64-bit).
         \x01: Endianness (ELFDATA2LSB = Little Endian).
@@ -145,6 +145,8 @@ Struttura di una singola Entry in .symtab (Elf64_Sym),peso 24 bytes:
   - st_other: specifica la visibilità (es. Default, Hidden per impedire l'esportazione nelle librerie dinamiche).
   - st_shndx: l'indice della Section Header a cui appartiene il simbolo (es. punta alla riga della tabella che definisce .text se è una funzione).
 - .strtab(String Table): una tabella,o meglio una gigantesca matrice, di stringhe testuali in formato zero-terminated(cioe' separata dal byte nullo \0) che contiene i nomi reali dei simboli (es. "main", "printf").
+- .shstrtab(Section Header String Table): contiene solo e unicamente i nomi testuali delle sezioni stesse (es. .text, .data, .bss, .symtab, .shstrtab). Se guardo una riga della Section Header Table (Elf64_Shdr), c'e' un campo chiamato sh_name. Quel campo è banalmente un intero (un offset in byte). Quando readelf -S legge quel numero, va nella sezione .shstrtab, conta quel numero di byte e legge la stringa corrispondente (es. .text).
+
 Nei binari di produzione symtab e strtab sono spesso rimosse (stripped) per offuscare i nomi delle funzioni e ridurre le dimensioni.
 Ecco un esempio di codice C chirurgico per dissezionare esattamente come ogni elemento viene mappato nella .symtab dell'eseguibile.
 
