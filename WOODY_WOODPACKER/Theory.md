@@ -419,3 +419,34 @@ Static dice al linker di risolvere tutte le dipendenze al momento della compilaz
 In questo esempio specifico (dove non usiamo funzioni esterne), dice semplicemente di non preparare il terreno per le librerie dinamiche. Static elimina completamente il linker dinamico. Spariscono il segmento PT_INTERP (addio ld-linux.so), il segmento PT_DYNAMIC, la PLT (.plt), la GOT (.got) e tutte le tabelle dei simboli dinamici (.dynsym, .dynstr, .hash). L'eseguibile passa dal tipo ET_DYN (PIE) al tipo ET_EXEC (eseguibile assoluto base fisso).
 
 Se compilo il codice soprastante con `gcc -nostdlib -static file.c` e poi lancio `readelf -l a.out`, i 13 segmenti originari saranno magicamente crollati a soli 2 o 3 segmenti PT_LOAD, e le 31 sezioni a malapena 4 o 5 (.text, .rodata, .symtab, .strtab, .shstrtab).
+
+
+## SYSCALL MMAP
+Contenuta nella libreria <sys/mman.h>, a livello kernel mmap (Memory Mapped) altera le page tables della CPU per mappare fisicamente le pagine di un file su disco all'interno dello spazio di indirizzamento virtuale del mio processo. 
+
+```c
+void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
+
+```
+
+### Argomenti
+
+1. `addr`: l'indirizzo di memoria in cui mappare il file sul disco.
+Passando NULL chiedo al kernel di trovare autonomamente un'area libera nella memoria virtuale. E' possibile anche forzare manualmente un indirizzo,ma il rischio e' quello di collisioni con la memoria allocata per altri processi.
+2. `length` : la dimensione in bytes della memoria da mappare. 
+3. `prot` (protezione hardware): setta i permessi della Memory Management Unit (MMU) per le pagine mappate.
+4. `flags` (comportamento della memoria): decide chi vede le modifiche al file:
+* MAP_SHARED: se scrivi nell'array in memoria, il kernel aggiorna fisicamente il file sul disco.
+* MAP_PRIVATE: innesca il Copy-On-Write; le scritture avvengono solo in RAM e non modificano il file originale su disco.
+5. `fd`:l'intero restituito dalla chiamata a open().
+6. `offset`: da quale punto del file iniziare a mappare. Nel 99% dei casi, e sicuramente per parsare un ELF, si passa 0 (l'inizio esatto del file). L'offset deve essere sempre un multiplo della page size del sistema,tipicamente 4096 bytes.
+
+La funzione inversa è munmap(void *addr, size_t length). Distrugge la mappatura e rilascia le pagine al kernel. Operazione obbligatoria prima di chiudere il programma per un cleanup impeccabile.
+
+### Il Valore di Ritorno
+
+Se ha successo, mmap restituisce il puntatore generico void * all'inizio dell'area allocata in RAM.
+In caso di fallimento, mmap NON restituisce NULL,ma imposta una macro specifica chiamata MAP_FAILED (che a livello macchina equivale a (void *)-1).
+Se faccio error handling con if (ptr == NULL), il programma crasherà: c'e' bisogno rigorosamente di verificare if (ptr == MAP_FAILED).
+
+
