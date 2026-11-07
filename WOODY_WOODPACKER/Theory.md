@@ -449,4 +449,12 @@ Se ha successo, mmap restituisce il puntatore generico void * all'inizio dell'ar
 In caso di fallimento, mmap NON restituisce NULL,ma imposta una macro specifica chiamata MAP_FAILED (che a livello macchina equivale a (void *)-1).
 Se faccio error handling con if (ptr == NULL), il programma crasherà: c'e' bisogno rigorosamente di verificare if (ptr == MAP_FAILED).
 
-
+0/0 = R
+R(0) = R
+R(n) = n / 0
+R(n) * 0 --> n
+n = a * b
+R(n) = R(a) * R(b)
+7 = 7R * 0
+6 = 6R * 0
+6 = 2R * 0 * 3R * 0
