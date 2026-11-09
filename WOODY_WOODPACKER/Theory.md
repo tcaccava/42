@@ -449,12 +449,51 @@ Se ha successo, mmap restituisce il puntatore generico void * all'inizio dell'ar
 In caso di fallimento, mmap NON restituisce NULL,ma imposta una macro specifica chiamata MAP_FAILED (che a livello macchina equivale a (void *)-1).
 Se faccio error handling con if (ptr == NULL), il programma crasherà: c'e' bisogno rigorosamente di verificare if (ptr == MAP_FAILED).
 
+
+
+
+
+
+## LSEEK
+A livello di kernel Linux, `lseek` non esegue alcuna operazione fisica di I/O sul disco. Si limita ad aggiornare un singolo intero: la variabile `f_pos` (file position) all'interno della `struct file` che il Virtual File System (VFS) del kernel ha associato al tuo file descriptor.
+
+La firma logica richiede tre argomenti e restituisce un valore. Ecco l'anatomia completa.
+
+### Gli Argomenti
+
+1. **`fd` (File Descriptor):**
+L'intero restituito dalla tua chiamata a `open`. Deve riferirsi a un file regolare. Se provi a usare `lseek` su una pipe, un socket o una FIFO, il kernel ti sputa in faccia un errore specifico (`ESPIPE` - Illegal seek), perché i flussi di dati continui non hanno il concetto matematico di "posizione".
+2. **`offset` (Lo Spostamento):**
+Il numero di byte di cui vuoi spostare il cursore. Può essere un numero positivo (spostamento in avanti), negativo (all'indietro) o zero (nessun offset rispetto al punto di riferimento). Il tipo di dato è `off_t`, che su architetture a 64 bit è un intero con segno a 64 bit (permette di gestire file di dimensioni nell'ordine degli exabyte).
+3. **`whence` (Il Punto di Riferimento):**
+È la direttiva che dice al kernel da dove iniziare a contare l'offset. Le macro ammesse sono tre:
+* **`SEEK_SET`**: L'offset è calcolato dall'inizio assoluto del file (byte 0).
+* **`SEEK_CUR`**: L'offset è calcolato a partire dalla posizione *attuale* in cui si trova il cursore.
+* **`SEEK_END`**: L'offset è calcolato a partire dall'esatta fine del file.
+
+
+
+### Il Valore di Ritorno (Il cuore della tua casistica)
+
+Se l'operazione ha successo, `lseek` restituisce **la nuova posizione del cursore in byte, misurata dall'inizio assoluto del file (offset 0)**, indipendentemente dalla macro `whence` che hai usato.
+
+Ecco perché usarlo con `SEEK_END` e un offset di `0` calcola la dimensione del file: dici al kernel "sposta il cursore alla fine esatta del file, aggiungi zero byte, e dimmi a che distanza mi trovo dal byte zero". Il numero restituito è letteralmente la stazza del binario in byte.
+
+Se l'operazione fallisce, restituisce `(off_t) -1` e imposta la variabile globale `errno`. Come sempre, va checkato rigorosamente.
+
+### Chicca Architetturale: I "File Holes" (Sparse Files)
+
+C'è un comportamento di sistema di `lseek` che è vitale conoscere a basso livello. Cosa succede se usi `SEEK_END` e ci aggiungi un offset in avanti di, per dire, un milione di byte (scavalcando la fine fisica del file) e poi chiami `write`?
+
+Il kernel Linux non ti dà errore. Estende virtualmente il file creando un cosiddetto "buco" (hole). In termini di file system, viene creato un file "sparso" (Sparse File). Se un altro programma proverà a leggere quel milione di byte vuoti, il kernel gli restituirà un flusso di byte a zero (`\0`), ma sul disco rigido quei megabyte non verranno mai allocati fisicamente finché non ci scriverai dentro dati reali.
+
+Per il tuo packer, il flusso per rimpiazzare `fstat` sarà banalmente: apri, fai `lseek` a fine file per prenderti la dimensione in una variabile, e la passi dritta nel secondo parametro di `mmap`.
+
+
 0/0 = R
 R(0) = R
 R(n) = n / 0
 R(n) * 0 --> n
 n = a * b
 R(n) = R(a) * R(b)
-7 = 7R * 0
-6 = 6R * 0
-6 = 2R * 0 * 3R * 0
+
