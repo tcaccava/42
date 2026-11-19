@@ -523,6 +523,9 @@ Nel codice esempio non sto leggendo il primo byte della stringa,ma sto mettendo 
  Perché in complemento a 2 il troncamento è identico?In complemento a 2, i N bit meno significativi del prodotto di due numeri sono identici sia che i numeri vengano interpretati come signed sia come unsigned.Ecco perché GCC usa spesso imul rax, rbx (2 operandi) anche per il codice C unsigned uint64_t: evita di toccare RDX e   
  calcola i 64 bit LSB corretti in un solo colpo.  
 - jc e jnc(Jump If/ If not Carry Flag) : sintassi jc label. Eseguono un salto condizionato alla label a seconda che il carry flag impostato dalla precedente mnemonica(per esempio bt) sia impostato a 0 o a 1. 
+- pushfq (Push Flags Quadword): ogni processore ha un registro speciale chiamato RFLAGS (o EFLAGS a 32 bit)che contiene una serie di flags a singolo bit (Zero Flag, Carry Flag, Overflow Flag, ecc.). pushfq prende l'intero registro RFLAGS a 64 bit (Quadword) e lo salva (push) in cima allo stack.
+- popfq (Pop Flags Quadword) prende i 64 bit che si trovano attualmente in cima allo stack e li reinserisce a forza nel registro RFLAGS.
+- xchg (Exchange) : scambia i valori di due registri in un singolo ciclo di clock, senza aver bisogno di un registro temporaneo.
 
 ## ISTRUZIONI LOGICHE, SHIFT, ESTENSIONE DEL SEGNO E STRINGHE
 

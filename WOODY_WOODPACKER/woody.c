@@ -62,7 +62,7 @@ int main(int c, char **v)
 {
     if (c != 2)
         return 1;
-    int fd = open(v[1], O_RDWR); // apro il file con permessi di lettura/scrittura perche' avro' in seguito bisogno di modificarlo iniettandovi lo stub
+    int fd = open(v[1], O_RDONLY); // apro il file con permessi di lettura/scrittura perche' avro' in seguito bisogno di modificarlo iniettandovi lo stub
     if (fd < 0)
         return 1;
     off_t end = lseek(fd, 0, SEEK_END); // non posso usare fstat perche' vietata,quindi calcolo la size del file sul disco usando lseek da un offset 0 a EOF
@@ -127,7 +127,17 @@ int main(int c, char **v)
     size_t codecave_size = min(page_boundary, end) - pt_load_end; // il zero padding si estende dalla fine del segmento pt_load fino al prossimo limite di pagina
     // perche' usiamo il min tra page_boundary e end? perche' in un binario malformato dove il segmento pt_load eseguibile e' l'ultimo elemento del file
     // e quindi pt_load_end == end, tentare di scrivere oltre end senza aver prima esteso il file sul disco con ftruncate causerebbe un SIGBUS error non appena si accede a memoria vietata
-    munmap(mapped, (size_t)end); // rimuovo il mapping virtuale
-    close(fd);
+    close(fd); // il fd sorgente non serve più una volta fatto mmap
+    int output = open("woody", O_CREAT | O_WRONLY | O_TRUNC, 0755);
+    if (output < 0)
+    {
+        munmap(mapped, (size_t)end);
+        return 1;
+    }
+    ssize_t written = write(output, mapped, (size_t)end);
+    close(output);
+    munmap(mapped, (size_t)end);
+    if (written != (ssize_t)end)
+        return 1;
     return 0;
 }
