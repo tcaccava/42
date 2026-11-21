@@ -1,6 +1,3 @@
-msg: db "....WOODY....", 10
-
-
 _start:
 
     ; salvo tutti i registri caller saved volatili,compresi rcx e r11 che verranno sporcati dalla syscall
@@ -51,3 +48,13 @@ _start:
     ; ret fa un pop rsp dell'indirizzo in cima allo stack e ci salta dopo averlo messo in rip
     ; il programma vero parte,lo stack e' pulito e i registri intatti
     ret
+
+msg: db "....WOODY....", 10; perche' sto definendo la label msg alla fine del sorgente e non all'inizio come 
+; tradizionalmente si fa in assembly? perche' questo stub non verra compilato con nasm -f elf64,ottenendo cosi un eseguibile
+; in cui le sezioni dati e codice eseguibile sono fisicamente separate nell'elf finale,ma con nasm -f bin,ottenendo un flat binary
+; senza sezioni e metadati,un unico flusso di bytes scritti dall'alto in basso nello stesso ordine in cui nasm incontra il sorgente
+; quando nel packer impostero' come nuovo OEP il vaddr dello stub,il kernel iniziera' a eseguire direttamente lo stub iniettato dal primo bytes
+; se trovasse li' la label msg il kernel,non sapendo che deve interpretarla come caratteri ASCII di una stringa,proverebbe a passarli al frontend
+; del decoder della cpu come mnemonici assembly,cioe' istruzioni,mandando tutto in SIGSEGV. Mettendo la label dopo ret invece,l'esecuzione partira' 
+;dal byte 0 dello stub e proseguira' fino a ret,per poi saltare all'OEP originale. L'instruction pointer non puntera' mai ai bytes della label,che verranno 
+; letti unicamente come dati tramite lo mnemonico lea
