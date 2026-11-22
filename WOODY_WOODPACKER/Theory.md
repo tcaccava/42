@@ -276,7 +276,7 @@ Linker statico e dinamico sono dunque due software completamente distinti che op
 Che differenza c'e' allora tra funzione extern e funzione condivisa (dynamic)? extern è una keyword di dichiarazione logica a livello di linguaggio C e Assembly che dice al compilatore di non generare un indirizzo definitivo per quel simbolo, lasciando un segnaposto per il linker. La funzione condivisa è l'entità binaria reale che risiede all'interno di una libreria esterna (.so). Quando dichiaro una funzione extern e questa appartiene a una libreria esterna (es. printf della libc), il linker inserisce una voce nella PLT/GOT, demandando al linker dinamico (ld-linux.so) il compito di risolverla a runtime agganciando l'indirizzo reale.
 
 
-## READELD E OBJDUMP
+## READELF E OBJDUMP
 
 Readelf e objdump sono due analizzatori binari appartenenti alla suite GNU Binutils, ma differiscono radicalmente nel motore di parsing e nell'obiettivo d'uso. La differenza architetturale chiave risiede nella dipendenza dalla libreria BFD (Binary File Descriptor).
 
@@ -450,50 +450,37 @@ In caso di fallimento, mmap NON restituisce NULL,ma imposta una macro specifica 
 Se faccio error handling con if (ptr == NULL), il programma crasherà: c'e' bisogno rigorosamente di verificare if (ptr == MAP_FAILED).
 
 
-
-
-
-
 ## LSEEK
-A livello di kernel Linux, `lseek` non esegue alcuna operazione fisica di I/O sul disco. Si limita ad aggiornare un singolo intero: la variabile `f_pos` (file position) all'interno della `struct file` che il Virtual File System (VFS) del kernel ha associato al tuo file descriptor.
-
-La firma logica richiede tre argomenti e restituisce un valore. Ecco l'anatomia completa.
+A livello di kernel Linux, lseek non esegue alcuna operazione fisica di I/O sul disco. Si limita ad aggiornare un singolo intero: la variabile f_pos (file position) all'interno della struct file che il Virtual File System (VFS) del kernel ha associato al tuo file descriptor.
+La firma logica richiede tre argomenti e restituisce un valore.
 
 ### Gli Argomenti
+1. `fd` (file descriptor): l'intero restituito dalla chiamata a open. Deve riferirsi a un file regolare. Se provo a usare lseek su una pipe, un socket o una FIFO, il kernel restituisce un errore specifico (ESPIPE - Illegal seek), perché i flussi di dati continui non hanno il concetto matematico di "posizione".
+2. `offset` (lo spostamento): il numero di byte di cui voglio spostare il cursore. Può essere un numero positivo (spostamento in avanti), negativo (all'indietro) o zero (nessun offset rispetto al punto di riferimento). Il tipo di dato è off_t, che su architetture a 64 bit è un intero con segno a 64 bit (permette di gestire file di dimensioni nell'ordine degli exabyte).
+3. `whence` (il punto di riferimento): e' la direttiva che dice al kernel da dove iniziare a contare l'offset. Le macro ammesse sono tre:
+* `SEEK_SET`: l'offset è calcolato dall'inizio assoluto del file (byte 0).
+* `SEEK_CUR`: l'offset è calcolato a partire dalla posizione attuale in cui si trova il cursore.
+* `SEEK_END`: l'offset è calcolato a partire dall'esatta fine del file.
 
-1. **`fd` (File Descriptor):**
-L'intero restituito dalla tua chiamata a `open`. Deve riferirsi a un file regolare. Se provi a usare `lseek` su una pipe, un socket o una FIFO, il kernel ti sputa in faccia un errore specifico (`ESPIPE` - Illegal seek), perché i flussi di dati continui non hanno il concetto matematico di "posizione".
-2. **`offset` (Lo Spostamento):**
-Il numero di byte di cui vuoi spostare il cursore. Può essere un numero positivo (spostamento in avanti), negativo (all'indietro) o zero (nessun offset rispetto al punto di riferimento). Il tipo di dato è `off_t`, che su architetture a 64 bit è un intero con segno a 64 bit (permette di gestire file di dimensioni nell'ordine degli exabyte).
-3. **`whence` (Il Punto di Riferimento):**
-È la direttiva che dice al kernel da dove iniziare a contare l'offset. Le macro ammesse sono tre:
-* **`SEEK_SET`**: L'offset è calcolato dall'inizio assoluto del file (byte 0).
-* **`SEEK_CUR`**: L'offset è calcolato a partire dalla posizione *attuale* in cui si trova il cursore.
-* **`SEEK_END`**: L'offset è calcolato a partire dall'esatta fine del file.
+### Il Valore di Ritorno
 
+Se l'operazione ha successo, lseek restituisce la nuova posizione del cursore in byte, misurata dall'inizio assoluto del file (offset 0), indipendentemente dalla macro whence usata.Ecco perché usarlo con SEEK_END e un offset di 0 calcola la dimensione del file: dico al kernel di spostare il cursore alla fine esatta del file, aggiungere zero byte, e ritornarmi la distanza dal byte zero. Il numero restituito è letteralmente la size del binario in byte.
+Se l'operazione fallisce, restituisce (off_t) -1 e imposta la variabile globale errno,che,come sempre, va checkata rigorosamente.
 
-
-### Il Valore di Ritorno (Il cuore della tua casistica)
-
-Se l'operazione ha successo, `lseek` restituisce **la nuova posizione del cursore in byte, misurata dall'inizio assoluto del file (offset 0)**, indipendentemente dalla macro `whence` che hai usato.
-
-Ecco perché usarlo con `SEEK_END` e un offset di `0` calcola la dimensione del file: dici al kernel "sposta il cursore alla fine esatta del file, aggiungi zero byte, e dimmi a che distanza mi trovo dal byte zero". Il numero restituito è letteralmente la stazza del binario in byte.
-
-Se l'operazione fallisce, restituisce `(off_t) -1` e imposta la variabile globale `errno`. Come sempre, va checkato rigorosamente.
-
-### Chicca Architetturale: I "File Holes" (Sparse Files)
-
-C'è un comportamento di sistema di `lseek` che è vitale conoscere a basso livello. Cosa succede se usi `SEEK_END` e ci aggiungi un offset in avanti di, per dire, un milione di byte (scavalcando la fine fisica del file) e poi chiami `write`?
-
-Il kernel Linux non ti dà errore. Estende virtualmente il file creando un cosiddetto "buco" (hole). In termini di file system, viene creato un file "sparso" (Sparse File). Se un altro programma proverà a leggere quel milione di byte vuoti, il kernel gli restituirà un flusso di byte a zero (`\0`), ma sul disco rigido quei megabyte non verranno mai allocati fisicamente finché non ci scriverai dentro dati reali.
-
-Per il tuo packer, il flusso per rimpiazzare `fstat` sarà banalmente: apri, fai `lseek` a fine file per prenderti la dimensione in una variabile, e la passi dritta nel secondo parametro di `mmap`.
+C'è un comportamento di sistema di lseek che è vitale conoscere a basso livello. Cosa succede se uso SEEK_END e aggiungo un offset in avanti di un milione di byte (scavalcando la fine fisica del file) e poi chiamo write?
+Il kernel Linux non ti dà errore ma estende virtualmente il file creando un cosiddetto buco (hole). In termini di file system, viene creato un file sparso (Sparse File). Se un altro programma proverà a leggere quel milione di byte vuoti, il kernel gli restituirà un flusso di byte a zero (\0), ma sul disco rigido quei megabyte non verranno mai allocati fisicamente finché non ci scrivero' dentro dati reali.
 
 
-0/0 = R
-R(0) = R
-R(n) = n / 0
-R(n) * 0 --> n
-n = a * b
-R(n) = R(a) * R(b)
+# XXD
+Xxd è una utility Unix da riga di comando (distribuita insieme a vim) che legge un file o uno stream byte per byte e ne genera il dump esadecimale, oppure esegue l'operazione inversa (ricostruendo un binario da un dump hex tramite -r).Quando lo invoco con il flag -i (C include style): xxd -i stub.bin > stub.h
+legge i byte grezzi di stub.bin, converte ciascun byte nel corrispondente letterale esadecimale C (0x50, 0x57, ...) e genera direttamente un file sorgente C valido contenente due simboli:
+- un array unsigned char stub_bin[] = { ... }; con l'intera sequenza di opcode.
+- una variabile unsigned int stub_bin_len = N; con la lunghezza esatta del binario in byte.
+In un solo comando nel Makefile trasformo stub.bin in un header C pronto per #include in una singola riga, senza dover scrivere pipeline di parsing testuale (sed/awk) e senza dover ricopiare a mano gli opcode ogni volta che modifico una singola istruzione in stub.s.
+Includendo stub.h nella compilazione, i byte dello stub vengono incorporati direttamente nella sezione .data di woody_woodpacker. Il packer diventa un eseguibile unico e autonomo,senza alcuna dipendenza a runtime, che posso lanciare da qualsiasi directory senza dover cercare un file stub.bin esterno sul disco.
 
+Possibili alternative all'uso di Xxd:
+- utility POSIX garantite (hexdump o od): presenti su qualsiasi distribuzione Linux minimalista anche in assenza del pacchetto vim/xxd. Estraendo i byte con hexdump -v -e '16/1 "0x%02x, " "\n"' stub.bin (o od -An -tx1 -v stub.bin) ottengo la lista esadecimale, a cui devo però aggiungere manualmente l'intestazione e la chiusura dell'array C.
+- lettura a runtime in C (open + lseek + read): invece di generare stub.h, potevo lasciare stub.bin su disco e caricarlo in un buffer dal codice C usando le syscall già autorizzate per la mandatory. Elimina la necessità di tool di conversione, ma obbliga stub.bin a trovarsi sempre nel percorso atteso quando eseguo il packer.   
+- copia manuale tramite objdump: assemblo temporaneamente con nasm -f elf64 stub.s -o stub.o e leggo gli opcode esadecimali con objdump -d -M intel stub.o, trascrivendoli a mano in un array C. Utile per ispezionare l'allineamento delle istruzioni durante il debug, ma soggetto a errori di trascrizione se lo stub cambia spesso.
+- embedding diretto via linker o C23 (ld -r -b binary / #embed): ld permette di convertire un file binario grezzo in un file oggetto .o linkabile direttamente con gcc esponendo i simboli _binary_stub_bin_start e _binary_stub_bin_end, mentre lo standard C23 introduce la direttiva #embed "stub.bin" per includere byte grezzi in un array senza tool esterni.
