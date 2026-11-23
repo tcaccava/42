@@ -27,11 +27,11 @@ _start:
 
     ; salto all' OEP(ninja jump)
     ; carico il placeholder a 64 bit per l'oep,sara' poi il packer C a cercare e sostituire questi bytes
-    lea rax, [rel _start]    ; indirizzo reale di _start (base + stub vaddr)
-    mov r11, 0xAAAAAAAAAAAAAAAA ; placeholder int64_t(OEP - stub_vaddr)
-    add rax, r11               ; rax = base + oep
-    ;OEP e' l'entry point originale che trovo in header->e_entry dell'elf originale
-    ;stub_vaddr e' l'indirizzo virtuale a cui incollo lo stub: essendo il PT_LOAD RX dell'elf localizzato
+    lea rax, [rel _start]    ; indirizzo reale di _start (base + stub vaddr),cioe' l'indirizzo reale a runtime in cui il kernel ha mappato l'inizio dello stub: in sostanza l'entry point dello stub
+    mov r11, 0xAAAAAAAAAAAAAAAA ; placeholder int64_t(OEP originale - stub_vaddr),cioe' il delta tra oep originale e oep modificato
+    add rax, r11                ; rax = (base + stub_vaddr) + (oep_originale -stub_vaddr),cioe rax = base + OEP_originale,cioe' basicamente il vaddr a runtime della prima istruzione del programma originale
+    ; OEP e' l'entry point originale che trovo in header->e_entry dell'elf originale
+    ; stub_vaddr e' l'indirizzo virtuale a cui incollo lo stub: essendo il PT_LOAD RX dell'elf localizzato
     ; all'indirizzo p_vaddr e lungo p_filesz,lo stub verra' incollato subito dopo,cioe' stub_vaddr = p_vaddr + p_filesz
     ; dal momento che i compilatori moderni creano binari PIE di tipo ET_DYN,l'indirizzo base sara' il vaddr casuale a cui il
     ; kernel carichera' il binario ogni volta che lancio il programma,sommandolo a tutti gli indirizzi scritti nell'header elf
