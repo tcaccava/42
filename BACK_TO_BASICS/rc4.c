@@ -38,9 +38,12 @@ void rc4_ksa(unsigned char *S, const unsigned char *key, int key_len)
     {
         j = (j + S[i] + key[i % key_len]) % 256;
         // swap bitwise
-        S[i] ^= S[j];
-        S[j] ^= S[i];
-        S[i] ^= S[j];
+        if (S[i] != S[j])
+        {
+            S[i] ^= S[j];
+            S[j] ^= S[i];
+            S[i] ^= S[j];
+        }
     }
 }
 
@@ -55,9 +58,12 @@ void rc4_prga_xor(unsigned char *S, const unsigned char *data, unsigned char *ou
         j = (j + S[i]) % 256;
 
         // swap dello stato
-        S[i] ^= S[j];
-        S[j] ^= S[i];
-        S[i] ^= S[j];
+        if (S[i] != S[j])
+        {
+            S[i] ^= S[j];
+            S[j] ^= S[i];
+            S[i] ^= S[j];
+        }
 
         // generazione indice e byte di keystream
         t = (S[i] + S[j]) % 256;

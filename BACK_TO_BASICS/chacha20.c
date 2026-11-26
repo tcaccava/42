@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "./rol32.c"
 // ChaCha20 e' un algoritmo di crittografia moderna "leggera" ultra-sicura, progettato da Daniel J. Bernstein (djb), è l'evoluzione di Salsa20
 // ed è diventato lo standard *de facto* dove AES risulta troppo pesante o rischioso (specialmente su dispositivi mobili o processori senza accelerazione hardware AES-NI).
 // ChaCha20 appartiene alla famiglia dei cifrari ARX, un acronimo che definisce l'intero arsenale matematico impiegato:
@@ -35,15 +34,92 @@
 // TLS 1.3, Google ha spinto ChaCha20-Poly1305 (la combinazione tra ChaCha20 e l'autenticatore Poly1305) per proteggere il traffico mobile, e
 // QUIC, il protocollo di Google (su cui viaggia YouTube/HTTP3)per la sua bassa latenza computazionale.
 
-void ft_chacha20_quarter_round(unsigned int *a, unsigned int *b, unsigned int *c, unsigned int *d)
-{
-    *a = *a + *b;
-    *d = rol32(*d ^ *a, 16);
-    *c = *c + *d;
-    *b = rol32((*b ^ *c), 12);
+#include <stdint.h>
+#include <stddef.h>
 
-    *a = *a + *b;
-    *d = rol32(*d ^ *a, 8);
-    *c = *c + *d;
-    *b = rol32((*b ^ *c), 7);
+static uint32_t	rol32(uint32_t x, uint32_t n)
+{
+	(x << (n & 31)) | (x >> (-n & 31))
+}
+
+static void	ft_chacha20_quarter_round(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
+{
+	*a += *b;
+	*d = rol32(*d ^ *a, 16);
+	*c += *d;
+	*b = rol32(*b ^ *c, 12);
+	*a += *b;
+	*d = rol32(*d ^ *a, 8);
+	*c += *d;
+	*b = rol32(*b ^ *c, 7);
+}
+
+static void	ft_chacha20_block(uint32_t out[16], const uint32_t state[16])
+{
+	int	i;
+
+	i = 0;
+	while (i < 16)
+	{
+		out[i] = state[i];
+		i++;
+	}
+	i = 0;
+	while (i < 10)
+	{
+		// 4 colonne
+		ft_chacha20_quarter_round(&out[0], &out[4], &out[8], &out[12]);
+		ft_chacha20_quarter_round(&out[1], &out[5], &out[9], &out[13]);
+		ft_chacha20_quarter_round(&out[2], &out[6], &out[10], &out[14]);
+		ft_chacha20_quarter_round(&out[3], &out[7], &out[11], &out[15]);
+		// 4 diagonali
+		ft_chacha20_quarter_round(&out[0], &out[5], &out[10], &out[15]);
+		ft_chacha20_quarter_round(&out[1], &out[6], &out[11], &out[12]);
+		ft_chacha20_quarter_round(&out[2], &out[7], &out[8], &out[13]);
+		ft_chacha20_quarter_round(&out[3], &out[4], &out[9], &out[14]);
+		i++;
+	}
+	i = 0;
+	while (i < 16)
+	{
+		out[i] += state[i];
+		i++;
+	}
+}
+
+void	ft_chacha20_xor(uint8_t *buf, size_t len, const uint8_t key[32], const uint8_t nonce[12])
+{
+	uint32_t	state[16];
+	uint32_t	keystream[16];
+	uint8_t		*ks_bytes;
+	size_t		offset;
+	size_t		chunk;
+	size_t		i;
+
+	// "expand 32-byte k" in little-endian
+	state[0] = 0x61707865;
+	state[1] = 0x3320646e;
+	state[2] = 0x79622d32;
+	state[3] = 0x6b206574;
+	ft_memcpy(&state[4], key, 32);
+	state[12] = 0;
+	ft_memcpy(&state[13], nonce, 12);
+
+	ks_bytes = (uint8_t *)keystream;
+	offset = 0;
+	while (offset < len)
+	{
+		ft_chacha20_block(keystream, state);
+		chunk = len - offset;
+		if (chunk > 64)
+			chunk = 64;
+		i = 0;
+		while (i < chunk)
+		{
+			buf[offset + i] ^= ks_bytes[i];
+			i++;
+		}
+		state[12]++;
+		offset += 64;
+	}
 }
